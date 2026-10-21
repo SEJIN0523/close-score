@@ -107,13 +107,24 @@ code { background: var(--surface-2); padding: 1px 6px; border-radius: 5px; font-
 .todo-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 .todo-h b { font-size: 16px; }
 .todo-when { font-size: 12.5px; color: var(--ink-2); margin: 0 0 8px; }
-.ti { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 10px; align-items: center; padding: 11px 0; border-top: 1px solid var(--line); }
+.ti { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 10px; align-items: center; padding: 11px 0; border-top: 1px solid var(--line); }
 .ti:first-of-type { border-top: 0; }
 .ti .kind { font-size: 12px; font-weight: 800; padding: 4px 8px; border-radius: 8px; white-space: nowrap; }
 .kind.sell { background: color-mix(in srgb, var(--lt-r) 16%, transparent); color: var(--lt-r); }
 .kind.trim { background: color-mix(in srgb, var(--lt-y) 22%, transparent); color: var(--ink); }
 .kind.buy, .kind.add { background: color-mix(in srgb, var(--lt-g) 18%, transparent); color: var(--brand-ink); }
 .ti .what b { font-size: 15px; }
+.grp { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 13px; margin: 12px 0 2px; color: var(--ink-2); }
+.grp + .ti { border-top: 0; }
+.nmc { border: 0; background: none; padding: 0; font: 700 16px/1.3 inherit; color: var(--ink); text-align: left; text-decoration: underline dotted var(--muted); text-underline-offset: 3px; }
+.tg { display: inline-block; font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 6px; vertical-align: 2px; background: var(--surface-2); color: var(--ink-2); }
+.tg.sell { background: color-mix(in srgb, var(--lt-r) 16%, transparent); color: var(--lt-r); }
+.tg.trim { background: color-mix(in srgb, var(--lt-y) 24%, transparent); color: var(--ink); }
+.tg.add, .tg.buy { background: color-mix(in srgb, var(--lt-g) 18%, transparent); color: var(--brand-ink); }
+.ti .qty { text-align: right; white-space: nowrap; }
+.ti .qty b { font-size: 16px; font-variant-numeric: tabular-nums; }
+.ti .qty small { display: block; color: var(--muted); font-size: 12px; }
+.btn.rec { min-height: 34px; padding: 4px 10px; }
 .ti .what small { display: block; color: var(--muted); font-size: 12px; }
 .ti.done { opacity: .55; }
 .empty { padding: 14px 0 4px; color: var(--ink-2); font-size: 14px; }
@@ -750,8 +761,8 @@ function buildTodo(snap, execDate) {
   // 현금·보유 기록이 하나도 없으면 예시 1억으로 계획을 보여준다
   let cash = E.example ? E.capital : CFG.cash - dayLogs.reduce((s2, l) => s2 + cashEffect(l), 0);
   const held = Object.entries(HP).map(([k, p]) => { const rr = snapRow(k, snap); return { k, p, rr, m: SCORE.manage(rr, rkBand(rr.rk), p, E, /^d{4}-/.test(execDate || '') ? execDate : META.asOf) }; });
-  held.filter(o => o.m.sellQty).forEach(o => { items.push({ kind: o.m.k === 'trim' ? 'trim' : 'sell', code: o.k, side: 'sell', qty: o.m.sellQty, price: o.rr.p, why: { stop: '손절가 아래로 마감', sell: '순위 하위 30%', trim: '순위 상위 40% 밖' }[o.m.k] }); cash += o.m.sellQty * o.rr.p; });
-  held.filter(o => o.m.buyQty).forEach(o => { const n2 = Math.min(o.m.buyQty, Math.floor(cash / o.rr.p)); if (n2 > 0) { items.push({ kind: 'add', code: o.k, side: 'buy', qty: n2, price: o.rr.p, why: '분할 매수 다음 몫 (아직 상위 20%)' }); cash -= n2 * o.rr.p; } });
+  held.filter(o => o.m.sellQty).forEach(o => { items.push({ kind: o.m.k === 'trim' ? 'trim' : 'sell', code: o.k, side: 'sell', qty: o.m.sellQty, price: o.rr.p, why: { stop: '손절가 아래 마감', sell: '순위 하위 30%', trim: '순위 40% 밖' }[o.m.k] }); cash += o.m.sellQty * o.rr.p; });
+  held.filter(o => o.m.buyQty).forEach(o => { const n2 = Math.min(o.m.buyQty, Math.floor(cash / o.rr.p)); if (n2 > 0) { items.push({ kind: 'add', code: o.k, side: 'buy', qty: n2, price: o.rr.p, why: '분할 매수 다음 몫' }); cash -= n2 * o.rr.p; } });
   const leaving = held.filter(o => o.m.k === 'stop' || o.m.k === 'sell').length, free = CFG.slots - held.length + leaving;
   const recs = (snap === 'cur' ? META.recs : snap.recs) || [];
   let nb = 0;
@@ -759,7 +770,7 @@ function buildTodo(snap, execDate) {
     if (nb >= free || HP[k] || !BY[k]) continue;
     const rr = snapRow(k, snap); if (rr.ch <= -0.08 || rkBand(rr.rk) > 1) continue;
     const amt = Math.min(slot / 3, cash), n2 = Math.floor(amt / rr.p); if (amt < slot / 6) break; if (n2 <= 0) continue; // 1/3 몫으로 1주도 못 사는 비싼 종목은 건너뜀
-    items.push({ kind: 'buy', code: k, side: 'buy', qty: n2, price: rr.p, why: `상위 ${rr.rk < 1 ? rr.rk.toFixed(1) : Math.round(rr.rk)}% 추천 · 1/3 먼저` }); cash -= n2 * rr.p; nb++;
+    items.push({ kind: 'buy', code: k, side: 'buy', qty: n2, price: rr.p, why: `상위 ${rr.rk < 1 ? rr.rk.toFixed(1) : Math.round(rr.rk)}% · 1/3 먼저` }); cash -= n2 * rr.p; nb++;
   }
   if (E.example) notes.push('<b>예시 1억 기준</b>입니다. 보유 탭에서 입금(투자원금)과 매매를 기록하면 내 자산 기준으로 바뀝니다.');
   if (!E.example && nb === 0 && free > 0 && recs.some(k => !HP[k] && BY[k]) && cash < slot * 0.5) notes.push(`신규 매수 후보가 있지만 현금(${won(Math.max(0, cash))}원)이 한 종목 몫의 절반(${won(slot / 2)}원)보다 적어 넣지 않았습니다.`);
@@ -769,17 +780,24 @@ function buildTodo(snap, execDate) {
 }
 function todoCard(title, when, badge, res, execDate, actionable) {
   const done = it => LOG.some(l => l.code === it.code && l.side === it.side && l.date === execDate);
-  const order = { sell: 0, trim: 1, add: 2, buy: 3 }, label = { sell: '전량 매도', trim: '절반 매도', add: '추가 매수', buy: '신규 매수 1/3' };
-  const its = res.items.slice().sort((a, b) => order[a.kind] - order[b.kind]);
+  const tag = { sell: '전량', trim: '절반', add: '추가', buy: '1/3' };
+  const man = v => v >= 1e4 ? `${Math.round(v / 1e4).toLocaleString()}만원` : `${won(v)}원`;
+  const row = it => { const r = BY[it.code], d = done(it);
+    return `<div class="ti${d ? ' done' : ''}">
+      <div class="what"><button type="button" class="nmc" data-copy="${it.code}" aria-label="${r.n} 종목코드 ${it.code} 복사">${r.n}</button> <span class="tg ${it.kind}">${tag[it.kind]}</span><small>${it.why}</small></div>
+      <div class="qty"><b>${it.qty.toLocaleString()}주</b><small>약 ${man(it.qty * it.price)}</small></div>
+      ${d ? '<span class="badge done">✓ 기록</span>' : actionable ? `<button type="button" class="btn sm rec" data-fill='${JSON.stringify({ code: it.code, side: it.side, qty: it.qty, date: execDate })}'>기록</button>` : '<span></span>'}
+    </div>`; };
+  const sells = res.items.filter(it => it.side === 'sell').sort((a, b) => (a.kind === 'sell' ? 0 : 1) - (b.kind === 'sell' ? 0 : 1));
+  const buys = res.items.filter(it => it.side === 'buy').sort((a, b) => (a.kind === 'add' ? 0 : 1) - (b.kind === 'add' ? 0 : 1));
+  const grp = (nm, col, list) => list.length ? `<div class="grp"><span class="dot" style="background:${col}"></span>${nm} <span class="covtag">${list.length}건</span></div>${list.map(row).join('')}` : '';
   return `<div class="todo-h"><b>${title}</b>${badge}</div><p class="todo-when">${when}</p>`
-    + (its.length ? its.map(it => { const r = BY[it.code], d = done(it); return `<div class="ti${d ? ' done' : ''}">
-        <span class="kind ${it.kind}">${label[it.kind]}</span>
-        <div class="what"><b>${r.n}</b> ${it.qty.toLocaleString()}주<small>약 ${won(it.qty * it.price)}원 (${won(it.price)}원 기준) · ${it.why}</small></div>
-        ${d ? '<span class="badge done">✓ 기록함</span>' : actionable ? `<button type="button" class="btn sm" data-fill='${JSON.stringify({ code: it.code, side: it.side, qty: it.qty, date: execDate })}'>체결 기록</button>` : '<span></span>'}
-      </div>`; }).join('') : `<p class="empty">${Object.keys(POS).length ? '할 일이 없습니다. 그대로 보유하세요. ' : '할 일이 없습니다.'}</p>`)
-    + (its.length ? `<div class="cashline">순서: 매도 → 추가 매수 → 신규 매수(한 종목 몫의 1/3씩, 5·10거래일 뒤에도 상위 20%면 나머지). 끝나면 현금 약 <b>${won(res.cash)}원</b>. 매수는 지금 있는 현금 안에서만 주문하고, 모자라면 매도가 체결된 다음 거래일에 사세요.</div>` : '')
+    + (res.items.length ? grp('팔기', 'var(--lt-r)', sells) + grp('사기', 'var(--lt-g)', buys)
+      : `<p class="empty">할 일이 없습니다.${nStocksSafe() ? ' 그대로 보유하세요.' : ''}</p>`)
+    + (res.items.length ? `<div class="cashline">팔기 먼저, 사기는 그다음 · 끝나면 현금 약 <b>${man(Math.max(0, res.cash))}</b></div>` : '')
     + (res.notes.length ? `<ul class="notes">${res.notes.map(n2 => `<li>${n2}</li>`).join('')}</ul>` : '');
 }
+const nStocksSafe = () => Object.keys(POS).length;
 function renderTodo() {
   const now = kstToday(), hm = new Date(Date.now() + 9 * 3600e3).toISOString().slice(11, 16), ps = META.prevSnap;
   let A, B;
