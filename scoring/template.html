@@ -714,7 +714,8 @@ function buildTodo(snap, execDate) {
   const items = [], notes = [], E = eff(), slot = E.capital / CFG.slots;
   const dayLogs = /^\d{4}-/.test(execDate || '') ? LOG.filter(l => l.date >= execDate) : [];
   const HP = dayLogs.length ? calcPos(LOG.filter(l => l.date < execDate)).POS : POS;
-  let cash = CFG.cash - (CFG.autoCash ? dayLogs.reduce((s2, l) => s2 + cashEffect(l), 0) : 0);
+  // 현금·보유 기록이 하나도 없으면 예시 1억으로 계획을 보여준다
+  let cash = E.example ? E.capital : CFG.cash - dayLogs.reduce((s2, l) => s2 + cashEffect(l), 0);
   const held = Object.entries(HP).map(([k, p]) => { const rr = snapRow(k, snap); return { k, p, rr, m: SCORE.manage(rr, rkBand(rr.rk), p, E, execDate) }; });
   held.filter(o => o.m.sellQty).forEach(o => { items.push({ kind: o.m.k === 'trim' ? 'trim' : 'sell', code: o.k, side: 'sell', qty: o.m.sellQty, price: o.rr.p, why: { stop: '손절가 아래로 마감', sell: '순위 하위 30%', trim: '순위 상위 40% 밖' }[o.m.k] }); cash += o.m.sellQty * o.rr.p; });
   held.filter(o => o.m.buyQty).forEach(o => { const n2 = Math.min(o.m.buyQty, Math.floor(cash / o.rr.p)); if (n2 > 0) { items.push({ kind: 'add', code: o.k, side: 'buy', qty: n2, price: o.rr.p, why: '상위 20%인데 비중이 작음' }); cash -= n2 * o.rr.p; } });
@@ -727,9 +728,9 @@ function buildTodo(snap, execDate) {
     const amt = Math.min(slot, cash), n2 = Math.floor(amt / rr.p); if (n2 <= 0 || amt < slot * 0.5) break;
     items.push({ kind: 'buy', code: k, side: 'buy', qty: n2, price: rr.p, why: `상위 ${rr.rk < 1 ? rr.rk.toFixed(1) : Math.round(rr.rk)}% 추천` }); cash -= n2 * rr.p; nb++;
   }
-  if (E.example) notes.push('보유 탭에서 현금과 매매 기록을 넣으면 내 자산 기준으로 계산합니다. 지금은 예시 1억 기준입니다.');
+  if (E.example) notes.push('<b>예시 1억 기준</b>입니다. 보유 탭에서 입금(투자원금)과 매매를 기록하면 내 자산 기준으로 바뀝니다.');
+  if (!E.example && nb === 0 && free > 0 && recs.some(k => !HP[k] && BY[k]) && cash < slot * 0.5) notes.push(`신규 매수 후보가 있지만 현금(${won(Math.max(0, cash))}원)이 한 종목 몫의 절반(${won(slot / 2)}원)보다 적어 넣지 않았습니다.`);
   if (CFG.cash < 0) notes.push('현금이 마이너스입니다. 보유 탭에서 실제 계좌 금액으로 고쳐 주세요.');
-  if (!E.example && nb === 0 && free > 0 && cash < slot * 0.5) notes.push(`빈 자리가 ${free}개지만 현금이 한 종목 몫(${won(slot)}원)의 절반도 안 됩니다.`);
   if (!E.example && free - nb > 0 && cash >= slot * 0.5) notes.push(`빈 자리 ${free - nb}개, 남는 현금 약 ${won(cash)}원. 매수 구간 추천이 생기면 채우고 그전엔 MMF·CMA에 둡니다.`);
   return { items, notes, cash };
 }
@@ -742,7 +743,7 @@ function todoCard(title, when, badge, res, execDate, actionable) {
         <span class="kind ${it.kind}">${label[it.kind]}</span>
         <div class="what"><b>${r.n}</b> ${it.qty.toLocaleString()}주<small>약 ${won(it.qty * it.price)}원 (${won(it.price)}원 기준) · ${it.why}</small></div>
         ${d ? '<span class="badge done">✓ 기록함</span>' : actionable ? `<button type="button" class="btn sm" data-fill='${JSON.stringify({ code: it.code, side: it.side, qty: it.qty, date: execDate })}'>체결 기록</button>` : '<span></span>'}
-      </div>`; }).join('') : '<p class="empty">할 일이 없습니다. 그대로 보유하세요. 🙂</p>')
+      </div>`; }).join('') : `<p class="empty">${Object.keys(POS).length ? '할 일이 없습니다. 그대로 보유하세요. 🙂' : '할 일이 없습니다.'}</p>`)
     + (its.length ? `<div class="cashline">순서: 매도 → 추가 매수 → 신규 매수. 끝나면 현금 약 <b>${won(res.cash)}원</b>. 매수는 지금 있는 현금 안에서만 주문하고, 모자라면 매도가 체결된 다음 거래일에 사세요.</div>` : '')
     + (res.notes.length ? `<ul class="notes">${res.notes.map(n2 => `<li>${n2}</li>`).join('')}</ul>` : '');
 }
