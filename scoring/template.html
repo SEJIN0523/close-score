@@ -92,6 +92,7 @@ code { background: var(--surface-2); padding: 1px 6px; border-radius: 5px; font-
 .ti .kind { font-size: 12px; font-weight: 800; padding: 4px 8px; border-radius: 8px; white-space: nowrap; }
 .kind.sell { background: color-mix(in srgb, var(--lt-r) 16%, transparent); color: var(--lt-r); }
 .kind.trim { background: color-mix(in srgb, var(--lt-y) 22%, transparent); color: var(--ink); }
+.kind.etfbuy, .kind.etfsell { background: color-mix(in srgb, var(--c1) 15%, transparent); color: var(--c1); }
 .kind.buy, .kind.add { background: color-mix(in srgb, var(--lt-g) 18%, transparent); color: var(--brand-ink); }
 .ti .what b { font-size: 15px; }
 .ti .what small { display: block; color: var(--muted); font-size: 12px; }
@@ -231,6 +232,7 @@ dialog a { color: var(--brand-ink); }
       <div class="form" style="margin-top:12px">
         <label class="full">실제 계좌 예수금으로 맞추기(원)<input id="cfgCash" type="text" inputmode="numeric" placeholder="증권 앱의 예수금을 넣으면 차액을 '조정'으로 기록"></label>
         <label>목표 종목 수<input id="cfgSlots" type="number" inputmode="numeric" min="3" max="30"></label>
+        <label>남는 현금<select id="cfgPark"><option value="1">전부 코스피200 ETF</option><option value="0.5">절반만 ETF</option><option value="0">현금(MMF)으로</option></select></label>
       </div>
       <div class="scroll-x" style="margin-top:10px"><table class="mini-tbl" id="cashTbl"></table></div>
     </details>
@@ -289,15 +291,15 @@ dialog a { color: var(--brand-ink); }
       <div class="scroll-x"><table class="mini-tbl">
         <thead><tr><th>시작</th><th class="num">새 식</th><th class="num">이전 식</th><th class="num">코스피 지수</th></tr></thead>
         <tbody>
-          <tr><td>2023.4</td><td class="num"><b>+254.4%</b></td><td class="num">+112.8%</td><td class="num">+130.4%</td></tr>
-          <tr><td>2023.10</td><td class="num"><b>+297.5%</b></td><td class="num">+124.3%</td><td class="num">+153.0%</td></tr>
-          <tr><td>2024.4</td><td class="num"><b>+164.9%</b></td><td class="num">+72.5%</td><td class="num">+114.1%</td></tr>
-          <tr><td>2024.10</td><td class="num">+87.8%</td><td class="num">+77.7%</td><td class="num"><b>+125.4%</b></td></tr>
-          <tr><td>2025.4</td><td class="num">+88.5%</td><td class="num">+33.7%</td><td class="num"><b>+125.4%</b></td></tr>
-          <tr><td>평균 · 최대 낙폭 평균</td><td class="num"><b>+178.6% · −38.1%</b></td><td class="num">+84.2% · −30.1%</td><td class="num">+129.7% · −39.1%</td></tr>
+          <tr><td>2023.4</td><td class="num"><b>+308.9%</b></td><td class="num">+112.8%</td><td class="num">+130.4%</td></tr>
+          <tr><td>2023.10</td><td class="num"><b>+318.9%</b></td><td class="num">+124.3%</td><td class="num">+153.0%</td></tr>
+          <tr><td>2024.4</td><td class="num"><b>+200.3%</b></td><td class="num">+72.5%</td><td class="num">+114.1%</td></tr>
+          <tr><td>2024.10</td><td class="num">+95.8%</td><td class="num">+77.7%</td><td class="num"><b>+125.4%</b></td></tr>
+          <tr><td>2025.4</td><td class="num">+99.6%</td><td class="num">+33.7%</td><td class="num"><b>+125.4%</b></td></tr>
+          <tr><td>평균 · 최대 낙폭 평균</td><td class="num"><b>+204.7% · −40.5%</b></td><td class="num">+84.2% · −30.1%</td><td class="num">+129.7% · −39.1%</td></tr>
         </tbody>
       </table></div>
-      <p class="note">새 식(1/3씩 분할 매수)은 5번 모두 이전 식보다 나았고, 코스피 지수는 5번 중 3번 이겼습니다. 대신 최대 낙폭이 −38%로 깊습니다. 신호는 장 마감 종가로 판단하고 다음 거래일 장 마감 동시호가(종가)에 사고팔았다고 가정했습니다. 매수 비용 0.1%, 매도 비용 0.25%, 현금 이자 연 3%.</p>
+      <p class="note">새 식(1/3씩 분할 매수, 남는 현금은 코스피200 ETF)은 5번 모두 이전 식보다 나았고, 코스피 지수는 5번 중 3번 이겼습니다. 대신 최대 낙폭이 −40% 안팎으로 깊습니다. 신호는 장 마감 종가로 판단하고 다음 거래일 장 마감 동시호가(종가)에 사고팔았다고 가정했습니다. 매수 비용 0.1%, 매도 비용 0.25%, 현금 이자 연 3%.</p>
       <details style="margin-top:8px"><summary class="covtag">지금 가상 계좌 종목 · 매매 사유 · 최근 매매 25건</summary>
         <div class="scroll-x"><table class="mini-tbl" id="simHold"></table></div>
         <div class="scroll-x" style="margin-top:8px"><table class="mini-tbl" id="simWhy"></table></div>
@@ -368,13 +370,16 @@ dialog a { color: var(--brand-ink); }
     </div>
 
     <div class="box">
-      <h2>나눠 사고 나눠 팔기 (새 식, 시작 시점 5번 평균)</h2>
+      <h2>나눠 사기 · 남는 현금 (새 식, 시작 시점 5번 평균)</h2>
       <div class="scroll-x"><table class="mini-tbl">
         <thead><tr><th>방식</th><th class="num">평균 수익률</th><th class="num">평균 낙폭</th><th>판정</th></tr></thead>
         <tbody>
           <tr><td><b>분할 매수: 1/3씩 3번 (0·5·10거래일, 그때도 상위 20%일 때만)</b></td><td class="num"><b>+178.6%</b></td><td class="num"><b>−38.1%</b></td><td>채택 (5번 중 4번 수익↑, 5번 모두 낙폭↓)</td></tr>
           <tr><td>한 번에 매수</td><td class="num">+162.6%</td><td class="num">−43.9%</td><td>이전 규칙</td></tr>
           <tr><td>분할 매수: 절반 → 5거래일 뒤 절반</td><td class="num">+160.9%</td><td class="num">−38.8%</td><td>낙폭↓, 수익 비슷</td></tr>
+          <tr><td><b>남는 현금 → 코스피200 ETF 전부</b> (위 분할 매수와 함께)</td><td class="num"><b>+204.7%</b></td><td class="num">−40.5%</td><td>채택 (5번 모두 수익↑)</td></tr>
+          <tr><td>남는 현금 → 절반만 ETF</td><td class="num">+192.9%</td><td class="num">−38.4%</td><td>낙폭을 줄이고 싶을 때 (설정에서 선택)</td></tr>
+          <tr><td>남는 현금 → MMF 연 3%</td><td class="num">+178.6%</td><td class="num">−38.1%</td><td>이전 방식</td></tr>
           <tr><td>분할 매도: 손절 때 절반 → 다음 날도 아래면 나머지</td><td class="num">+153.2%</td><td class="num">−41.8%</td><td>더 나쁨 → 손절은 한 번에</td></tr>
         </tbody>
       </table></div>
@@ -502,11 +507,11 @@ function detail(r, x) {
 // 최근 1년 주간 종가 + 목표가·손절가·52주 고저·매수가 가로선 (터치·마우스 모두)
 function drawChart(box) {
   const r = BY[box.dataset.chart]; if (!r || !r.wc || r.wc.length < 2) { box.innerHTML = '<p class="cap">그래프 데이터가 없습니다.</p>'; return; }
-  const P = POS[r.k], x = evalRow(r, null), M2 = P ? SCORE.manage(r, x.b, P, eff(), META.asOf) : null;
+  const P = POS[r.k], x = evalRow(r, null), M2 = P ? mgr(r, x.b, P, eff(), META.asOf) : null;
   const dates = r.wd.split(','), ys = r.wc.slice(), n = ys.length;
   ys[n - 1] = r.p;
   const lv = [];
-  if (P) { lv.push(['🛑 손절', M2.stop, 'var(--bad)', '']); lv.push(['매수가', P.avg, 'var(--warn)', '']); lv.push(['목표', M2.ref, 'var(--good)', '2 5']); }
+  if (P && r.k !== PARK) { lv.push(['🛑 손절', M2.stop, 'var(--bad)', '']); lv.push(['매수가', P.avg, 'var(--warn)', '']); lv.push(['목표', M2.ref, 'var(--good)', '2 5']); }
   else if (x.pl) { lv.push(['🎯 목표', x.pl.target, 'var(--good)', '']); lv.push(['🛑 손절', x.pl.stop, 'var(--bad)', '']); }
   lv.push(['고점', r.hi, 'var(--muted)', '2 3']); lv.push(['저점', r.lo, 'var(--muted)', '2 3']);
   const W = Math.max(280, box.clientWidth), H = 210, m = { l: 4, r: 92, t: 10, b: 22 };
@@ -560,13 +565,13 @@ function keyword(r) {
   return c.length ? c[0][1] : (jo >= 1 ? `시총 ${jo.toFixed(1)}조` : `시총 ${won(r.mc)}억`);
 }
 function renderRec() {
-  const recs = META.recs.map(k => BY[k]).map(r => ({ r, x: evalRow(r, null) })), slot = eff().capital / CFG.slots, free = CFG.slots - Object.keys(POS).length;
+  const recs = META.recs.map(k => BY[k]).map(r => ({ r, x: evalRow(r, null) })), slot = eff().capital / CFG.slots, free = CFG.slots - nStocks(POS);
   recs.forEach(({ r, x }) => { if (['strong', 'buy', 'probe'].includes(x.dec.k)) { const share = x.dec.k === 'probe' ? 0.4 : 1, nq = Math.floor(slot * share / 3 / r.p);
     x.dec.act += POS[r.k] ? '<br>📌 이미 보유 중' : `<br>🛒 한 종목 몫 ${won(slot * share)}원${eff().example ? '(예시 1억)' : ''}을 1/3씩 3번 → 먼저 <b>${nq.toLocaleString()}주</b>, 5·10거래일 뒤에도 상위 20%면 같은 만큼 더${free <= 0 ? ' · 빈 자리 없음' : ''}`; } });
   const cnt = ks => recs.filter(o => ks.includes(o.x.dec.k)).length;
   document.getElementById('sum').innerHTML = [
     [cnt(['strong']), '적극 매수 (상위 5%)', 'var(--good)'], [cnt(['buy']), '매수 (상위 5~20%)', 'var(--good)'],
-    [META.base.toLocaleString(), '순위 매긴 종목', 'var(--neutral)'], [Math.max(0, CFG.slots - Object.keys(POS).length) + ' / ' + CFG.slots, '빈 자리', 'var(--star)'],
+    [META.base.toLocaleString(), '순위 매긴 종목', 'var(--neutral)'], [Math.max(0, CFG.slots - nStocks(POS)) + ' / ' + CFG.slots, '빈 자리', 'var(--star)'],
   ].map(([n, t, c]) => `<div><b>${n}</b><span class="sig" style="font-weight:400"><span class="dot" style="background:${c}"></span>${t}</span></div>`).join('');
   const prev = META.prevRecs ? new Set(META.prevRecs) : null;
   document.getElementById('recDesc').innerHTML = `${META.asOf} ${META.final ? '종가' : '장중'} 기준 전 종목 ${META.base.toLocaleString()}개 중 상위 20% 안에서 점수 순 ${recs.length}개 (한 업종 최대 3개). 카드를 누르면 그래프와 기대수익이 나옵니다.`;
@@ -598,7 +603,7 @@ function findCode(q) {
 
 // ───── 보유: 매매 기록 → 보유 계산 → 매일 점검 ─────
 const LKEY = 'close-score-log', CKEY = 'close-score-cfg', TKEY = 'close-score-track', EKEY = 'close-score-equity';
-let LOG = store.get(LKEY, []).filter(x => x && BY[x.code]), CFG = { cash: 0, slots: 10, ...store.get(CKEY, {}) }, TRACK = store.get(TKEY, {}), EQ = store.get(EKEY, {});
+let LOG = store.get(LKEY, []).filter(x => x && BY[x.code]), CFG = { cash: 0, slots: 10, park: 1, ...store.get(CKEY, {}) }, TRACK = store.get(TKEY, {}), EQ = store.get(EKEY, {});
 // 입출금 장부: dep 입금, wd 출금, div 배당, adj 조정(±)
 const XKEY = 'close-score-cash', CSIGN = { dep: 1, wd: -1, div: 1, adj: 1 }, CNAME = { dep: '입금', wd: '출금', div: '배당', adj: '조정' };
 let LEDGER = store.get(XKEY, null);
@@ -638,7 +643,7 @@ function buildPos() { ({ POS, CLOSED } = calcPos(LOG)); CFG.cash = cashCalc(); }
 function track() {
   if (!META.final) return;
   for (const [k, p] of Object.entries(POS)) {
-    const r = BY[k], x = evalRow(r, null), m = SCORE.manage(r, x.b, p, eff(), META.asOf);
+    const r = BY[k], x = evalRow(r, null), m = mgr(r, x.b, p, eff(), META.asOf);
     const t = TRACK[k] && TRACK[k].firstD === p.firstD ? TRACK[k] : (TRACK[k] = { firstD: p.firstD, max: 0, hist: [] });
     t.max = Math.max(t.max, r.p);
     if (!t.hist.length || t.hist[t.hist.length - 1].d !== META.asOf) t.hist.push({ d: META.asOf, p: r.p, rk: r.rk, light: m.light, k: m.k, stop: m.stop });
@@ -649,11 +654,16 @@ function track() {
 }
 const LIGHT = { green: ['g', '초록'], yellow: ['y', '노랑'], red: ['r', '빨강'] };
 const lightHtml = l => `<span class="light" role="img" aria-label="신호등 ${LIGHT[l][1]}"><i class="${l === 'red' ? 'on r' : ''}"></i><i class="${l === 'yellow' ? 'on y' : ''}"></i><i class="${l === 'green' ? 'on g' : ''}"></i></span>`;
-const MK = { stop: '손절', sell: '매도', trim: '일부 매도', near: '손절 임박', add: '추가 매수', hold: '보유 유지' };
+const MK = { stop: '손절', sell: '매도', trim: '일부 매도', near: '손절 임박', add: '추가 매수', hold: '보유 유지', park: '현금 보관' };
+const PARK = '069500', nStocks = P => Object.keys(P).filter(k => k !== PARK).length;
+function mgr(r, b, p, E, d) {
+  if (r.k !== PARK) return SCORE.manage(r, b, p, E, d);
+  const val = p.qty * r.p; return { light: 'green', k: 'park', act: '남는 현금을 넣어 둔 <b>코스피200 ETF</b>입니다. 종목을 살 때 필요한 만큼 먼저 팔아 씁니다.', flags: [], gain: r.p / p.avg - 1, val, target: E.capital / E.slots, stop: 0, ref: 0 };
+}
 function renderHold() {
-  document.getElementById('cfgSlots').value = CFG.slots; document.getElementById('cfgCash').placeholder = `지금 장부상 현금 ${won(CFG.cash)}원 · 실제 예수금을 넣으면 차액을 조정`;
+  document.getElementById('cfgSlots').value = CFG.slots; document.getElementById('cfgPark').value = String(CFG.park); document.getElementById('cfgCash').placeholder = `지금 장부상 현금 ${won(CFG.cash)}원 · 실제 예수금을 넣으면 차액을 조정`;
   const E = eff(), slot = E.capital / CFG.slots;
-  const list = Object.entries(POS).map(([k, p]) => { const r = BY[k], x = evalRow(r, null); return { r, p, x, m: SCORE.manage(r, x.b, p, E, META.asOf) }; })
+  const list = Object.entries(POS).map(([k, p]) => { const r = BY[k], x = evalRow(r, null); return { r, p, x, m: mgr(r, x.b, p, E, META.asOf) }; })
     .sort((a, b) => ({ red: 0, yellow: 1, green: 2 })[a.m.light] - ({ red: 0, yellow: 1, green: 2 })[b.m.light]);
   const val = stockValue(), cost = list.reduce((s2, o) => s2 + o.p.avg * o.p.qty, 0), total = CFG.cash + val;
   const A = acctNums();
@@ -679,7 +689,7 @@ function renderHold() {
       <div class="px"><b>${won(r.p)}원</b><small class="${m.gain >= 0 ? 'up' : 'down'}">${pct(m.gain)} · ${won(m.val - p.avg * p.qty)}원</small></div>
       <div class="sc">${x.f ? `<b>${Math.floor(x.f.total)}</b>점 <small class="covtag">상위 ${Math.round(r.rk)}% (기록 때 ${p.rkAt != null ? Math.round(p.rkAt) + '%' : '-'})</small>` : '-'}</div>
       <div class="sg"><span class="sig">${MK[m.k]}</span></div>
-      <div class="act">${m.act}${m.flags.map(f2 => `<br><span class="warn">⚠ ${f2}</span>`).join('')}<br><span class="covtag">손절가 ${won(m.stop)}원 · 참고 목표 ${won(m.ref)}원 · 비중 ${total > 0 ? Math.round(m.val / total * 100) : 0}%</span></div>
+      <div class="act">${m.act}${m.flags.map(f2 => `<br><span class="warn">⚠ ${f2}</span>`).join('')}<br><span class="covtag">${r.k === PARK ? '점수·손절 규칙 없음 · 지수를 따라 움직임' : `손절가 ${won(m.stop)}원 · 참고 목표 ${won(m.ref)}원 · 비중 ${total > 0 ? Math.round(m.val / total * 100) : 0}%`}</span></div>
     </summary><div class="det">
       <div class="cmt">💬 ${comment(r, p, x, m, t, total)}</div>
       <div class="pchart" data-chart="${r.k}"></div>
@@ -700,6 +710,7 @@ function acctNums() {
   return { val, cost, total, prin, pnl: total - prin, unreal: val - cost, real, div, adj };
 }
 function comment(r, p, x, m, t, total) {
+  if (r.k === PARK) return '남는 현금을 코스피200 ETF로 굴리는 중입니다. 과거 검증에서 MMF(연 3%)보다 나았습니다(시작 시점 5번 평균 +178.6% → +204.7%). 종목을 새로 살 때는 필요한 만큼 이 ETF를 먼저 팔아 자금을 만듭니다. <b>→ 그대로 두세요.</b>';
   const out = [], gain = m.gain, days = Math.round((new Date(META.asOf) - new Date(p.firstD)) / 864e5), peak = p.maxP / p.avg - 1;
   if (p.rkAt != null) out.push(`기록 때 상위 ${Math.round(p.rkAt)}% → 지금 상위 ${Math.round(r.rk)}%${r.rk <= 20 ? ' (아직 매수 구간)' : r.rk <= 40 ? ' (탐색 구간으로 내려옴)' : r.rk <= 70 ? ' (보유 근거가 약해짐)' : ' (하위권, 정리 대상)'}.`);
   else out.push(`지금 순위 상위 ${Math.round(r.rk)}%.`);
@@ -728,17 +739,26 @@ function buildTodo(snap, execDate) {
   const HP = dayLogs.length ? calcPos(LOG.filter(l => l.date < execDate)).POS : POS;
   // 현금·보유 기록이 하나도 없으면 예시 1억으로 계획을 보여준다
   let cash = E.example ? E.capital : CFG.cash - dayLogs.reduce((s2, l) => s2 + cashEffect(l), 0);
-  const held = Object.entries(HP).map(([k, p]) => { const rr = snapRow(k, snap); return { k, p, rr, m: SCORE.manage(rr, rkBand(rr.rk), p, E, /^d{4}-/.test(execDate || '') ? execDate : META.asOf) }; });
+  const held = Object.entries(HP).filter(([k]) => k !== PARK).map(([k, p]) => { const rr = snapRow(k, snap); return { k, p, rr, m: mgr(rr, rkBand(rr.rk), p, E, /^\d{4}-/.test(execDate || '') ? execDate : META.asOf) }; });
   held.filter(o => o.m.sellQty).forEach(o => { items.push({ kind: o.m.k === 'trim' ? 'trim' : 'sell', code: o.k, side: 'sell', qty: o.m.sellQty, price: o.rr.p, why: { stop: '손절가 아래로 마감', sell: '순위 하위 30%', trim: '순위 상위 40% 밖' }[o.m.k] }); cash += o.m.sellQty * o.rr.p; });
   held.filter(o => o.m.buyQty).forEach(o => { const n2 = Math.min(o.m.buyQty, Math.floor(cash / o.rr.p)); if (n2 > 0) { items.push({ kind: 'add', code: o.k, side: 'buy', qty: n2, price: o.rr.p, why: '분할 매수 다음 몫 (아직 상위 20%)' }); cash -= n2 * o.rr.p; } });
   const leaving = held.filter(o => o.m.k === 'stop' || o.m.k === 'sell').length, free = CFG.slots - held.length + leaving;
   const recs = (snap === 'cur' ? META.recs : snap.recs) || [];
+  // 코스피200 ETF는 현금처럼 쓴다: 종목 매매를 먼저 계산하고 마지막에 ETF를 사거나 판다
+  const eRow = BY[PARK], ep = eRow ? (snap === 'cur' ? eRow.p : (snap.p[PARK] ?? eRow.p)) : 0, eQty = HP[PARK] ? HP[PARK].qty : 0, eVal0 = eQty * ep;
+  if (CFG.park > 0) cash += eVal0;
   let nb = 0;
   for (const k of recs) {
     if (nb >= free || HP[k] || !BY[k]) continue;
     const rr = snapRow(k, snap); if (rr.ch <= -0.08 || rkBand(rr.rk) > 1) continue;
-    const amt = Math.min(slot / 3, cash), n2 = Math.floor(amt / rr.p); if (n2 <= 0 || amt < slot / 6) break;
+    const amt = Math.min(slot / 3, cash), n2 = Math.floor(amt / rr.p); if (amt < slot / 6) break; if (n2 <= 0) continue; // 1/3 몫으로 1주도 못 사는 비싼 종목은 건너뜀
     items.push({ kind: 'buy', code: k, side: 'buy', qty: n2, price: rr.p, why: `상위 ${rr.rk < 1 ? rr.rk.toFixed(1) : Math.round(rr.rk)}% 추천 · 1/3 먼저` }); cash -= n2 * rr.p; nb++;
+  }
+  if (eRow && ep > 0) {
+    const reserve = Math.max(1e5, E.capital * 0.01), want = CFG.park > 0 ? Math.max(0, cash - reserve) * CFG.park : 0, diff = want - eVal0, thr = Math.max(5e5, E.capital * 0.02);
+    if (eQty > 0 && (diff <= -thr || cash < 0)) { const n2 = Math.min(eQty, Math.ceil(Math.max(-diff, -cash, 0) / ep)); if (n2 > 0) { items.push({ kind: 'etfsell', code: PARK, side: 'sell', qty: n2, price: ep, why: cash < eVal0 ? '종목 매수 자금 (15:20 전 장중에 먼저 팔기)' : '현금 비중 맞추기' }); } }
+    else if (diff >= thr) { const n2 = Math.floor(diff / ep); if (n2 > 0) items.push({ kind: 'etfbuy', code: PARK, side: 'buy', qty: n2, price: ep, why: '남는 현금을 코스피200 ETF로' }); }
+    cash = CFG.park > 0 ? cash - want : cash;
   }
   if (E.example) notes.push('<b>예시 1억 기준</b>입니다. 보유 탭에서 입금(투자원금)과 매매를 기록하면 내 자산 기준으로 바뀝니다.');
   if (!E.example && nb === 0 && free > 0 && recs.some(k => !HP[k] && BY[k]) && cash < slot * 0.5) notes.push(`신규 매수 후보가 있지만 현금(${won(Math.max(0, cash))}원)이 한 종목 몫의 절반(${won(slot / 2)}원)보다 적어 넣지 않았습니다.`);
@@ -748,15 +768,15 @@ function buildTodo(snap, execDate) {
 }
 function todoCard(title, when, badge, res, execDate, actionable) {
   const done = it => LOG.some(l => l.code === it.code && l.side === it.side && l.date === execDate);
-  const order = { sell: 0, trim: 1, add: 2, buy: 3 }, label = { sell: '전량 매도', trim: '절반 매도', add: '추가 매수', buy: '신규 매수 1/3' };
+  const order = { sell: 0, trim: 1, etfsell: 1.5, add: 2, buy: 3, etfbuy: 4 }, label = { sell: '전량 매도', trim: '절반 매도', etfsell: 'ETF 매도', add: '추가 매수', buy: '신규 매수 1/3', etfbuy: 'ETF 매수' };
   const its = res.items.slice().sort((a, b) => order[a.kind] - order[b.kind]);
   return `<div class="todo-h"><b>${title}</b>${badge}</div><p class="todo-when">${when}</p>`
     + (its.length ? its.map(it => { const r = BY[it.code], d = done(it); return `<div class="ti${d ? ' done' : ''}">
         <span class="kind ${it.kind}">${label[it.kind]}</span>
         <div class="what"><b>${r.n}</b> ${it.qty.toLocaleString()}주<small>약 ${won(it.qty * it.price)}원 (${won(it.price)}원 기준) · ${it.why}</small></div>
         ${d ? '<span class="badge done">✓ 기록함</span>' : actionable ? `<button type="button" class="btn sm" data-fill='${JSON.stringify({ code: it.code, side: it.side, qty: it.qty, date: execDate })}'>체결 기록</button>` : '<span></span>'}
-      </div>`; }).join('') : `<p class="empty">${Object.keys(POS).length ? '할 일이 없습니다. 그대로 보유하세요. 🙂' : '할 일이 없습니다.'}</p>`)
-    + (its.length ? `<div class="cashline">순서: 매도 → 추가 매수 → 신규 매수(한 종목 몫의 1/3씩, 5·10거래일 뒤에도 상위 20%면 나머지). 끝나면 현금 약 <b>${won(res.cash)}원</b>. 매수는 지금 있는 현금 안에서만 주문하고, 모자라면 매도가 체결된 다음 거래일에 사세요.</div>` : '')
+      </div>`; }).join('') : `<p class="empty">${nStocks(POS) ? '할 일이 없습니다. 그대로 보유하세요. 🙂' : '할 일이 없습니다.'}</p>`)
+    + (its.length ? `<div class="cashline">순서: 매도 → ETF 매도 → 추가 매수 → 신규 매수(한 종목 몫의 1/3씩, 5·10거래일 뒤에도 상위 20%면 나머지) → 남는 돈은 ETF 매수. ETF 매도는 15:20 전에 장중에 먼저 하면 그 돈으로 동시호가 매수를 할 수 있습니다. 끝나면 현금 약 <b>${won(Math.max(0, res.cash))}원</b>. 매수는 지금 있는 현금 안에서만 주문하고, 모자라면 매도가 체결된 다음 거래일에 사세요.</div>` : '')
     + (res.notes.length ? `<ul class="notes">${res.notes.map(n2 => `<li>${n2}</li>`).join('')}</ul>` : '');
 }
 function renderTodo() {
@@ -781,11 +801,11 @@ function renderTodo() {
   document.getElementById('todoA').innerHTML = A; document.getElementById('todoB').innerHTML = B;
   const pending = document.querySelectorAll('#todoA .ti:not(.done)').length, c = document.getElementById('todoCnt');
   c.hidden = !pending; c.textContent = pending;
-  const val = stockValue(), total = CFG.cash + val, list = Object.entries(POS).map(([k, p]) => SCORE.manage(BY[k], evalRow(BY[k], null).b, p, eff(), META.asOf));
+  const val = stockValue(), total = CFG.cash + val, list = Object.entries(POS).map(([k, p]) => mgr(BY[k], evalRow(BY[k], null).b, p, eff(), META.asOf));
   const red = list.filter(m => m.light === 'red').length, yel = list.filter(m => m.light === 'yellow').length;
   document.getElementById('tsum').innerHTML = [
     [won(total) + '원', (() => { const A = acctNums(); return A.prin ? `총자산 · <span class="${A.pnl >= 0 ? 'up' : 'down'}">${pct(A.pnl / A.prin)}</span>` : '총자산'; })(), 'var(--c1)'], [won(CFG.cash) + '원', '현금', 'var(--c3)'],
-    [`${Object.keys(POS).length} / ${CFG.slots}`, '보유 종목', 'var(--c4)'], [`🔴${red} 🟡${yel} 🟢${list.length - red - yel}`, '보유 신호등', 'var(--neutral)'],
+    [`${nStocks(POS)} / ${CFG.slots}`, '보유 종목', 'var(--c4)'], [`🔴${red} 🟡${yel} 🟢${list.length - red - yel}`, '보유 신호등', 'var(--neutral)'],
   ].map(([n, t, c2]) => `<div><b>${n}</b><span class="sig" style="font-weight:400"><span class="dot" style="background:${c2}"></span>${t}</span></div>`).join('');
 }
 
@@ -984,6 +1004,7 @@ document.getElementById('cAdd').onclick = () => { const raw = document.getElemen
 document.getElementById('cashTbl').addEventListener('change', e => { const el = e.target.closest('[data-ce]'); if (!el) return; const x = LEDGER.find(y => String(y.id) === el.dataset.ce); if (!x) return;
   if (el.dataset.f === 'date') x.date = el.value || x.date; else { const v = Math.round(+el.value.replace(/[^0-9-]/g, '')); if (v) x.amt = x.type === 'adj' ? v : Math.abs(v); }
   buildPos(); saveAll(); renderAll(); hsay('입출금 기록을 고쳤습니다.'); });
+document.getElementById('cfgPark').onchange = e => { CFG.park = +e.target.value; saveAll(); renderAll(); hsay('남는 현금 처리 방식을 바꿨습니다.'); };
 document.getElementById('cfgSlots').onchange = e => { const v = Math.round(+e.target.value); if (v >= 3 && v <= 30) { CFG.slots = v; saveAll(); renderAll(); } };
 const q = document.getElementById('q');
 document.getElementById('addBtn').onclick = () => { const c = findCode(q.value); if (c) { addCode(c); q.value = ''; } else say('종목을 찾지 못했습니다. 이름을 더 정확히 쓰거나 목록에서 골라 주세요.'); };
