@@ -165,15 +165,6 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
   const rows = live.map(c => { const r = buildRow(c, 0); newLast[c.tk] = r; return r; }).filter(Boolean);
   ctxs.filter(c => c.old).forEach(c => rows.push({ ...c.old, old: c.old.d }));
   const { B, TS, cut, cand, recs } = rank(rows);
-  // 남는 현금을 넣어 둘 코스피200 ETF (KODEX 200). 점수·추천 대상은 아니고 시세만 쓴다
-  const ec = parseChart(await get(chartUrl('069500.KS')).catch(() => null));
-  if (ec && ec.bars.length > 3) {
-    const b = ec.bars.slice(-252), n = b.length - 1, wk = [];
-    b.forEach((x, k) => { const nx = b[k + 1]; if (!nx || (new Date(nx.d) - new Date(x.d)) / 864e5 >= 3 || new Date(nx.d).getUTCDay() < new Date(x.d).getUTCDay()) wk.push(x); });
-    rows.push({ k: '069500', n: 'KODEX 200', s: 'ETF · 코스피200 (남는 현금 보관)', d: b[n].d, p: b[n].c, ch: b[n].c / b[n - 1].c - 1, hi: Math.max(...b.map(x => x.h ?? x.c)), lo: Math.min(...b.map(x => x.l ?? x.c)),
-      wd: wk.map(x => x.d.slice(2).replace(/-/g, '')).join(','), wc: wk.map(x => +x.c.toPrecision(6)), etf: true, base: false, el: false, f: [] });
-    prevSnap.p['069500'] = b[n - 1].c; prevSnap.ch['069500'] = +(b[n - 1].c / b[n - 2].c - 1).toFixed(4);
-  }
   fs.writeFileSync(LAST_F, JSON.stringify(newLast));
 
   // 6) 기록 (종가일 때만, 최근 90일): 추천 목록·순위·추천 종목 가격 (지난 추천 성과 계산용)

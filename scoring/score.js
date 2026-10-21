@@ -68,8 +68,8 @@ const SCORE = (() => {
     else if (b === 3) { k = 'wait'; act = `새로 사지 않음${ln.buy ? ` · 종가 <b>${won(ln.buy)}원</b> 이상이면 매수 구간(상위 20%)` : ''}`; }
     else { k = 'avoid'; act = '사지 않음 (하위 30%)'; }
     if (b <= 2 && s.ch <= -0.08) { k = 'wait'; act = '급락 원인을 확인하기 전까지 <b>매수 보류</b>'; }
-    else if (b <= 2 && pl) act += `<br>🎯 목표 <b>${won(pl.target)}원</b> (${pct(pl.upPct, 0)}) · 🛑 손절 <b>${won(pl.stop)}원</b> (${pct(pl.stopPct, 0)}) · 6개월 기준`;
-    if (pl) act += `<br>📅 기대수익(과거 중앙값) 1개월 <b>${pct(pl.h[1].med)}</b> · 6개월 <b>${pct(pl.h[6].med)}</b> · 1년 <b>${pct(pl.h[12].med)}</b>`;
+    else if (b <= 2 && pl) act += `<br>목표 <b>${won(pl.target)}원</b> (${pct(pl.upPct, 0)}) · 손절 <b>${won(pl.stop)}원</b> (${pct(pl.stopPct, 0)}) · 6개월 기준`;
+    if (pl) act += `<br>기대수익(과거 중앙값) 1개월 <b>${pct(pl.h[1].med)}</b> · 6개월 <b>${pct(pl.h[6].med)}</b> · 1년 <b>${pct(pl.h[12].med)}</b>`;
     return { k, act, flags };
   }
   // 보유 종목 매일 점검 (가상 1억 운용 검증으로 정한 규칙)
