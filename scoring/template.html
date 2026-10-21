@@ -219,8 +219,58 @@ dialog a { color: var(--brand-ink); }
   .row summary { grid-template-columns: auto minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto; grid-template-areas: "lead nm px sc sg" "act act act act act"; }
   .form { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
-@media (max-width: 380px) {
-  .donut-wrap { grid-template-columns: 1fr; justify-items: center; }
+/* 작은 화면에서도 글자 크기를 유지하고 정보가 다음 줄로 흐르게 한다. */
+button:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--brand-ink); outline-offset: 3px;
+}
+@media (max-width: 480px) {
+  .top-in { display: grid; grid-template-columns: minmax(0, 1fr) 44px 44px; gap: 4px 8px; padding: 10px 12px; }
+  .top h1 { grid-column: 1; grid-row: 1; font-size: 16px; }
+  .top .sub { grid-column: 1 / -1; grid-row: 2; white-space: normal; overflow-wrap: anywhere; font-size: 13px; }
+  .top .icon-btn { grid-row: 1; width: 44px; height: 44px; }
+  .wrap { padding: 12px 12px 24px; }
+  .card, .box { padding: 12px; }
+  .card, .box, .row, .scroll-x, .sum > div, .acct > div, .addbar > * { min-width: 0; }
+  .desc, .note, .notes, .todo-when, .cashline, .cap { font-size: 14px; line-height: 1.65; }
+  .covtag, .h small, .sum span, .acct div span, .form label { font-size: 13px; }
+  .sum b, .acct div b { overflow-wrap: anywhere; }
+  .sum div { padding: 10px; }
+  .sum b { font-size: 18px; }
+  .sum .sig { white-space: normal; font-size: 13px; }
+  .btn.sm, .btn.rec, .star, .code, .lnk { min-height: 44px; }
+  .star { min-width: 44px; }
+  .code { display: inline-flex; align-items: center; }
+  .bnav button { font-size: 13px; min-height: 64px; }
+  .row summary { padding: 12px; gap: 8px; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "lead nm" "px px" "sc sg" "act act"; }
+  .row .px { text-align: left; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .nm b, .kw, .act, .det, .hold, .what, .legend { overflow-wrap: anywhere; }
+  .nm small, .px small { white-space: normal; }
+  .row .sg { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .det { padding: 12px; font-size: 14px; }
+  .ti { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .ti .what { grid-column: 1 / -1; }
+  .ti .qty { text-align: left; white-space: normal; }
+  .ti > :last-child { justify-self: end; }
+  .ti .what small, .ti .qty small { font-size: 13px; }
+  .nmc { font-family: inherit; font-size: 16px; font-weight: 700; line-height: 1.5; min-height: 44px; }
+  .form { grid-template-columns: minmax(0, 1fr); }
+  .form input, .form select { min-width: 0; max-width: 100%; }
+  .acct { grid-template-columns: minmax(0, 1fr); }
+  .acct .big b { font-size: 24px; }
+  .btnrow > .btn { flex: 1 1 130px; }
+  .addbar { grid-template-columns: minmax(0, 1fr) auto; }
+  .donut-wrap { grid-template-columns: minmax(0, 1fr); }
+  .donut-wrap > .chartbox { width: 150px; justify-self: center; }
+  .scroll-x { max-width: 100%; overscroll-behavior-x: contain; }
+  .scroll-x table { font-size: 14px; }
+  .scroll-x th { font-size: 13px; }
+  dialog { width: calc(100% - 24px); max-height: calc(100dvh - 24px); padding: 14px; overflow-y: auto; }
+  #toast { max-width: calc(100% - 24px); width: max-content; white-space: normal; text-align: center; border-radius: 12px; }
+}
+@media (max-width: 360px) {
+  .sum { grid-template-columns: minmax(0, 1fr); }
+  .row summary { grid-template-areas: "lead nm" "px px" "sc sc" "sg sg" "act act"; }
+  .row .sg { justify-self: start; justify-content: flex-start; }
 }
 </style>
 </head>
