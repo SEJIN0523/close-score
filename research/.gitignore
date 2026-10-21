@@ -1,0 +1,5 @@
+data/allpx/
+data/allfund/
+data/krx/
+data/fx_obs.json
+*.out.json
