@@ -1,0 +1,46 @@
+# 종가 스코어링 자동 갱신: 평일 15:45·16:30(한국 시간)에 전 종목을 계산해 웹앱(GitHub Pages)에 올린다
+# 앱의 🔄 '지금 다시 계산하기' 버튼도 이 작업을 실행한다
+name: update
+on:
+  schedule:
+    - cron: '45 6 * * 1-5'   # 평일 15:45 (한국)
+    - cron: '30 7 * * 1-5'   # 평일 16:30 (한국) 한 번 더
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['scoring/*.js', 'scoring/template.html', 'scoring/web/**', '.github/workflows/**']
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: update
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 전 종목 계산
+        run: node scoring/update.js --web site
+        env:
+          CONC: '6'
+      - name: 기록 저장 (순위 기록·재무 캐시)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scoring/data
+          git diff --cached --quiet || (git commit -q -m "data: $(date -u +%F)" && git pull -q --rebase && git push -q)
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
