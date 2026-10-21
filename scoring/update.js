@@ -67,6 +67,7 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
 
 (async () => {
   const t0 = Date.now(), refund = process.argv.includes('--fund');
+  fs.mkdirSync(path.join(DATA, 'fund'), { recursive: true }); // 처음 실행(클라우드)이면 재무 폴더부터
   // 1) 재무: 없거나 45일 지났거나 --fund면 다시 받기
   const stale = LIST.filter(([tk]) => { const f = path.join(DATA, 'fund', tk + '.json'); return refund || !fs.existsSync(f) || Date.now() - fs.statSync(f).mtimeMs > 45 * 864e5; });
   if (stale.length) {
