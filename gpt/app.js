@@ -1,5 +1,14 @@
 import { VERSION, defaults } from "./config/app.js";
-import { load, save, backup, restore } from "./services/storage.js";
+import {
+  load,
+  save,
+  backup,
+  restore,
+  restoreSafely,
+  recoveryBackup,
+  currentRaw,
+  resetPersonalRecords,
+} from "./services/storage.js";
 import { calculate } from "./services/portfolio.js";
 import { getMarket, analysisFor } from "./services/market.js";
 import { escape as e, icon, empty, section } from "./components/ui.js";
@@ -161,7 +170,7 @@ function settings() {
           `<option value="${k}" ${s.home === k ? "selected" : ""}>${v}</option>`,
       )
       .join("")}</select></div>`,
-  )}${section("PORTFOLIO PREFERENCES", "운용 설정", `<div class="setting-row"><label for="target">목표 보유 종목 수<small>1~100종목 · 자동 매매와 무관</small></label><input type="number" min="1" max="100" id="target" data-setting="target" value="${s.target}"></div><div class="setting-row"><div>초기 투자금 / 현금<small>입출금은 거래 기록으로 관리</small></div>${button("수정", "capital")}</div>`)}${section("LOCAL DATA", "백업과 복원", `<p class="muted">기록은 현재 기기·브라우저에만 저장됩니다. 브라우저 간 자동 동기화는 지원하지 않습니다.</p><div class="button-group">${button("JSON 백업 다운로드", "backup", "primary")}${button("JSON 파일 복원", "restore")}</div><p class="small muted">복원은 관심종목·설정·매매 장부·수동 평가 가격을 덮어씁니다. 다른 기기로 옮길 때 백업 파일을 사용하세요.</p><input id="restore-file" type="file" accept="application/json,.json" hidden><div class="danger-zone">${button("개인 기록 초기화", "reset", "danger")}</div>`)}${section("SYSTEM", "앱 정보", `<dl class="quality"><dt>버전</dt><dd>PRISM ${VERSION}</dd><dt>분석 엔진</dt><dd>미연결</dd><dt>시장 데이터 기준일</dt><dd>미연결</dd><dt>저장 방식</dt><dd>브라우저 로컬 저장소</dd><dt>저장 키</dt><dd>prism-v1-state</dd></dl>`)}</div>`;
+  )}${section("PORTFOLIO PREFERENCES", "운용 설정", `<div class="setting-row"><label for="target">목표 보유 종목 수<small>1~100종목 · 자동 매매와 무관</small></label><input type="number" min="1" max="100" id="target" data-setting="target" value="${s.target}"></div><div class="setting-row"><div>초기 투자금 / 현금<small>입출금은 거래 기록으로 관리</small></div>${button("수정", "capital")}</div>`)}${section("LOCAL DATA", "백업과 복원", `<p class="muted">기록은 현재 기기·브라우저에만 저장됩니다. 브라우저 간 자동 동기화는 지원하지 않습니다.</p><div class="button-group">${button("JSON 백업 다운로드", "backup", "primary")}${button("JSON 파일 복원", "restore")}${button("복원 전 기록 다운로드", "recovery")}</div><p class="small muted">복원은 관심종목·설정·매매 장부·수동 평가 가격을 덮어씁니다. 복원 직전 기록 1개를 이 브라우저에 별도 보관합니다. 다음 복원 전에 복원 전 기록을 다운로드해 보관하세요. 다른 기기로 옮길 때 백업 파일을 사용하세요.</p><input id="restore-file" type="file" accept="application/json,.json" hidden><div class="danger-zone">${button("개인 기록 초기화", "reset", "danger")}</div>`)}${section("SYSTEM", "앱 정보", `<dl class="quality"><dt>버전</dt><dd>PRISM ${VERSION}</dd><dt>분석 엔진</dt><dd>미연결</dd><dt>시장 데이터 기준일</dt><dd>미연결</dd><dt>저장 방식</dt><dd>브라우저 로컬 저장소</dd><dt>저장 키</dt><dd>prism-v1-state</dd></dl>`)}</div>`;
 }
 function render() {
   const r = route(),
@@ -254,6 +263,16 @@ function confirmDialog(title, text, action) {
   openDialog(title, `<p>${e(text)}</p>`, () => action());
   dialog.querySelector('[type="submit"]').textContent = "확인";
 }
+function downloadJSON(text, filename) {
+  const url = URL.createObjectURL(
+    new Blob([text], { type: "application/json" }),
+  );
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 const actions = {
   transaction: () => transaction(),
   theme: () => {
@@ -281,15 +300,15 @@ const actions = {
       },
     ),
   backup: () => {
-    const url = URL.createObjectURL(
-      new Blob([backup(state)], { type: "application/json" }),
-    );
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `prism-v1-backup-${today()}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    downloadJSON(backup(state), `prism-v1-backup-${today()}.json`);
     notify("백업 파일을 다운로드했습니다.");
+  },
+  recovery: () => {
+    try {
+      downloadJSON(recoveryBackup(), `prism-v1-before-restore-${today()}.json`);
+    } catch (err) {
+      notify(err.message);
+    }
   },
   restore: () => document.querySelector("#restore-file").click(),
   reset: () => {
@@ -300,7 +319,7 @@ const actions = {
         if (data.get("confirmation") !== "초기화")
           throw Error("초기화를 정확히 입력하세요.");
         const next = defaults();
-        save(next);
+        resetPersonalRecords();
         state = next;
         storageError = "";
         return true;
@@ -412,11 +431,12 @@ document.addEventListener("change", async (event) => {
     try {
       if (t.files[0].size > 5000000) throw Error("5MB 이하 파일만 지원합니다.");
       const next = restore(await t.files[0].text());
+      const expectedRaw = currentRaw();
       confirmDialog(
         "백업 복원",
-        `거래 ${next.transactions.length}건과 관심종목 ${next.watchlist.length}개로 현재 기록을 교체합니다.`,
+        `거래 ${next.transactions.length}건과 관심종목 ${next.watchlist.length}개로 현재 기록을 교체합니다. 현재 기록은 복원 전 기록으로 별도 보관하며, 보관에 실패하면 복원을 중단합니다. 기존 복원 전 기록은 이번 기록으로 교체됩니다.`,
         () => {
-          save(next);
+          restoreSafely(next, expectedRaw);
           state = next;
           storageError = "";
           return true;

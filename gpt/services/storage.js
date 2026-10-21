@@ -1,4 +1,4 @@
-import { defaults, STORAGE_KEY } from "../config/app.js";
+import { defaults, STORAGE_KEY, RECOVERY_KEY } from "../config/app.js";
 import { calculate } from "./portfolio.js";
 export function validate(value) {
   if (!value || value.schema !== 1)
@@ -75,4 +75,35 @@ export function backup(state) {
 export function restore(text) {
   if (text.length > 5000000) throw Error("백업은 5MB 이하만 지원합니다.");
   return validate(JSON.parse(text));
+}
+
+// Preserve the exact previous bytes, including a damaged record, before replacement.
+// If either write fails, the error propagates and the current record is not removed.
+export function restoreSafely(next, expectedRaw) {
+  const serialized = JSON.stringify(validate(next));
+  const previous = localStorage.getItem(STORAGE_KEY);
+  if (previous !== expectedRaw)
+    throw Error("다른 탭에서 기록이 변경되었습니다. 파일을 다시 선택하세요.");
+  localStorage.setItem(
+    RECOVERY_KEY,
+    JSON.stringify({ savedAt: new Date().toISOString(), raw: previous }),
+  );
+  localStorage.setItem(STORAGE_KEY, serialized);
+}
+export function recoveryBackup() {
+  const raw = localStorage.getItem(RECOVERY_KEY);
+  if (!raw) throw Error("보관된 복원 전 기록이 없습니다.");
+  const snapshot = JSON.parse(raw);
+  if (snapshot.raw === null) throw Error("복원 전 저장된 기록이 없었습니다.");
+  if (typeof snapshot.raw !== "string")
+    throw Error("복원 전 기록 형식을 확인하세요.");
+  return snapshot.raw;
+}
+export function currentRaw() {
+  return localStorage.getItem(STORAGE_KEY);
+}
+
+export function resetPersonalRecords() {
+  save(defaults());
+  localStorage.removeItem(RECOVERY_KEY);
 }

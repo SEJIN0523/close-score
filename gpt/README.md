@@ -48,3 +48,36 @@ Professional Investment Intelligence. 독립적인 정적 투자 대시보드와
 브랜치 미리보기 후보: https://raw.githack.com/SEJIN0523/close-score/feat/prism-v1/gpt/index.html
 
 이 무료 제3자 정적 미리보기는 GitHub의 공개 브랜치 파일을 읽습니다. 환경의 외부 도메인 정책 때문에 접속 검증은 하지 못했습니다. 원본 GitHub 파일 URL은 HTML 실행용이 아닙니다. 운영 반영은 사용자 검토·승인 이후 별도 작업입니다.
+
+## V1.1 정식 배포 준비 (아직 운영 미반영)
+
+작업 브랜치: `feat/prism-v1-1`. 목표 URL: `https://sejin0523.github.io/close-score/prism/`.
+
+기존 `scoring/update.js --web site`의 루트 앱 생성과 갱신은 그대로 둡니다. 데이터 기록 저장 단계 후 `node gpt/scripts/stage-pages.mjs`가 명시된 9개 공개 실행 파일만 `site/prism/`에 복사합니다. README·테스트·스크립트·백업·개인 기록은 포함하지 않습니다. 기존 루트 파일은 그대로 보존합니다. `gpt/**`가 main push 트리거에 추가되어, 승인 후 main에 반영된 PRISM 수정도 기존 공동 배포 작업을 실행합니다. 일정과 수동 실행 트리거는 유지하며 별도 브랜치 push는 배포하지 않습니다. main 병합 시 전체 워크플로가 자동 실행되므로 병합 자체가 배포 승인 이후여야 합니다.
+
+V1의 '이 작업은 워크플로를 수정하지 않음' 설명은 최초 버전 이력입니다. V1.1에서는 위 트리거와 복사 단계만 변경합니다.
+
+### 복원 전 보호
+
+파일 형식·거래 유효성 검증 → 사용자 확인 → 현재 저장 원문을 `prism-v1-before-restore`에 보관 → 본 기록 교체 순서입니다. 보관 또는 본 기록 저장 실패 시 오류를 표시하며 원래 본 기록은 유지됩니다. 확인창을 여는 시점과 저장 시점의 본 기록이 달라지면 중단합니다. 보관 기록은 최근 복원 전 1개뿐이며 다음 복원에서 교체됩니다. 설정의 **복원 전 기록 다운로드**로 파일을 내려받아 일반 복원으로 되돌릴 수 있습니다. 원래 데이터가 손상되었어도 원문을 보관합니다(손상 원문은 일반 복원 불가). 개인 기록 초기화는 본 기록과 이 보관본을 함께 초기화합니다. 두 키 모두 브라우저 내부 전용이며 서버 전송은 없습니다. 같은 브라우저 프로필·동일 origin이면 경로가 달라도 같은 localStorage를 사용합니다. raw.githack 등 다른 origin의 기록은 JSON 파일로 옮겨야 합니다.
+
+### 일반 웹앱 사용과 기존 서비스워커 영향
+
+PRISM은 manifest, 서비스워커 등록, 오프라인 캐시 코드를 제공하지 않습니다. 정식 URL을 스마트폰 브라우저에서 열고 브라우저 메뉴의 홈 화면 바로가기를 사용합니다. 온라인 접속을 기본으로 하며 브라우저별 바로가기 UI는 다를 수 있습니다.
+
+주의: 기존 Claude판 `scoring/web/sw.js`는 `/close-score/` 범위의 동일 origin 요청을 캐시합니다. Claude판을 이전에 열었던 브라우저에서 `/close-score/prism/`도 이 기존 워커의 제어를 받으며 PRISM 정적 파일이 캐시되는 것을 로컬 브라우저에서 재현했습니다. 개인 기록은 localStorage에만 있고 이 정적 캐시에 들어가지 않습니다. 이번 작업은 기존 워커를 변경·해제하거나 캐시를 삭제하지 않습니다. PRISM을 기존 워커에서도 완전히 제외해야 한다면 `/prism/` 요청 제외 규칙을 기존 워커에 추가하는 별도 승인이 필요합니다. PRISM만 처음 연 새 프로필에서는 워커 등록이 없습니다.
+
+### 승인 후 활성화 순서
+
+1. 본 브랜치의 변경사항 및 기존 워커 영향 검토·승인.
+2. 그 시점의 최신 main과 충돌 여부 확인. PC 투자 연구 브랜치는 병합하지 않음.
+3. 승인된 PRISM 변경만 main에 반영. push 트리거로 기존 `update` Actions가 계산·공동 배포.
+4. Actions 성공 후 `/close-score/` Claude판과 `/close-score/prism/` PRISM을 각각 실제 스마트폰에서 검증. 오래된 origin의 PRISM 기록은 JSON 백업·복원으로 이전.
+
+이번 작업에서는 main 병합, Actions 수동 실행, 운영 배포를 하지 않습니다. 실제 시장 계산·운영 Pages 접속·실제 iOS/Android 검증은 수행하지 않았습니다.
+
+### V1.1 검증 명령
+
+`node --test --test-isolation=none gpt/tests/*.test.js` (Node 22 이상). 기존 Node 20 CI에서도 앱·복사 스크립트는 Node 표준 API만 사용합니다.
+
+스테이징 결과를 HTTP로 제공한 뒤 `PRISM_BASE_URL=http://127.0.0.1:4174/close-score/prism/ node gpt/tests/browser.cjs` 및 `node gpt/tests/release-browser.cjs`로 브라우저 검증합니다. Playwright가 필요하고 설치 경로는 `PRISM_PLAYWRIGHT_PATH`로 지정할 수 있습니다.
