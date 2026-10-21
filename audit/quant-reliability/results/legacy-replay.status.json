@@ -1,0 +1,6 @@
+{
+  "status": "blocked_missing_input",
+  "command": "node audit/quant-reliability/legacy-replay.cjs research/data /tmp/close-score-audit-real-replay",
+  "exitCode": 1,
+  "realPerformanceProduced": false
+}

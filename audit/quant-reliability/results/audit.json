@@ -1,0 +1,1147 @@
+{
+  "schema": 1,
+  "sourceCommit": "db658bb95be23405c1b191c8579d8e9867d5ab07",
+  "inventory": {
+    "historicalPricesDirectory": false,
+    "historicalFundamentalsDirectory": false,
+    "historicalIndexDirectory": false,
+    "optimizationObservations": false,
+    "currentFundFiles": 2526,
+    "currentRows": 2519
+  },
+  "inputs": [
+    {
+      "path": "scoring/score.js",
+      "sha256": "11a7f905c4089ef5e4f91395519b48f570b379e5714215d87e7af9e9a8e9930a"
+    },
+    {
+      "path": "scoring/update.js",
+      "sha256": "b5fb5d8c9ece0b5bec44861046e66fbbae008da3ce83e8e29877688905b2d1fc"
+    },
+    {
+      "path": "scoring/template.html",
+      "sha256": "1415ad673e27a3bff9b2af8c9d3f7a80a9b2e0b501f663e090e55310b14c8979"
+    },
+    {
+      "path": "scoring/data/last_px.json",
+      "sha256": "8d1639c896524ce5085475f3731d9aeb8cb4f0088e81cc30f20fdbdb28d0e7a2"
+    },
+    {
+      "path": "scoring/data/history.json",
+      "sha256": "7364cd662234d5214c6cbaccde7c03cc89090089fcb0fc6efe18b82c4cf2d366"
+    },
+    {
+      "path": "scoring/data/sim.json",
+      "sha256": "68cf9f324e79c220c30568f8427659272cbc0d6e310c36d32a408259271e55e4"
+    },
+    {
+      "path": "research/bt2.js",
+      "sha256": "57d7a9e4649430532c78891a564092c6e965dabf490b15aeff35980495207e30"
+    },
+    {
+      "path": "research/bt3.js",
+      "sha256": "b35fcfec7ce655c909961f4ce8f25125ef4e132c8c60384464e607b0b3b1f8e8"
+    },
+    {
+      "path": "research/bt6.js",
+      "sha256": "22748df87a8e0a3f95f6cf7fb818ad4fbe4e6e11ea2d39dad84cefe34150ab5c"
+    },
+    {
+      "path": "research/fdata.js",
+      "sha256": "d384ce538092d9da652fac051a99a441850a845f98b370b402399814508853fc"
+    },
+    {
+      "path": "research/fetch_data.js",
+      "sha256": "82fb951dd8c3e195230f6370f4ae1ce6680d7fa276e795cfb665a9688b746697"
+    },
+    {
+      "path": "research/fx.js",
+      "sha256": "511e168e38761d17d545cf7fb69924cf12a25a432d3aa807996cc63588d008ee"
+    },
+    {
+      "path": "research/opt.js",
+      "sha256": "490b4d3a2a3317460d1ea138297354492d1376e56c71aa1c07ee279e6736b722"
+    },
+    {
+      "path": "research/sim_final_split.js",
+      "sha256": "a58ddbaae3174c3417f0e02a150f37a0d4238be6da4c5acb9679adc03cdb1f80"
+    },
+    {
+      "path": "research/sim_g.js",
+      "sha256": "ef8c60aeb55f0adaea7f66be2b0d591ae1e88201caa60788d3bcf9d81a654e00"
+    },
+    {
+      "path": "research/sim_split.js",
+      "sha256": "2df811047d73621d540ce8e95ed3df0b961c6baae163b9dcbf7828d7200838e1"
+    },
+    {
+      "path": "research/sim_t.js",
+      "sha256": "1b4d790b7a4cd228bb42cb347e1e9417a79515bfe341e1dab5b2cef3ec568ef4"
+    },
+    {
+      "path": "research/data/all_list.txt",
+      "sha256": "ea4991c26ed29250fcc183ba4bcf8c40a4352338a159bf1c8decef12ddae6718"
+    },
+    {
+      "path": "research/data/dist_new.json",
+      "sha256": "7a402c6bf209e1d9440a118a11463aa27e271dc3c4f22b4405a0dd6d10e4f15f"
+    },
+    {
+      "path": "research/data/dist2.json",
+      "sha256": "88862b6657065cb2b7f7dd824af381d07be43d1890e3fbffa7d050b8c8a52aef"
+    },
+    {
+      "path": "scoring/data/fund/* (sorted filenames + NUL + raw bytes)",
+      "sha256": "07e0de716fa08b92feb341b29e5bb62590c178d31685430091a1f940e193675e"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Formula equality with identical precomputed inputs (not end-to-end parity)",
+      "status": "executed",
+      "evidence": {
+        "maxAbsoluteDifference": 1.4210854715202004e-14
+      }
+    },
+    {
+      "name": "Actual snapshot / cached score reproducibility",
+      "status": "executed",
+      "evidence": {
+        "rows": 2519,
+        "base": 1168,
+        "asOf": "2026-10-21",
+        "scoreDifferences": 0,
+        "maxDifference": 0,
+        "recommendations": [
+          {
+            "code": "105560",
+            "name": "KB금융"
+          },
+          {
+            "code": "086790",
+            "name": "하나금융지주"
+          },
+          {
+            "code": "010950",
+            "name": "S-Oil"
+          },
+          {
+            "code": "055550",
+            "name": "신한지주"
+          },
+          {
+            "code": "033780",
+            "name": "케이티앤지"
+          },
+          {
+            "code": "353200",
+            "name": "대덕전자"
+          },
+          {
+            "code": "009150",
+            "name": "삼성전기"
+          },
+          {
+            "code": "000500",
+            "name": "가온전선"
+          },
+          {
+            "code": "005930",
+            "name": "삼성전자"
+          },
+          {
+            "code": "000660",
+            "name": "SK하이닉스"
+          },
+          {
+            "code": "031980",
+            "name": "피에스케이홀딩스"
+          },
+          {
+            "code": "240810",
+            "name": "원익IPS"
+          },
+          {
+            "code": "010120",
+            "name": "엘에스일렉트릭"
+          },
+          {
+            "code": "319660",
+            "name": "피에스케이"
+          },
+          {
+            "code": "068270",
+            "name": "셀트리온"
+          }
+        ],
+        "historyRecs": [
+          "105560",
+          "086790",
+          "010950",
+          "055550",
+          "033780",
+          "353200",
+          "009150",
+          "000500",
+          "005930",
+          "000660",
+          "031980",
+          "240810",
+          "010120",
+          "319660",
+          "068270"
+        ],
+        "historyRecsMatch": true
+      }
+    },
+    {
+      "name": "Research tie order versus production lower-bound percentiles on SAME snapshot inputs",
+      "status": "executed",
+      "evidence": {
+        "scope": "Feature sources held constant; includes rounding, tie ranks and boundary convention differences; NOT full research backtest",
+        "rows": 1168,
+        "changedOverPoint1": 1075,
+        "maxAbsoluteDifference": 8.902398805909016,
+        "largest": [
+          {
+            "code": "001680",
+            "name": "대상",
+            "difference": 8.902398805909016,
+            "researchStyleScore": 55.912398805909014,
+            "productionRoundedScore": 47.01
+          },
+          {
+            "code": "004430",
+            "name": "송원산업",
+            "difference": 8.802612794977797,
+            "researchStyleScore": 56.522612794977796,
+            "productionRoundedScore": 47.72
+          },
+          {
+            "code": "003520",
+            "name": "영진약품",
+            "difference": 8.739651193572897,
+            "researchStyleScore": 29.1596511935729,
+            "productionRoundedScore": 20.42
+          },
+          {
+            "code": "005420",
+            "name": "코스모화학",
+            "difference": 8.627305176627047,
+            "researchStyleScore": 50.707305176627045,
+            "productionRoundedScore": 42.08
+          },
+          {
+            "code": "006280",
+            "name": "녹십자",
+            "difference": 8.386883566478211,
+            "researchStyleScore": 66.87688356647821,
+            "productionRoundedScore": 58.49
+          },
+          {
+            "code": "008830",
+            "name": "대동기어",
+            "difference": 8.142281188528107,
+            "researchStyleScore": 22.992281188528107,
+            "productionRoundedScore": 14.85
+          },
+          {
+            "code": "007390",
+            "name": "네이처셀",
+            "difference": 7.928784194094803,
+            "researchStyleScore": 70.9587841940948,
+            "productionRoundedScore": 63.03
+          },
+          {
+            "code": "005870",
+            "name": "휴니드테크놀러지스",
+            "difference": 7.8576066153908,
+            "researchStyleScore": 22.3576066153908,
+            "productionRoundedScore": 14.5
+          },
+          {
+            "code": "008770",
+            "name": "호텔신라",
+            "difference": 7.797869721904107,
+            "researchStyleScore": 50.337869721904106,
+            "productionRoundedScore": 42.54
+          },
+          {
+            "code": "025900",
+            "name": "동화기업",
+            "difference": 7.762573514030628,
+            "researchStyleScore": 48.592573514030626,
+            "productionRoundedScore": 40.83
+          }
+        ],
+        "recommendations": [
+          {
+            "code": "010950",
+            "name": "S-Oil"
+          },
+          {
+            "code": "105560",
+            "name": "KB금융"
+          },
+          {
+            "code": "000500",
+            "name": "가온전선"
+          },
+          {
+            "code": "009150",
+            "name": "삼성전기"
+          },
+          {
+            "code": "086790",
+            "name": "하나금융지주"
+          },
+          {
+            "code": "055550",
+            "name": "신한지주"
+          },
+          {
+            "code": "031980",
+            "name": "피에스케이홀딩스"
+          },
+          {
+            "code": "353200",
+            "name": "대덕전자"
+          },
+          {
+            "code": "033780",
+            "name": "케이티앤지"
+          },
+          {
+            "code": "005930",
+            "name": "삼성전자"
+          },
+          {
+            "code": "240810",
+            "name": "원익IPS"
+          },
+          {
+            "code": "000660",
+            "name": "SK하이닉스"
+          },
+          {
+            "code": "028050",
+            "name": "삼성E&A"
+          },
+          {
+            "code": "006400",
+            "name": "삼성SDI"
+          },
+          {
+            "code": "161890",
+            "name": "한국콜마"
+          }
+        ],
+        "overlap": 12
+      }
+    },
+    {
+      "name": "Synthetic equal-factor permutation counterexample",
+      "status": "executed",
+      "evidence": {
+        "label": "synthetic mechanics, no return evidence",
+        "first": {
+          "A": 0,
+          "B": 50,
+          "C": 100
+        },
+        "second": {
+          "B": 0,
+          "A": 50,
+          "C": 100
+        },
+        "productionExpectedTieValue": 0
+      }
+    },
+    {
+      "name": "Synthetic high/low and close-adjusted range mismatch",
+      "status": "executed",
+      "evidence": {
+        "label": "synthetic counterexample, no return evidence",
+        "productionRangePosition": 60,
+        "researchRangePosition": 100
+      }
+    },
+    {
+      "name": "Synthetic report lag versus unrestricted operating TTM",
+      "status": "executed",
+      "evidence": {
+        "label": "synthetic as-of violation potential; not proof Yahoo delivered unpublished data",
+        "signalDate": "2025-01-10",
+        "researchEps": 10,
+        "operatingEps": 99
+      }
+    },
+    {
+      "name": "Stale row removal / empirical cross-sectional sensitivity",
+      "status": "executed",
+      "evidence": {
+        "asOf": "2026-10-21",
+        "staleCount": 99,
+        "staleBase": 2,
+        "staleEligible": 0,
+        "staleRecommendations": [],
+        "freshOnlyRecommendations": [
+          {
+            "code": "105560",
+            "name": "KB금융"
+          },
+          {
+            "code": "086790",
+            "name": "하나금융지주"
+          },
+          {
+            "code": "010950",
+            "name": "S-Oil"
+          },
+          {
+            "code": "055550",
+            "name": "신한지주"
+          },
+          {
+            "code": "033780",
+            "name": "케이티앤지"
+          },
+          {
+            "code": "353200",
+            "name": "대덕전자"
+          },
+          {
+            "code": "009150",
+            "name": "삼성전기"
+          },
+          {
+            "code": "000500",
+            "name": "가온전선"
+          },
+          {
+            "code": "005930",
+            "name": "삼성전자"
+          },
+          {
+            "code": "000660",
+            "name": "SK하이닉스"
+          },
+          {
+            "code": "031980",
+            "name": "피에스케이홀딩스"
+          },
+          {
+            "code": "240810",
+            "name": "원익IPS"
+          },
+          {
+            "code": "010120",
+            "name": "엘에스일렉트릭"
+          },
+          {
+            "code": "319660",
+            "name": "피에스케이"
+          },
+          {
+            "code": "068270",
+            "name": "셀트리온"
+          }
+        ],
+        "recommendationOverlap": 15,
+        "maxScoreDelta": 0.6699999999999946,
+        "changedOverPoint1": 102,
+        "largest": [
+          {
+            "code": "010820",
+            "name": "퍼스텍",
+            "delta": -0.6699999999999946
+          },
+          {
+            "code": "086980",
+            "name": "쇼박스",
+            "delta": -0.6000000000000014
+          },
+          {
+            "code": "368770",
+            "name": "파이버프로",
+            "delta": -0.46999999999999886
+          },
+          {
+            "code": "170920",
+            "name": "엘티씨",
+            "delta": -0.46999999999999886
+          },
+          {
+            "code": "065680",
+            "name": "우주일렉트로",
+            "delta": -0.46999999999999886
+          }
+        ],
+        "interpretation": "Stale dates observed, cause (fetch failure, halt, etc.) not identifiable from snapshot"
+      }
+    },
+    {
+      "name": "Operating add rule after three tranches versus claim no more adds",
+      "status": "executed",
+      "evidence": {
+        "label": "synthetic mechanics",
+        "result": {
+          "stop": 1600,
+          "ref": 2600,
+          "gain": 0,
+          "val": 200000,
+          "target": 10000000,
+          "flags": [],
+          "light": "green",
+          "k": "add",
+          "act": "상위 20% 유지 · 비중이 목표의 2% → 다음 거래일 15:20~15:30 <b>추가 매수 4,900주</b> (약 9,800,000원)",
+          "buyQty": 4900
+        }
+      }
+    },
+    {
+      "name": "Legacy daily order timing and all-cost sensitivity (synthetic only)",
+      "status": "executed",
+      "evidence": {
+        "label": "SYNTHETIC TEST; must not be reported as investment performance",
+        "firstFill": "2025-01-03",
+        "firstSell": "2025-01-07",
+        "costPaid": 395159.09090909094,
+        "legacyCostImplementation": "buy units=budget*(1-buyCost)/price; sell proceeds=notional*(1-sellCost)",
+        "assertions": 3
+      }
+    },
+    {
+      "name": "Full-sample distribution reused by operating model",
+      "status": "executed",
+      "evidence": {
+        "equal": true,
+        "interpretation": "Confirms identical stored calibration; does not validate its historical inputs or OOS calibration"
+      }
+    },
+    {
+      "name": "Cached financial statement periods versus snapshot date",
+      "status": "executed",
+      "evidence": {
+        "date": "2026-10-21",
+        "futurePeriodRecords": 0,
+        "latest": {
+          "annualDilutedEPS": "2026-03-31",
+          "quarterlyStockholdersEquity": "2026-06-30",
+          "annualOrdinarySharesNumber": "2026-06-30",
+          "annualStockholdersEquity": "2026-06-30",
+          "quarterlyOrdinarySharesNumber": "2026-06-30",
+          "quarterlyDilutedEPS": "2026-06-30"
+        },
+        "interpretation": "No future accounting-period endpoints observed is NOT evidence of true publication availability or revision vintages"
+      }
+    }
+  ],
+  "weightSnapshot": [
+    {
+      "name": "baseline_40_40_20",
+      "weights": [
+        0.4,
+        0.4,
+        0.2
+      ],
+      "picks": [
+        {
+          "code": "105560",
+          "name": "KB금융"
+        },
+        {
+          "code": "086790",
+          "name": "하나금융지주"
+        },
+        {
+          "code": "010950",
+          "name": "S-Oil"
+        },
+        {
+          "code": "055550",
+          "name": "신한지주"
+        },
+        {
+          "code": "033780",
+          "name": "케이티앤지"
+        },
+        {
+          "code": "353200",
+          "name": "대덕전자"
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기"
+        },
+        {
+          "code": "000500",
+          "name": "가온전선"
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자"
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스"
+        },
+        {
+          "code": "031980",
+          "name": "피에스케이홀딩스"
+        },
+        {
+          "code": "240810",
+          "name": "원익IPS"
+        },
+        {
+          "code": "010120",
+          "name": "엘에스일렉트릭"
+        },
+        {
+          "code": "319660",
+          "name": "피에스케이"
+        },
+        {
+          "code": "068270",
+          "name": "셀트리온"
+        }
+      ],
+      "baselineOverlap": 15,
+      "performance": null
+    },
+    {
+      "name": "equal_thirds",
+      "weights": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "picks": [
+        {
+          "code": "105560",
+          "name": "KB금융"
+        },
+        {
+          "code": "402340",
+          "name": "SK스퀘어"
+        },
+        {
+          "code": "055550",
+          "name": "신한지주"
+        },
+        {
+          "code": "033780",
+          "name": "케이티앤지"
+        },
+        {
+          "code": "010950",
+          "name": "S-Oil"
+        },
+        {
+          "code": "353200",
+          "name": "대덕전자"
+        },
+        {
+          "code": "068270",
+          "name": "셀트리온"
+        },
+        {
+          "code": "240810",
+          "name": "원익IPS"
+        },
+        {
+          "code": "021240",
+          "name": "코웨이"
+        },
+        {
+          "code": "096530",
+          "name": "씨젠"
+        },
+        {
+          "code": "000500",
+          "name": "가온전선"
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스"
+        },
+        {
+          "code": "375500",
+          "name": "DL이앤씨"
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기"
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자"
+        }
+      ],
+      "baselineOverlap": 11,
+      "performance": null
+    },
+    {
+      "name": "size20_trend60_growth20",
+      "weights": [
+        0.2,
+        0.6,
+        0.2
+      ],
+      "picks": [
+        {
+          "code": "010950",
+          "name": "S-Oil"
+        },
+        {
+          "code": "105560",
+          "name": "KB금융"
+        },
+        {
+          "code": "353200",
+          "name": "대덕전자"
+        },
+        {
+          "code": "086790",
+          "name": "하나금융지주"
+        },
+        {
+          "code": "000500",
+          "name": "가온전선"
+        },
+        {
+          "code": "031980",
+          "name": "피에스케이홀딩스"
+        },
+        {
+          "code": "055550",
+          "name": "신한지주"
+        },
+        {
+          "code": "033780",
+          "name": "케이티앤지"
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기"
+        },
+        {
+          "code": "131290",
+          "name": "티에스이"
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자"
+        },
+        {
+          "code": "319660",
+          "name": "피에스케이"
+        },
+        {
+          "code": "161890",
+          "name": "한국콜마"
+        },
+        {
+          "code": "240810",
+          "name": "원익IPS"
+        },
+        {
+          "code": "096530",
+          "name": "씨젠"
+        }
+      ],
+      "baselineOverlap": 12,
+      "performance": null
+    },
+    {
+      "name": "size0_trend80_growth20",
+      "weights": [
+        0,
+        0.8,
+        0.2
+      ],
+      "picks": [
+        {
+          "code": "003010",
+          "name": "혜인"
+        },
+        {
+          "code": "010950",
+          "name": "S-Oil"
+        },
+        {
+          "code": "031980",
+          "name": "피에스케이홀딩스"
+        },
+        {
+          "code": "353200",
+          "name": "대덕전자"
+        },
+        {
+          "code": "000500",
+          "name": "가온전선"
+        },
+        {
+          "code": "317400",
+          "name": "자이에스앤디"
+        },
+        {
+          "code": "219130",
+          "name": "타이거일렉"
+        },
+        {
+          "code": "131290",
+          "name": "티에스이"
+        },
+        {
+          "code": "105560",
+          "name": "KB금융"
+        },
+        {
+          "code": "086790",
+          "name": "하나금융지주"
+        },
+        {
+          "code": "319660",
+          "name": "피에스케이"
+        },
+        {
+          "code": "003160",
+          "name": "디아이"
+        },
+        {
+          "code": "161890",
+          "name": "한국콜마"
+        },
+        {
+          "code": "096530",
+          "name": "씨젠"
+        },
+        {
+          "code": "078930",
+          "name": "GS"
+        }
+      ],
+      "baselineOverlap": 7,
+      "performance": null
+    },
+    {
+      "name": "size0_trend100_growth0",
+      "weights": [
+        0,
+        1,
+        0
+      ],
+      "picks": [
+        {
+          "code": "159010",
+          "name": "아스플로"
+        },
+        {
+          "code": "219130",
+          "name": "타이거일렉"
+        },
+        {
+          "code": "131290",
+          "name": "티에스이"
+        },
+        {
+          "code": "031980",
+          "name": "피에스케이홀딩스"
+        },
+        {
+          "code": "036930",
+          "name": "주성엔지니어링"
+        },
+        {
+          "code": "327260",
+          "name": "RF머트리얼즈"
+        },
+        {
+          "code": "000500",
+          "name": "가온전선"
+        },
+        {
+          "code": "032580",
+          "name": "피델릭스"
+        },
+        {
+          "code": "006400",
+          "name": "삼성SDI"
+        },
+        {
+          "code": "010950",
+          "name": "S-Oil"
+        },
+        {
+          "code": "092870",
+          "name": "엑시콘"
+        },
+        {
+          "code": "317400",
+          "name": "자이에스앤디"
+        },
+        {
+          "code": "353200",
+          "name": "대덕전자"
+        },
+        {
+          "code": "091580",
+          "name": "상신이디피"
+        },
+        {
+          "code": "396300",
+          "name": "HT로보틱스"
+        }
+      ],
+      "baselineOverlap": 4,
+      "performance": null
+    },
+    {
+      "name": "simple_12minus1_momentum",
+      "weights": null,
+      "picks": [
+        {
+          "code": "010170",
+          "name": "대한광통신"
+        },
+        {
+          "code": "000500",
+          "name": "가온전선"
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기"
+        },
+        {
+          "code": "036930",
+          "name": "주성엔지니어링"
+        },
+        {
+          "code": "046970",
+          "name": "우리로"
+        },
+        {
+          "code": "327260",
+          "name": "RF머트리얼즈"
+        },
+        {
+          "code": "047040",
+          "name": "대우건설"
+        },
+        {
+          "code": "159010",
+          "name": "아스플로"
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스"
+        },
+        {
+          "code": "131290",
+          "name": "티에스이"
+        }
+      ],
+      "performance": null,
+      "policy": "Top 10 raw 12-1 momentum among base; no sector/eligible filter, only a snapshot comparator"
+    }
+  ],
+  "archive": [
+    {
+      "name": "새 식",
+      "evidence": "Archived thinned curve arithmetic only; NOT independent backtest",
+      "observations": 283,
+      "from": "2023-04-28",
+      "to": "2026-10-21",
+      "totalReturn": 2.54351039,
+      "cagr": 0.43802957053359887,
+      "observedMdd": -0.37712081037378975,
+      "annual": [
+        {
+          "year": "2023",
+          "observedThrough": "2023-12-27",
+          "ret": -0.02634552000000001
+        },
+        {
+          "year": "2024",
+          "observedThrough": "2024-12-26",
+          "ret": 0.6413630736850304
+        },
+        {
+          "year": "2025",
+          "observedThrough": "2025-12-29",
+          "ret": 0.5774314979538058
+        },
+        {
+          "year": "2026",
+          "observedThrough": "2026-10-21",
+          "ret": 0.4056386066414819
+        }
+      ],
+      "dailySharpe": null,
+      "reportedUnverified": {
+        "final": 354351039,
+        "ret": 2.5435,
+        "cagr": 0.438,
+        "mdd": -0.3882,
+        "trades": 357,
+        "winRate": 0.506,
+        "cost": 6964403
+      },
+      "tradeWinRate": null,
+      "tradeCount": null
+    },
+    {
+      "name": "이전 식",
+      "evidence": "Archived thinned curve arithmetic only; NOT independent backtest",
+      "observations": 283,
+      "from": "2023-04-28",
+      "to": "2026-10-21",
+      "totalReturn": 1.12515595,
+      "cagr": 0.24167813704841715,
+      "observedMdd": -0.276056108379676,
+      "annual": [
+        {
+          "year": "2023",
+          "observedThrough": "2023-12-27",
+          "ret": 0.008618269999999928
+        },
+        {
+          "year": "2024",
+          "observedThrough": "2024-12-26",
+          "ret": 0.2903059449835268
+        },
+        {
+          "year": "2025",
+          "observedThrough": "2025-12-29",
+          "ret": 0.6178314382264412
+        },
+        {
+          "year": "2026",
+          "observedThrough": "2026-10-21",
+          "ret": 0.009341211487422507
+        }
+      ],
+      "dailySharpe": null,
+      "reportedUnverified": {
+        "final": 212515595,
+        "ret": 1.1252,
+        "cagr": 0.2417,
+        "mdd": -0.2807,
+        "trades": 159,
+        "winRate": 0.5,
+        "cost": 4639685
+      },
+      "tradeWinRate": null,
+      "tradeCount": null
+    },
+    {
+      "name": "코스피 지수",
+      "evidence": "Archived thinned curve arithmetic only; NOT independent backtest",
+      "observations": 283,
+      "from": "2023-04-28",
+      "to": "2026-10-21",
+      "totalReturn": 1.30362219,
+      "cagr": 0.2707643533805389,
+      "observedMdd": -0.38660156229220655,
+      "annual": [
+        {
+          "year": "2023",
+          "observedThrough": "2023-12-27",
+          "ret": 0.0447605900000001
+        },
+        {
+          "year": "2024",
+          "observedThrough": "2024-12-26",
+          "ret": -0.07033865050365273
+        },
+        {
+          "year": "2025",
+          "observedThrough": "2025-12-29",
+          "ret": 0.7370919421937512
+        },
+        {
+          "year": "2026",
+          "observedThrough": "2026-10-21",
+          "ret": 0.3653591023434779
+        }
+      ],
+      "dailySharpe": null,
+      "reportedUnverified": {
+        "final": 230362219,
+        "ret": 1.3036,
+        "cagr": 0.2708,
+        "mdd": -0.3908
+      },
+      "tradeWinRate": null,
+      "tradeCount": null
+    }
+  ],
+  "legacyAttempts": [
+    {
+      "script": "bt2.js",
+      "status": "blocked_missing_input",
+      "exitCode": 1,
+      "stderr": "/workspace/close-score/research/bt2.js:8\nconst K = readPx(`${S}/krx/kospi_daily.json`).bars;\n                                             ^\n\nTypeError: Cannot read properties of null (reading 'bars')\n    at Object.<anonymous> (/workspace/close-score/research/bt2.js:8:46)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.19.0\n"
+    },
+    {
+      "script": "bt3.js",
+      "status": "blocked_missing_input",
+      "exitCode": 1,
+      "stderr": "/workspace/close-score/research/bt3.js:8\nconst K = readPx(`${S}/krx/kospi_daily.json`).bars;\n                                             ^\n\nTypeError: Cannot read properties of null (reading 'bars')\n    at Object.<anonymous> (/workspace/close-score/research/bt3.js:8:46)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.19.0\n"
+    },
+    {
+      "script": "fx.js",
+      "status": "blocked_missing_input",
+      "exitCode": 1,
+      "stderr": "/workspace/close-score/research/fx.js:9\nconst K = readPx(`${S}/krx/kospi_daily.json`).bars;\n                                             ^\n\nTypeError: Cannot read properties of null (reading 'bars')\n    at Object.<anonymous> (/workspace/close-score/research/fx.js:9:46)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.19.0\n"
+    },
+    {
+      "script": "opt.js",
+      "status": "blocked_missing_input",
+      "exitCode": 1,
+      "stderr": "node:fs:484\n    return binding.readFileUtf8(path, stringToFlags(options.flag));\n                   ^\n\nError: ENOENT: no such file or directory, open '/workspace/close-score/research/data/fx_obs.json'\n    at Object.readFileSync (node:fs:484:20)\n    at Object.<anonymous> (/workspace/close-score/research/opt.js:4:34)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47 {\n  errno: -2,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: '/workspace/close-score/research/data/fx_obs.json'\n}\n\nNode.js v24.19.0\n"
+    },
+    {
+      "script": "bt6.js",
+      "status": "blocked_missing_input",
+      "exitCode": 1,
+      "stderr": "/workspace/close-score/research/bt6.js:9\nconst K = readPx(`${S}/krx/kospi_daily.json`).bars;\n                                             ^\n\nTypeError: Cannot read properties of null (reading 'bars')\n    at Object.<anonymous> (/workspace/close-score/research/bt6.js:9:46)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.19.0\n"
+    },
+    {
+      "script": "sim_split.js",
+      "status": "blocked_missing_input",
+      "exitCode": 1,
+      "stderr": "/workspace/close-score/research/sim_split.js:9\nconst K = readPx(`${S}/krx/kospi_daily.json`).bars;\n                                             ^\n\nTypeError: Cannot read properties of null (reading 'bars')\n    at Object.<anonymous> (/workspace/close-score/research/sim_split.js:9:46)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.19.0\n"
+    },
+    {
+      "script": "sim_t.js",
+      "status": "blocked_missing_input",
+      "exitCode": 1,
+      "stderr": "/workspace/close-score/research/sim_t.js:9\nconst K = readPx(`${S}/krx/kospi_daily.json`).bars;\n                                             ^\n\nTypeError: Cannot read properties of null (reading 'bars')\n    at Object.<anonymous> (/workspace/close-score/research/sim_t.js:9:46)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.19.0\n"
+    },
+    {
+      "script": "sim_g.js",
+      "status": "blocked_missing_input",
+      "exitCode": 1,
+      "stderr": "/workspace/close-score/research/sim_g.js:9\nconst K = readPx(`${S}/krx/kospi_daily.json`).bars;\n                                             ^\n\nTypeError: Cannot read properties of null (reading 'bars')\n    at Object.<anonymous> (/workspace/close-score/research/sim_g.js:9:46)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.19.0\n"
+    },
+    {
+      "script": "sim_final_split.js",
+      "status": "blocked_missing_input",
+      "exitCode": 1,
+      "stderr": "/workspace/close-score/research/sim_final_split.js:9\nconst K = readPx(`${S}/krx/kospi_daily.json`).bars;\n                                             ^\n\nTypeError: Cannot read properties of null (reading 'bars')\n    at Object.<anonymous> (/workspace/close-score/research/sim_final_split.js:9:46)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.19.0\n"
+    }
+  ],
+  "blocked": [
+    "Full historical independent replay",
+    "Cost/slippage-adjusted realized performance",
+    "Daily Sharpe and complete trades/win rate",
+    "KOSDAQ and KOSPI200 benchmarks",
+    "True untouched out-of-sample evaluation",
+    "Delisted securities and historical constituents",
+    "Actual publication timestamps and unrevised financial vintages",
+    "Auction fills, spreads, halts and capacity"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "status": "blocked",
+  "operation": "read-only Yahoo Finance chart request for KOSPI",
+  "host": "query1.finance.yahoo.com",
+  "proxyConnectHttpStatus": 403,
+  "curlExitCode": 56,
+  "diagnosis": "CONNECT request rejected by network policy; destination response not reached; no dataset acquired"
+}

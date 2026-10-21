@@ -1,0 +1,1 @@
+{"status":"synthetic_harness_checks_completed","scenarioCalls":20,"exactTwoSidedCostCases":4,"includes":"fee/slippage code paths, alternative forms, dates, MDD, returns and daily metric mechanics","notValidated":"Any real strategy return, PIT dataset, future holdout, liquidity or execution price"}
