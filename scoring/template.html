@@ -106,6 +106,10 @@ code { background: var(--surface-2); padding: 1px 6px; border-radius: 5px; font-
 .row summary::-webkit-details-marker { display: none; }
 .row summary > :first-child { grid-area: lead; }
 .row .nm { grid-area: nm; min-width: 0; } .row .px { grid-area: px; text-align: right; } .row .sc { grid-area: sc; } .row .sg { grid-area: sg; justify-self: end; } .row .act { grid-area: act; }
+#recList details:not([open]) .act { display: none; }
+#recList summary .more { grid-column: 1 / -1; font-size: 12px; color: var(--muted); text-align: center; margin-top: -2px; }
+#recList details[open] summary .more { display: none; }
+.kw, .nm b.kw { display: inline-block; font-weight: 800; font-size: 12.5px; color: var(--brand-ink); background: color-mix(in srgb, var(--brand) 12%, transparent); border-radius: 6px; padding: 1px 7px; margin-top: 3px; }
 .rk { font-weight: 800; color: var(--muted); min-width: 18px; text-align: center; }
 .star { border: 0; background: none; font-size: 22px; line-height: 1; padding: 4px; color: var(--muted); min-width: 36px; min-height: 36px; }
 .star[aria-pressed="true"] { color: var(--star); }
@@ -530,6 +534,19 @@ document.addEventListener('toggle', e => { const d = e.target; if (d.tagName ===
 addEventListener('resize', () => document.querySelectorAll('details[open] [data-chart]').forEach(drawChart));
 const starBtn = r => `<button type="button" class="star" data-star="${r.k}" aria-pressed="${inWatch(r.k)}" aria-label="${r.n} 관심종목 ${inWatch(r.k) ? '빼기' : '추가'}">${inWatch(r.k) ? '★' : '☆'}</button>`;
 
+function keyword(r) {
+  const c = [], f = SCORE.score(r), jo = r.mc / 1e4, P = v => Math.round(v * 100);
+  if (r.eg != null && r.eg >= 0.3) c.push([r.egp, r.eg >= 1 ? `이익 ${(1 + r.eg).toFixed(1)}배` : `이익 +${P(r.eg)}%`]);
+  if (r.mom != null && r.mom >= 0.3) c.push([r.momp, `1년 +${P(r.mom)}%`]);
+  if (r.sh != null && r.sh >= 0.01) c.push([r.shp, `자사주 ${(r.sh * 100).toFixed(1)}% 소각`]);
+  if (r.dg != null && r.dg >= 0.2 && r.dv > 0) c.push([r.dgp, `배당 +${P(Math.min(r.dg, 2))}%`]);
+  if (f.Tp >= 90 && f.T >= 90) c.push([f.Tp - 3, '52주 신고가권']);
+  if (f.dy >= 5) c.push([92, `배당 ${f.dy.toFixed(1)}%`]);
+  if (f.per > 0 && f.per < 6) c.push([90, `PER ${f.per.toFixed(1)}배`]);
+  if (jo >= 10) c.push([r.lgp - 2, `시총 ${Math.round(jo)}조`]);
+  c.sort((a, b) => b[0] - a[0]);
+  return c.length ? c[0][1] : (jo >= 1 ? `시총 ${jo.toFixed(1)}조` : `시총 ${won(r.mc)}억`);
+}
 function renderRec() {
   const recs = META.recs.map(k => BY[k]).map(r => ({ r, x: evalRow(r, null) })), slot = eff().capital / CFG.slots, free = CFG.slots - Object.keys(POS).length;
   recs.forEach(({ r, x }) => { if (['strong', 'buy', 'probe'].includes(x.dec.k)) { const share = x.dec.k === 'probe' ? 0.4 : 1, nq = Math.floor(slot * share / r.p);
@@ -541,7 +558,7 @@ function renderRec() {
   ].map(([n, t, c]) => `<div><b>${n}</b><span class="sig" style="font-weight:400"><span class="dot" style="background:${c}"></span>${t}</span></div>`).join('');
   const prev = META.prevRecs ? new Set(META.prevRecs) : null;
   document.getElementById('recDesc').innerHTML = `${META.asOf} ${META.final ? '종가' : '장중'} 기준 전 종목 ${META.base.toLocaleString()}개 중 상위 20% 안에서 점수 순 ${recs.length}개 (한 업종 최대 3개). 카드를 누르면 그래프와 기대수익이 나옵니다.`;
-  document.getElementById('recList').innerHTML = recs.map(({ r, x }, i) => `<details class="row"><summary>${rowHead(r, x, `<span class="rk">${i + 1}</span>`).replace('<div class="nm"><b>', `<div class="nm">${prev && !prev.has(r.k) ? '<span class="badge new">신규</span> ' : ''}<b>`).replace('<div class="sg">', `<div class="sg">${starBtn(r)}`)}</summary>${detail(r, x)}</details>`).join('')
+  document.getElementById('recList').innerHTML = recs.map(({ r, x }, i) => `<details class="row"><summary>${rowHead(r, x, `<span class="rk">${i + 1}</span>`).replace('<div class="nm"><b>', `<div class="nm">${prev && !prev.has(r.k) ? '<span class="badge new">신규</span> ' : ''}<b>`).replace('</small></div>', `</small><b class="kw">${keyword(r)}</b></div>`).replace(/<\/div>$/, '</div><span class="more">▾ 눌러서 할 일·목표·기대수익 보기</span>').replace('<div class="sg">', `<div class="sg">${starBtn(r)}`)}</summary>${detail(r, x)}</details>`).join('')
     || '<p class="note">오늘은 추천 조건을 통과한 상위 20% 종목이 없습니다.</p>';
   const out = prev ? META.prevRecs.filter(k => !META.recs.includes(k) && BY[k]) : [];
   document.getElementById('dropped').textContent = out.length ? `${META.prevDate} 추천에서 빠진 종목: ${out.map(k => `${BY[k].n}(상위 ${BY[k].rk != null ? Math.round(BY[k].rk) + '%' : '-'})`).join(', ')}` : '';
