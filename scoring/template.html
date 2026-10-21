@@ -289,15 +289,15 @@ dialog a { color: var(--brand-ink); }
       <div class="scroll-x"><table class="mini-tbl">
         <thead><tr><th>시작</th><th class="num">새 식</th><th class="num">이전 식</th><th class="num">코스피 지수</th></tr></thead>
         <tbody>
-          <tr><td>2023.4</td><td class="num"><b>+234.0%</b></td><td class="num">+112.8%</td><td class="num">+130.4%</td></tr>
-          <tr><td>2023.10</td><td class="num"><b>+235.1%</b></td><td class="num">+124.3%</td><td class="num">+153.0%</td></tr>
-          <tr><td>2024.4</td><td class="num"><b>+166.3%</b></td><td class="num">+72.5%</td><td class="num">+114.1%</td></tr>
-          <tr><td>2024.10</td><td class="num">+117.2%</td><td class="num">+77.7%</td><td class="num"><b>+125.4%</b></td></tr>
-          <tr><td>2025.4</td><td class="num">+58.5%</td><td class="num">+33.7%</td><td class="num"><b>+125.4%</b></td></tr>
-          <tr><td>평균 · 최대 낙폭 평균</td><td class="num"><b>+162.2% · −43.9%</b></td><td class="num">+84.2% · −30.1%</td><td class="num">+129.7% · −39.1%</td></tr>
+          <tr><td>2023.4</td><td class="num"><b>+254.4%</b></td><td class="num">+112.8%</td><td class="num">+130.4%</td></tr>
+          <tr><td>2023.10</td><td class="num"><b>+297.5%</b></td><td class="num">+124.3%</td><td class="num">+153.0%</td></tr>
+          <tr><td>2024.4</td><td class="num"><b>+164.9%</b></td><td class="num">+72.5%</td><td class="num">+114.1%</td></tr>
+          <tr><td>2024.10</td><td class="num">+87.8%</td><td class="num">+77.7%</td><td class="num"><b>+125.4%</b></td></tr>
+          <tr><td>2025.4</td><td class="num">+88.5%</td><td class="num">+33.7%</td><td class="num"><b>+125.4%</b></td></tr>
+          <tr><td>평균 · 최대 낙폭 평균</td><td class="num"><b>+178.6% · −38.1%</b></td><td class="num">+84.2% · −30.1%</td><td class="num">+129.7% · −39.1%</td></tr>
         </tbody>
       </table></div>
-      <p class="note">새 식은 5번 모두 이전 식보다 나았고, 코스피 지수는 5번 중 3번 이겼습니다. 대신 최대 낙폭이 −44%로 깊습니다. 신호는 장 마감 종가로 판단하고 다음 거래일 장 마감 동시호가(종가)에 사고팔았다고 가정했습니다. 매수 비용 0.1%, 매도 비용 0.25%, 현금 이자 연 3%.</p>
+      <p class="note">새 식(1/3씩 분할 매수)은 5번 모두 이전 식보다 나았고, 코스피 지수는 5번 중 3번 이겼습니다. 대신 최대 낙폭이 −38%로 깊습니다. 신호는 장 마감 종가로 판단하고 다음 거래일 장 마감 동시호가(종가)에 사고팔았다고 가정했습니다. 매수 비용 0.1%, 매도 비용 0.25%, 현금 이자 연 3%.</p>
       <details style="margin-top:8px"><summary class="covtag">지금 가상 계좌 종목 · 매매 사유 · 최근 매매 25건</summary>
         <div class="scroll-x"><table class="mini-tbl" id="simHold"></table></div>
         <div class="scroll-x" style="margin-top:8px"><table class="mini-tbl" id="simWhy"></table></div>
@@ -354,8 +354,8 @@ dialog a { color: var(--brand-ink); }
       <div class="scroll-x"><table>
         <thead><tr><th>순위 (전 종목 중)</th><th>신호</th><th>할 일</th><th class="num">과거 6개월 초과수익</th></tr></thead>
         <tbody>
-          <tr><td>상위 5%</td><td>적극 매수</td><td>다음 거래일 15:20~15:30 장 마감 동시호가에 한 종목 몫</td><td class="num">+17.7%</td></tr>
-          <tr><td>상위 5~20%</td><td>매수</td><td>다음 거래일 15:20~15:30 장 마감 동시호가에 한 종목 몫</td><td class="num">+7.7%</td></tr>
+          <tr><td>상위 5%</td><td>적극 매수</td><td>다음 거래일 15:20~15:30 장 마감 동시호가에 한 종목 몫의 1/3 → 5·10거래일 뒤에도 상위 20%면 1/3씩 더</td><td class="num">+17.7%</td></tr>
+          <tr><td>상위 5~20%</td><td>매수</td><td>위와 같이 1/3씩 3번</td><td class="num">+7.7%</td></tr>
           <tr><td>상위 20~40%</td><td>탐색 매수</td><td>한 종목 몫의 40%만. 보유 중이면 유지</td><td class="num">+1.7%</td></tr>
           <tr><td>상위 40~70%</td><td>관망</td><td>새로 사지 않음. 보유 중이면 절반 매도</td><td class="num">−1.8%</td></tr>
           <tr><td>하위 30%</td><td>보류·매도</td><td>보유 중이면 전량 매도</td><td class="num">−6.3%</td></tr>
@@ -367,6 +367,18 @@ dialog a { color: var(--brand-ink); }
       <p class="note">과거 6개월 초과수익: 2023.4~2026.9 매달 말 전 종목을 새 식 점수순으로 나눴을 때 이후 6개월 동안 같은 달 종목 평균보다 얼마나 더 벌었는지의 평균입니다. 보유는 10종목(종목당 10%)을 권합니다.</p>
     </div>
 
+    <div class="box">
+      <h2>나눠 사고 나눠 팔기 (새 식, 시작 시점 5번 평균)</h2>
+      <div class="scroll-x"><table class="mini-tbl">
+        <thead><tr><th>방식</th><th class="num">평균 수익률</th><th class="num">평균 낙폭</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td><b>분할 매수: 1/3씩 3번 (0·5·10거래일, 그때도 상위 20%일 때만)</b></td><td class="num"><b>+178.6%</b></td><td class="num"><b>−38.1%</b></td><td>채택 (5번 중 4번 수익↑, 5번 모두 낙폭↓)</td></tr>
+          <tr><td>한 번에 매수</td><td class="num">+162.6%</td><td class="num">−43.9%</td><td>이전 규칙</td></tr>
+          <tr><td>분할 매수: 절반 → 5거래일 뒤 절반</td><td class="num">+160.9%</td><td class="num">−38.8%</td><td>낙폭↓, 수익 비슷</td></tr>
+          <tr><td>분할 매도: 손절 때 절반 → 다음 날도 아래면 나머지</td><td class="num">+153.2%</td><td class="num">−41.8%</td><td>더 나쁨 → 손절은 한 번에</td></tr>
+        </tbody>
+      </table></div>
+    </div>
     <div class="box">
       <h2>매매 시간 · 종목 수 (이전 식으로 검증)</h2>
       <div class="scroll-x"><table class="mini-tbl">
@@ -549,8 +561,8 @@ function keyword(r) {
 }
 function renderRec() {
   const recs = META.recs.map(k => BY[k]).map(r => ({ r, x: evalRow(r, null) })), slot = eff().capital / CFG.slots, free = CFG.slots - Object.keys(POS).length;
-  recs.forEach(({ r, x }) => { if (['strong', 'buy', 'probe'].includes(x.dec.k)) { const share = x.dec.k === 'probe' ? 0.4 : 1, nq = Math.floor(slot * share / r.p);
-    x.dec.act += POS[r.k] ? '<br>📌 이미 보유 중' : `<br>🛒 한 종목 몫 ${won(slot * share)}원${eff().example ? '(예시 1억)' : ''} → <b>${nq.toLocaleString()}주</b>${free <= 0 ? ' · 빈 자리 없음' : ''}`; } });
+  recs.forEach(({ r, x }) => { if (['strong', 'buy', 'probe'].includes(x.dec.k)) { const share = x.dec.k === 'probe' ? 0.4 : 1, nq = Math.floor(slot * share / 3 / r.p);
+    x.dec.act += POS[r.k] ? '<br>📌 이미 보유 중' : `<br>🛒 한 종목 몫 ${won(slot * share)}원${eff().example ? '(예시 1억)' : ''}을 1/3씩 3번 → 먼저 <b>${nq.toLocaleString()}주</b>, 5·10거래일 뒤에도 상위 20%면 같은 만큼 더${free <= 0 ? ' · 빈 자리 없음' : ''}`; } });
   const cnt = ks => recs.filter(o => ks.includes(o.x.dec.k)).length;
   document.getElementById('sum').innerHTML = [
     [cnt(['strong']), '적극 매수 (상위 5%)', 'var(--good)'], [cnt(['buy']), '매수 (상위 5~20%)', 'var(--good)'],
@@ -716,17 +728,17 @@ function buildTodo(snap, execDate) {
   const HP = dayLogs.length ? calcPos(LOG.filter(l => l.date < execDate)).POS : POS;
   // 현금·보유 기록이 하나도 없으면 예시 1억으로 계획을 보여준다
   let cash = E.example ? E.capital : CFG.cash - dayLogs.reduce((s2, l) => s2 + cashEffect(l), 0);
-  const held = Object.entries(HP).map(([k, p]) => { const rr = snapRow(k, snap); return { k, p, rr, m: SCORE.manage(rr, rkBand(rr.rk), p, E, execDate) }; });
+  const held = Object.entries(HP).map(([k, p]) => { const rr = snapRow(k, snap); return { k, p, rr, m: SCORE.manage(rr, rkBand(rr.rk), p, E, /^d{4}-/.test(execDate || '') ? execDate : META.asOf) }; });
   held.filter(o => o.m.sellQty).forEach(o => { items.push({ kind: o.m.k === 'trim' ? 'trim' : 'sell', code: o.k, side: 'sell', qty: o.m.sellQty, price: o.rr.p, why: { stop: '손절가 아래로 마감', sell: '순위 하위 30%', trim: '순위 상위 40% 밖' }[o.m.k] }); cash += o.m.sellQty * o.rr.p; });
-  held.filter(o => o.m.buyQty).forEach(o => { const n2 = Math.min(o.m.buyQty, Math.floor(cash / o.rr.p)); if (n2 > 0) { items.push({ kind: 'add', code: o.k, side: 'buy', qty: n2, price: o.rr.p, why: '상위 20%인데 비중이 작음' }); cash -= n2 * o.rr.p; } });
+  held.filter(o => o.m.buyQty).forEach(o => { const n2 = Math.min(o.m.buyQty, Math.floor(cash / o.rr.p)); if (n2 > 0) { items.push({ kind: 'add', code: o.k, side: 'buy', qty: n2, price: o.rr.p, why: '분할 매수 다음 몫 (아직 상위 20%)' }); cash -= n2 * o.rr.p; } });
   const leaving = held.filter(o => o.m.k === 'stop' || o.m.k === 'sell').length, free = CFG.slots - held.length + leaving;
   const recs = (snap === 'cur' ? META.recs : snap.recs) || [];
   let nb = 0;
   for (const k of recs) {
     if (nb >= free || HP[k] || !BY[k]) continue;
     const rr = snapRow(k, snap); if (rr.ch <= -0.08 || rkBand(rr.rk) > 1) continue;
-    const amt = Math.min(slot, cash), n2 = Math.floor(amt / rr.p); if (n2 <= 0 || amt < slot * 0.5) break;
-    items.push({ kind: 'buy', code: k, side: 'buy', qty: n2, price: rr.p, why: `상위 ${rr.rk < 1 ? rr.rk.toFixed(1) : Math.round(rr.rk)}% 추천` }); cash -= n2 * rr.p; nb++;
+    const amt = Math.min(slot / 3, cash), n2 = Math.floor(amt / rr.p); if (n2 <= 0 || amt < slot / 6) break;
+    items.push({ kind: 'buy', code: k, side: 'buy', qty: n2, price: rr.p, why: `상위 ${rr.rk < 1 ? rr.rk.toFixed(1) : Math.round(rr.rk)}% 추천 · 1/3 먼저` }); cash -= n2 * rr.p; nb++;
   }
   if (E.example) notes.push('<b>예시 1억 기준</b>입니다. 보유 탭에서 입금(투자원금)과 매매를 기록하면 내 자산 기준으로 바뀝니다.');
   if (!E.example && nb === 0 && free > 0 && recs.some(k => !HP[k] && BY[k]) && cash < slot * 0.5) notes.push(`신규 매수 후보가 있지만 현금(${won(Math.max(0, cash))}원)이 한 종목 몫의 절반(${won(slot / 2)}원)보다 적어 넣지 않았습니다.`);
@@ -736,7 +748,7 @@ function buildTodo(snap, execDate) {
 }
 function todoCard(title, when, badge, res, execDate, actionable) {
   const done = it => LOG.some(l => l.code === it.code && l.side === it.side && l.date === execDate);
-  const order = { sell: 0, trim: 1, add: 2, buy: 3 }, label = { sell: '전량 매도', trim: '절반 매도', add: '추가 매수', buy: '신규 매수' };
+  const order = { sell: 0, trim: 1, add: 2, buy: 3 }, label = { sell: '전량 매도', trim: '절반 매도', add: '추가 매수', buy: '신규 매수 1/3' };
   const its = res.items.slice().sort((a, b) => order[a.kind] - order[b.kind]);
   return `<div class="todo-h"><b>${title}</b>${badge}</div><p class="todo-when">${when}</p>`
     + (its.length ? its.map(it => { const r = BY[it.code], d = done(it); return `<div class="ti${d ? ' done' : ''}">
@@ -744,7 +756,7 @@ function todoCard(title, when, badge, res, execDate, actionable) {
         <div class="what"><b>${r.n}</b> ${it.qty.toLocaleString()}주<small>약 ${won(it.qty * it.price)}원 (${won(it.price)}원 기준) · ${it.why}</small></div>
         ${d ? '<span class="badge done">✓ 기록함</span>' : actionable ? `<button type="button" class="btn sm" data-fill='${JSON.stringify({ code: it.code, side: it.side, qty: it.qty, date: execDate })}'>체결 기록</button>` : '<span></span>'}
       </div>`; }).join('') : `<p class="empty">${Object.keys(POS).length ? '할 일이 없습니다. 그대로 보유하세요. 🙂' : '할 일이 없습니다.'}</p>`)
-    + (its.length ? `<div class="cashline">순서: 매도 → 추가 매수 → 신규 매수. 끝나면 현금 약 <b>${won(res.cash)}원</b>. 매수는 지금 있는 현금 안에서만 주문하고, 모자라면 매도가 체결된 다음 거래일에 사세요.</div>` : '')
+    + (its.length ? `<div class="cashline">순서: 매도 → 추가 매수 → 신규 매수(한 종목 몫의 1/3씩, 5·10거래일 뒤에도 상위 20%면 나머지). 끝나면 현금 약 <b>${won(res.cash)}원</b>. 매수는 지금 있는 현금 안에서만 주문하고, 모자라면 매도가 체결된 다음 거래일에 사세요.</div>` : '')
     + (res.notes.length ? `<ul class="notes">${res.notes.map(n2 => `<li>${n2}</li>`).join('')}</ul>` : '');
 }
 function renderTodo() {
@@ -919,7 +931,7 @@ document.querySelectorAll('.seg2 button').forEach(b => b.onclick = () => setSide
 function fillForm(o) {
   const r = BY[o.code]; showTab('hold'); setSide(o.side);
   document.getElementById('fName').value = `${r.n} ${r.k}`; document.getElementById('fPrice').value = won(r.p);
-  document.getElementById('fQty').value = o.qty || (o.side === 'buy' ? Math.floor(eff().capital / CFG.slots / r.p) : '');
+  document.getElementById('fQty').value = o.qty || (o.side === 'buy' ? Math.floor(eff().capital / CFG.slots / 3 / r.p) : '');
   document.getElementById('fDate').value = o.date && o.date !== '다음' ? o.date : META.asOf;
   hsay(`${r.n} ${o.side === 'buy' ? '매수' : '매도'}: 실제 체결 가격·수량으로 고친 뒤 '기록'을 누르세요.`);
   setTimeout(() => document.getElementById('recFormH').scrollIntoView({ block: 'start' }), 50);

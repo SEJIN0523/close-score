@@ -85,7 +85,10 @@ const SCORE = (() => {
     if (b === 4) return { ...base, light: 'red', k: 'sell', act: `순위가 하위 30%로 떨어짐 → 다음 거래일 15:20~15:30 <b>전량 매도 ${pos.qty.toLocaleString()}주</b> (약 ${won(val)}원)`, sellQty: pos.qty };
     if (b === 3 && val > 0.6 * target && half > 0) return { ...base, light: 'yellow', k: 'trim', act: `순위가 상위 40% 밖 → 다음 거래일 15:20~15:30 <b>절반 매도 ${half.toLocaleString()}주</b> (약 ${won(half * s.p)}원)`, sellQty: half };
     if (s.p <= stop * 1.05) return { ...base, light: 'yellow', k: 'near', act: `<b>보유 유지</b> · 손절가 ${won(stop)}원까지 ${pct(stop / s.p - 1)} 남음, 추가 매수하지 않음` };
-    const addN = Math.floor((target - val) / s.p);
+    const addN = Math.floor((target - val) / s.p), nb = (pos.buys || []).length || 1, since = (new Date(asOf) - new Date(pos.firstD || pos.lastD)) / 864e5;
+    // 분할 매수: 첫 매수 뒤 7일·14일(약 5·10거래일)에 아직 상위 20%면 1/3씩 더 산다
+    if (b <= 1 && nb < 3 && val < target * 0.95 && days >= 5 && since >= 7 * nb && s.ch > -0.08) { const n3 = Math.floor(Math.min(target / 3, target - val) / s.p);
+      if (n3 > 0) return { ...base, light: 'green', k: 'add', act: `분할 매수 ${nb + 1}/3번째 · 아직 상위 20% → 다음 거래일 15:20~15:30 <b>추가 매수 ${n3.toLocaleString()}주</b> (약 ${won(n3 * s.p)}원)`, buyQty: n3 }; }
     if (b <= 1 && val < 0.6 * target && days >= 7 && addN > 0 && s.ch > -0.08) return { ...base, light: 'green', k: 'add', act: `상위 20% 유지 · 비중이 목표의 ${Math.round(val / target * 100)}% → 다음 거래일 15:20~15:30 <b>추가 매수 ${addN.toLocaleString()}주</b> (약 ${won(addN * s.p)}원)`, buyQty: addN };
     return { ...base, light: 'green', k: 'hold', act: `<b>보유 유지</b> · 손절가 <b>${won(stop)}원</b> (종가 기준, 주가가 오르면 따라 올라감)` };
   }
