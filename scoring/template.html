@@ -583,6 +583,91 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
  :root[data-theme=blossom] #p-todo .theme-character { right: -1px; top: 26px; width: 116px; height: 106px; }
 }
 
+/* Large character-led compositions: artwork shares a card with the key figures. */
+.hero-stack { display: contents; }
+:root[data-theme=blossom] .hero-stack { display: block; margin-bottom: 14px; border: 1px solid #ead1e4; border-radius: 24px; overflow: hidden; background: #fcf0f9; box-shadow: 0 9px 30px #a8588a0c; }
+:root[data-theme=blossom] .page-heading,
+:root[data-theme=blossom] #p-todo .page-heading {
+ isolation: isolate; position: relative; min-height: 244px; margin: 0 0 16px; padding: 25px 55% 22px 22px;
+ border: 1px solid #ead1e4; border-radius: 24px; overflow: hidden;
+ background: radial-gradient(ellipse at 81% 23%,#fffefa 0,transparent 57%),radial-gradient(ellipse at 20% 100%,#e8dcf5,transparent 74%),linear-gradient(125deg,#fff8fb,#f5daeb);
+ box-shadow: 0 9px 30px #a8588a0c;
+}
+:root[data-theme=blossom] .hero-stack > .page-heading,
+:root[data-theme=blossom] #p-todo .hero-stack > .page-heading { margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+:root[data-theme=blossom] .page-heading::before { content: ''; position: absolute; inset: 0; width: 68%; background: linear-gradient(90deg,#fff9fbb8,#fff9fb00); pointer-events: none; z-index: 0; }
+:root[data-theme=blossom] .page-heading::after { content: ''; position: absolute; right: -52px; top: -70px; width: 300px; height: 300px; border: 1px solid #fff9; border-radius: 50%; box-shadow: 0 0 0 22px #ffffff25,0 0 0 48px #ffffff1a; pointer-events: none; z-index: 0; }
+:root[data-theme=blossom] .page-heading h2,
+:root[data-theme=blossom] #p-todo .page-heading h2 { position: relative; z-index: 3; font-size: 25px; line-height: 1.35; white-space: normal; letter-spacing: -1px; }
+:root[data-theme=blossom] .page-heading .eyebrow,
+:root[data-theme=blossom] #recDesc { position: relative; z-index: 3; }
+:root[data-theme=blossom] #recDesc { font-size: 10px; line-height: 1.7; margin-top: 8px; }
+:root[data-theme=blossom] .page-heading .buddy-dialogue,
+:root[data-theme=blossom] #p-todo .page-heading .buddy-dialogue { position: relative; z-index: 3; margin-top: 15px; padding: 11px 12px; border: 1px solid #ffffffcc; border-radius: 14px 14px 3px 14px; background: #fffbfde8; box-shadow: 0 4px 15px #9b638c08; word-break: keep-all; }
+:root[data-theme=blossom] .page-heading .buddy-message,
+:root[data-theme=blossom] #p-todo .page-heading .buddy-message { padding: 0; border: 0; border-radius: 0; background: transparent; font-size: 12px; line-height: 1.75; }
+:root[data-theme=blossom] .page-heading .buddy-caption { margin-top: 8px; font-size: 10px; line-height: 1.65; }
+:root[data-theme=blossom] [data-buddy-context=rec] .buddy-caption,
+:root[data-theme=blossom] [data-buddy-context=watch] .buddy-caption { display: none; }
+:root[data-theme=blossom] .page-heading .theme-character,
+:root[data-theme=blossom] #p-todo .page-heading .theme-character { width: 246px; height: 224.8px; top: 17px; right: -18px; z-index: 1; filter: drop-shadow(-5px 8px 12px #a76c981e); }
+:root[data-theme=blossom] .page-heading .theme-character[data-art=portrait] { width: 208px; height: 208px; top: 12px; right: -9px; border-radius: 0; background-color: transparent; box-shadow: none; mask-image: linear-gradient(#000 87%,transparent); }
+:root[data-theme=blossom] [data-buddy-context=hold].page-heading,
+:root[data-theme=blossom] [data-buddy-context=stat].page-heading { min-height: 224px; padding-right: 53%; }
+:root[data-theme=blossom] [data-buddy-context=hold] .buddy-caption,
+:root[data-theme=blossom] [data-buddy-context=stat] .buddy-caption { font-size: 12px; font-weight: 650; }
+:root[data-theme=blossom] .hero-stack #tsum,
+:root[data-theme=blossom] .hero-stack #ssum { margin: 0; border: 0; border-top: 1px solid #e9d8e8; border-radius: 0; background: #fffafdeB; box-shadow: none; }
+:root[data-theme=blossom] .hero-stack #tsum > div { padding: 10px 13px; }
+:root[data-theme=blossom] .hero-stack #tsum > div:first-child { background: transparent; }
+:root[data-theme=blossom] .hero-stack #tsum b { font-size: 18px; }
+:root[data-theme=blossom] .hero-stack #tsum > div:nth-child(n+3) b { font-size: 12px; }
+:root[data-theme=blossom] .hero-stack #ssum > div { padding: 6px 13px; gap: 2px; }
+:root[data-theme=blossom] .hero-stack #ssum b { font-size: 15px; }
+:root[data-theme=blossom] .hero-stack #ssum .sig { font-size: 10px; }
+:root[data-theme=blossom] .hero-stack #acctBox { border: 0; border-top: 1px solid #e9d8e8; border-radius: 0; box-shadow: none; background: #fffafdeB; }
+:root[data-theme=blossom] #p-stat .hero-stack { margin-bottom: 12px; }
+:root[data-theme=blossom] #p-stat .stat-card { padding: 12px 14px; }
+:root[data-theme=blossom] #p-stat .stat-tabs { margin-bottom: 8px; }
+:root[data-theme=blossom] .buddy-demo-stage { min-height: 236px; flex-direction: column; justify-content: center; padding: 12px; border-radius: 15px; background: radial-gradient(ellipse at 50% 30%,#fff9fd,#f3e4f2); }
+:root[data-theme=blossom] .buddy-demo-stage .buddy-sprite { width: 218px; height: 199.2px; }
+:root[data-theme=blossom] .buddy-demo-stage .buddy-sprite[data-art=portrait] { width: 190px; height: 190px; }
+:root[data-theme=blossom] #buddyPreviewText { text-align: center; }
+:root[data-theme=blossom] .ocr-guide-line { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); gap: 12px; padding: 12px; border-radius: 16px; background: linear-gradient(120deg,#f9ecf6,#f4edf9); }
+:root[data-theme=blossom] .ocr-character { width: 100%; height: auto; aspect-ratio: 1312/1199; }
+@media (max-width: 360px) {
+ :root[data-theme=blossom] .page-heading,
+ :root[data-theme=blossom] #p-todo .page-heading { padding: 22px 55% 20px 16px; }
+ :root[data-theme=blossom] .page-heading h2,
+ :root[data-theme=blossom] #p-todo .page-heading h2 { font-size: 23px; }
+ :root[data-theme=blossom] .page-heading .buddy-dialogue,
+ :root[data-theme=blossom] #p-todo .page-heading .buddy-dialogue { padding: 9px; margin-top: 12px; }
+ :root[data-theme=blossom] .page-heading .buddy-message,
+ :root[data-theme=blossom] #p-todo .page-heading .buddy-message { font-size: 11px; }
+ :root[data-theme=blossom] .page-heading .theme-character,
+ :root[data-theme=blossom] #p-todo .page-heading .theme-character { width: 212px; height: 193.7px; top: 43px; right: -23px; }
+ :root[data-theme=blossom] .page-heading .theme-character[data-art=portrait] { width: 202px; height: 202px; top: 15px; right: -24px; }
+ :root[data-theme=blossom] [data-buddy-context=hold].page-heading,
+ :root[data-theme=blossom] [data-buddy-context=stat].page-heading { padding-right: 53%; }
+}
+@media (min-width: 760px) {
+ :root[data-theme=blossom] .page-heading,
+ :root[data-theme=blossom] #p-todo .page-heading { min-height: 300px; padding: 38px 52% 28px 32px; }
+ :root[data-theme=blossom] .page-heading h2,
+ :root[data-theme=blossom] #p-todo .page-heading h2 { font-size: 34px; }
+ :root[data-theme=blossom] .page-heading .theme-character,
+ :root[data-theme=blossom] #p-todo .page-heading .theme-character { width: 365px; height: 333.5px; top: -5px; right: 4px; }
+ :root[data-theme=blossom] .page-heading .theme-character[data-art=portrait] { width: 306px; height: 306px; top: 2px; right: 15px; }
+ :root[data-theme=blossom] .page-heading .buddy-dialogue,
+ :root[data-theme=blossom] #p-todo .page-heading .buddy-dialogue { max-width: 290px; padding: 15px; margin-top: 20px; }
+ :root[data-theme=blossom] .page-heading .buddy-message,
+ :root[data-theme=blossom] #p-todo .page-heading .buddy-message { font-size: 14px; }
+ :root[data-theme=blossom] [data-buddy-context=hold].page-heading,
+ :root[data-theme=blossom] [data-buddy-context=stat].page-heading { min-height: 300px; }
+ :root[data-theme=blossom] [data-buddy-context=stat].page-heading { min-height: 264px; }
+ :root[data-theme=blossom] .hero-stack #ssum b { font-size: 18px; }
+}
+
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
 </style>
 </head>
@@ -609,8 +694,10 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 
 <main class="wrap">
   <section id="p-todo" role="tabpanel" aria-labelledby="t-todo">
+    <div class="hero-stack">
     <header data-buddy-context="todo" class="page-heading"><p class="eyebrow">나의 포트폴리오</p><h2>오늘의 투자</h2><p>계획 확인부터 실제 체결 기록까지.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-art="scene" data-pose="guide" aria-label="캐릭터 안내 보기"></button></header>
     <div class="sum" id="tsum"></div>
+    </div>
     <div class="execution-toolbar"><span id="executionSummary" aria-live="polite"></span><div class="execution-filter" role="group" aria-label="오늘 계획 필터"><button type="button" data-task-filter="all" aria-pressed="true">전체</button><button type="button" data-task-filter="pending" aria-pressed="false">남은 계획</button></div></div>
     <details class="card todo-card" id="todayCard" open><summary>오늘 할 일 <span id="todayCount"></span></summary><div id="todoA"></div></details>
     <details class="card todo-card" id="tomorrowCard"><summary>다음 거래일 할 일 <span id="tomorrowCount"></span></summary><div id="todoB"></div></details>
@@ -628,9 +715,11 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-hold" role="tabpanel" aria-labelledby="t-hold" hidden>
+    <div class="hero-stack">
     <header data-buddy-context="hold" class="page-heading compact-heading"><h2>보유 종목</h2><p>종목을 누르면 상세 내역이 펼쳐집니다.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-art="scene" data-pose="guide" aria-label="캐릭터 안내 보기"></button></header>
     <div class="sum" id="hsum" hidden></div>
     <details class="account-overview" id="acctBox"><summary id="acctBrief"></summary><div id="acct"></div></details>
+    </div>
     <div class="hold-actions"><button class="btn" id="manualEntry" type="button">매매 기록</button><button class="btn" id="ocrOpen" type="button">이미지 등록</button><button class="btn" id="ledgerEntry" type="button">입출금</button></div>
     <div class="msg" id="hmsg" role="status" aria-live="polite"></div>
     <div class="hold-list-head"><span>종목 <b id="holdCount"></b></span><span>수량 · 평가 수익률</span></div>
@@ -687,8 +776,10 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-stat" role="tabpanel" aria-labelledby="t-stat" hidden>
+    <div class="hero-stack">
     <header data-buddy-context="stat" class="page-heading compact-heading"><h2>투자 통계</h2><p>핵심 지표와 선택한 분석만 간단히 확인하세요.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-art="scene" data-pose="guide" aria-label="캐릭터 안내 보기"></button></header>
     <div class="sum stat-summary" id="ssum"></div>
+    </div>
     <div class="stat-tabs" role="tablist" aria-label="통계 항목">
       <button id="st-assets" type="button" role="tab" data-stat-view="assets" aria-controls="sv-assets" aria-selected="true">자산</button>
       <button id="st-profit" type="button" role="tab" tabindex="-1" data-stat-view="profit" aria-controls="sv-profit" aria-selected="false">손익</button>

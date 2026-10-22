@@ -273,7 +273,7 @@ with sync_playwright() as p:
     if tab=='stat': assert page.evaluate('document.documentElement.scrollHeight')<=1050,(theme,width,'statistics too tall')
     if theme=='blossom':
      if tab=='todo':
-      assert page.evaluate('''()=>{const text=document.querySelector('#p-todo .buddy-dialogue').getBoundingClientRect(),art=document.querySelector('.theme-character').getBoundingClientRect();return text.right<=art.left}'''),'hero text overlaps character'
+      assert page.evaluate('''()=>{const copy=document.querySelector('#p-todo .buddy-dialogue'),r=copy.getBoundingClientRect(),front=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return copy.contains(front)}'''),'hero artwork covers copy'
      page.screenshot(path=f'{OUTPUT}/{width}-{tab}-blossom.png',full_page=True)
  page.reload();page.wait_for_selector('#todayCount:not(:empty)',state='attached')
  assert page.evaluate('document.documentElement.dataset.theme')=='blossom'

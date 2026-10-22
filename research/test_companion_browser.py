@@ -43,6 +43,7 @@ with sync_playwright() as p:
     assert page.locator('#p-'+tab+' [data-buddy]').get_attribute('data-pose')==({'todo':'guide','rec':'reading','watch':'welcome'}.get(tab,expected))
     assert page.locator('#p-'+tab+' [data-buddy]').get_attribute('data-art')==('portrait' if tab in ['hold','stat'] else 'scene')
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth+1'),(label,width,tab,'overflow')
+    assert page.locator('#p-'+tab+' [data-buddy]').bounding_box()['height']>=185,(width,tab,'artwork is still a small corner icon')
     if tab in ['todo','hold','stat','rec','watch']:page.screenshot(path=str(output/f'{width}-{label}-{tab}.png'))
   page.set_viewport_size({'width':412,'height':915});page.locator('#t-hold').click()
   buddy.click();assert buddy.get_attribute('data-pose')=='guide'
