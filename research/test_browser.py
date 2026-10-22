@@ -72,7 +72,7 @@ with sync_playwright() as p:
   item=page.locator('#todoA .todo-item').first;item.locator('summary').click()
   form=item.locator('form');form.locator('[name=price]').fill('101,111');form.locator('[name=qty]').fill('1');form.locator('[type=submit]').click()
   logs=json.loads(page.evaluate('localStorage.getItem("close-score-log")'));assert logs[-1]['price']==101111 and logs[-1]['qty']==1
- page.locator('#t-hold').click();page.locator('#logBox > summary').click()
+ page.locator('#t-hold').click();page.locator('#holdTools > summary').click();page.locator('#logBox > summary').click()
  if page.locator('#logList .log-item').count():
   page.locator('#logList .log-item').first.locator('summary').click()
   price=page.locator('#logList [data-f=price]').first;price.fill('102222');price.dispatch_event('change')
@@ -111,6 +111,65 @@ with sync_playwright() as p:
  logs=json.loads(page.evaluate('localStorage.getItem("close-score-log")'))
  assert len(logs)==len(json.loads(before))+9
  assert ledger==page.evaluate('localStorage.getItem("close-score-cash")')
+ # Use a funded account and chart history in this isolated browser only.
+ page.evaluate('''() => {
+  localStorage.setItem('close-score-cash',JSON.stringify([{id:1,date:'2026-10-01',type:'dep',amt:100000000,memo:'Browser test'}]));
+  const equity={};for(let i=1;i<=20;i++)equity['2026-10-'+String(i).padStart(2,'0')]={t:100000000+i*100000,p:100000000};
+  localStorage.setItem('close-score-equity',JSON.stringify(equity));
+ }''')
+ page.reload();page.wait_for_selector('#todayCount:not(:empty)',state='attached')
+ page.locator('#t-hold').click()
+ holding_rows=page.locator('#holdList > .holding-row')
+ assert holding_rows.count()==10
+ for width in [320,412]:
+  page.set_viewport_size({'width':width,'height':915})
+  assert page.locator('#holdList > details[open]').count()==0
+  assert page.locator('#holdList').bounding_box()['height']<=10*52+2
+  assert holding_rows.locator(':scope > summary').evaluate_all('(rows)=>rows.every(r=>r.getBoundingClientRect().height<=52)')
+  assert holding_rows.locator('.holding-name').evaluate_all('(rows)=>rows.every(r=>getComputedStyle(r).whiteSpace==="nowrap")')
+  page.screenshot(path=f'{OUTPUT}/{width}-hold-compact.png',full_page=True)
+ holding_rows.first.locator('summary').first.click()
+ holding_rows.first.locator('.pchart svg').wait_for(state='visible')
+ holding_rows.nth(1).locator('summary').first.click()
+ assert page.locator('#holdList > details[open]').count()==1
+ assert holding_rows.first.get_attribute('open') is None
+ holding_rows.nth(1).locator('.pchart svg').wait_for(state='visible')
+ holding_rows.nth(1).locator('[data-fill]').last.click()
+ assert page.locator('#tradeEntry').get_attribute('open') is not None
+ assert page.locator('#fName').is_visible() and page.locator('#fName').input_value()
+ page.locator('#holdTools > summary').click()
+ if page.locator('#holdList > details[open]').count(): page.locator('#holdList > details[open] > summary').click()
+ page.locator('#ledgerEntry').click();assert page.locator('#cAmt').is_visible()
+ page.locator('#manualEntry').click();assert page.locator('#fName').is_visible()
+ assert page.locator('#cfgBox').get_attribute('open') is None
+ page.locator('#holdTools > summary').click()
+ page.locator('#t-stat').click()
+ for view in ['assets','profit','months','recs']:
+  page.locator('#st-'+view).click()
+  assert page.locator('#sv-'+view).is_visible()
+  assert page.locator('[data-stat-panel]:visible').count()==1
+  if view in ['assets','profit']: page.locator('#'+('eqChart' if view=='assets' else 'plChart')+' svg').wait_for(state='visible')
+  assert not page.evaluate('document.documentElement.scrollWidth>innerWidth+1')
+ page.locator('#st-assets').click();page.locator('#st-assets').press('ArrowRight')
+ assert page.locator('#st-profit').get_attribute('aria-selected')=='true'
+ page.locator('#st-assets').click()
+ for width in [320,412]:
+  page.set_viewport_size({'width':width,'height':915})
+  assert page.locator('#researchPanel').get_attribute('open') is None
+  assert not page.locator('#simChart').is_visible()
+  height=page.evaluate('document.documentElement.scrollHeight')
+  assert height<=1050,(width,'statistics overview too tall',height)
+  print(f'{width}px: ten holdings <=520px; statistics page {height}px including navigation space',flush=True)
+  page.screenshot(path=f'{OUTPUT}/{width}-stat-compact.png',full_page=True)
+ page.locator('#allocationPanel > summary').click();page.locator('#donut svg').wait_for(state='visible')
+ page.locator('#researchPanel > summary').click()
+ assert page.locator('#allocationPanel').get_attribute('open') is None
+ page.locator('#p-sim > summary').click();page.locator('#simChart svg').wait_for(state='visible')
+ assert not page.evaluate('document.documentElement.scrollWidth>innerWidth+1')
+ page.locator('.research-item').nth(1).locator('summary').first.click()
+ assert page.locator('.research-item[open]').count()==1
+ page.locator('#researchPanel > summary').click()
+ print('Single-line holdings, one-card expansion, form shortcuts, four statistics views, lazy chart rendering and compact page heights passed.',flush=True)
  for width in [320,412]:
   page.set_viewport_size({'width':width,'height':915})
   for tab in ['todo','rec','hold','watch','stat']:

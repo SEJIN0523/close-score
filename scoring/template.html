@@ -239,6 +239,79 @@ progress { width: 100%; accent-color: var(--brand); }
 #resetMsg { color: var(--up); font-size: 12px; }
 #toast { position: fixed; bottom: calc(88px + env(safe-area-inset-bottom)); left: 50%; transform: translate(-50%,10px); max-width: calc(100% - 32px); width: max-content; opacity: 0; pointer-events: none; z-index: 60; border-radius: 12px; padding: 11px 18px; background: var(--ink); color: var(--surface); font-size: 13px; transition: opacity .15s,transform .15s; }
 #toast.on { opacity: 1; transform: translate(-50%,0); }
+/* Compact views: the overview stays short; detail is revealed on demand. */
+.page-heading.compact-heading { margin-bottom: 14px; }
+.page-heading.compact-heading h2 { font-size: 23px; }
+.compact-heading p:last-child { font-size: 12px; margin-top: 4px; }
+#p-hold .compact-heading p,#p-stat .compact-heading p { display: none; }
+.account-overview { border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
+.account-overview > summary { display: grid; grid-template-columns: minmax(0,1fr) auto 8px; align-items: center; gap: 10px; padding: 13px 15px; list-style: none; }
+.account-overview small { display: block; font-size: 11px; color: var(--muted); }
+.account-primary b { font-size: 22px; letter-spacing: -.7px; font-variant-numeric: tabular-nums; }
+.account-secondary { text-align: right; font-size: 12px; font-variant-numeric: tabular-nums; }
+.account-overview #acct { padding: 16px; border-top: 1px solid var(--line); }
+.hold-actions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; margin: 10px 0; }
+.hold-actions .btn { min-height: 40px; padding: 7px 5px; font-size: 12px; }
+.hold-list-head { display: flex; justify-content: space-between; gap: 10px; margin: 15px 2px 7px; font-size: 11px; color: var(--muted); }
+.hold-list { border: 1px solid var(--line); border-radius: 15px; background: var(--surface); overflow: hidden; }
+.hold-list > .empty { border: 0; padding: 20px 12px; font-size: 13px; }
+.holding-row { min-width: 0; border-bottom: 1px solid var(--line); }
+.holding-row:last-child { border-bottom: 0; }
+.holding-row > summary { display: grid; grid-template-columns: 6px minmax(0,1fr) auto 69px 8px; align-items: center; gap: 9px; height: 50px; padding: 0 13px; list-style: none; }
+.holding-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; font-weight: 650; }
+.holding-qty { font-size: 12px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.holding-return { text-align: right; white-space: nowrap; font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.holding-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neutral); }
+.holding-dot.g { background: var(--lt-g); } .holding-dot.y { background: var(--lt-y); } .holding-dot.r { background: var(--lt-r); }
+.holding-chevron { width: 6px; height: 6px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg); }
+.holding-row[open] .holding-chevron,.account-overview[open] .holding-chevron { transform: rotate(225deg); }
+.holding-row[open] { margin: 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.holding-row[open] > summary { padding-inline: 10px; background: var(--surface-2); border-radius: 12px 12px 0 0; }
+.holding-row .det { padding: 14px; gap: 12px; }
+.holding-overview { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.holding-overview div { min-width: 0; }
+.holding-overview small { display: block; font-size: 11px; color: var(--muted); }
+.holding-overview b { font-size: 14px; overflow-wrap: anywhere; }
+.holding-row .act { background: var(--surface-2); padding: 11px; border-radius: 10px; line-height: 1.8; }
+.box.compact-panel { padding: 0; border-radius: 13px; margin-top: 10px; }
+details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-size: 13px; }
+.compact-panel .panel-body,.tool-body { padding: 0 14px 14px; }
+.tool-body > .box { padding: 13px; border-radius: 12px; }
+#tradeEntry #recForm { border: 0; box-shadow: none; padding: 14px 0 0; }
+#recFormH { scroll-margin-top: 106px; }
+.record-help { margin-top: 12px; font-size: 12px; }
+.record-help > summary { min-height: 36px; color: var(--muted); }
+.stat-summary { margin-bottom: 12px; }
+#ssum > div { padding: 11px 14px; gap: 3px; }
+#ssum b { font-size: clamp(15px,4.4vw,19px); }
+.stat-summary b > span { font-size: inherit; line-height: inherit; }
+.stat-summary .sig { font-size: 11px; }
+.sum .up { color: var(--up); } .sum .down { color: var(--down); }
+.stat-tabs { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); padding: 4px; gap: 4px; margin: 0 0 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 11px; }
+.stat-tabs button { min-height: 36px; font-size: 13px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); }
+.stat-tabs button[aria-selected=true] { color: var(--brand-ink); background: var(--surface); font-weight: 700; box-shadow: var(--shadow); }
+.stat-card { padding: 16px; border-radius: 15px; }
+.stat-card h3 { margin: 0 0 10px; font-size: 14px; }
+.stat-card .empty { padding: 16px 10px; font-size: 12px; }
+.stat-card .legend { margin: 7px 0; font-size: 11px; }
+.stat-detail-kpis { display: flex; flex-wrap: wrap; gap: 6px 13px; margin-bottom: 12px; font-size: 11px; color: var(--muted); }
+.stat-detail-kpis b { font-weight: 600; }
+.table-window { max-height: 320px; overflow: auto; margin-top: 12px; }
+.table-window th { position: sticky; top: 0; z-index: 1; }
+.chart-window { max-height: 340px; overflow-y: auto; overscroll-behavior-y: contain; }
+.research-body { padding: 0 14px 12px; }
+.research-item { border-top: 1px solid var(--line); }
+.research-item > summary { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 46px; padding: 9px 0; font-size: 12px; list-style: none; }
+.research-item > summary::after { content: '+'; color: var(--muted); font-size: 16px; flex: none; }
+.research-item[open] > summary::after { content: '−'; }
+.research-content { padding-bottom: 14px; font-size: 12px; }
+.research-content .act { font-size: 12px; line-height: 1.8; }
+.research-content th,.research-content td { font-size: 12px; }
+.app-foot { margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--line); display: flex; align-items: start; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); font-size: 10px; }
+.app-foot > p { margin: 0; }
+.app-foot > details[open] { flex-basis: 100%; }
+.app-foot summary { min-height: 26px; font-size: 10px; }
+.app-foot #foot { margin: 3px 0; padding: 0; border: 0; font-size: 11px; }
 @media (min-width: 760px) {
  .sum { grid-template-columns: repeat(4,minmax(0,1fr)); }
  .row > summary,.row > details > summary { grid-template-columns: 30px minmax(0,1fr) 140px 100px 130px; grid-template-areas: "lead nm px sc sg" "meta meta meta meta meta" "act act act act act" "more more more more more"; }
@@ -302,10 +375,27 @@ progress { width: 100%; accent-color: var(--brand); }
   </section>
 
   <section id="p-hold" role="tabpanel" aria-labelledby="t-hold" hidden>
-    <header class="page-heading"><p class="eyebrow">나의 계좌</p><h2>보유와 매매 기록</h2><p>자산의 흐름부터 종목별 현황까지 확인하세요.</p></header>
-    <div class="sum" id="hsum"></div>
-    <div class="card" id="acct"></div>
-    <details class="box" id="cfgBox" style="margin:10px 0"><summary>입출금 · 배당 · 현금 맞추기</summary>
+    <header class="page-heading compact-heading"><h2>보유 종목</h2><p>종목을 누르면 상세 내역이 펼쳐집니다.</p></header>
+    <div class="sum" id="hsum" hidden></div>
+    <details class="account-overview" id="acctBox"><summary id="acctBrief"></summary><div id="acct"></div></details>
+    <div class="hold-actions"><button class="btn" id="manualEntry" type="button">매매 기록</button><button class="btn" id="ocrOpen" type="button">이미지 등록</button><button class="btn" id="ledgerEntry" type="button">입출금</button></div>
+    <div class="msg" id="hmsg" role="status" aria-live="polite"></div>
+    <div class="hold-list-head"><span>종목 <b id="holdCount"></b></span><span>수량 · 평가 수익률</span></div>
+    <div class="hold-list" id="holdList"></div>
+    <details class="box compact-panel" id="holdTools"><summary>계좌·매매 기록 관리</summary><div class="tool-body">
+      <details class="box" id="tradeEntry" name="hold-tools"><summary id="recFormH">매매 기록하기</summary>
+<div class="card" id="recForm">
+      <div class="form">
+        <label class="full">종목<input id="fName" list="stockList" placeholder="종목명 또는 코드" autocomplete="off"></label>
+        <div class="full seg2" role="group" aria-label="매수 또는 매도"><button type="button" class="b" data-side="buy" aria-pressed="true">매수</button><button type="button" class="s" data-side="sell" aria-pressed="false">매도</button></div>
+        <label>날짜<input id="fDate" type="date"></label>
+        <label>가격(원)<input id="fPrice" type="text" inputmode="numeric" placeholder="비우면 종가"></label>
+        <label>수량(주)<input id="fQty" type="text" inputmode="numeric"></label>
+        <button class="btn pri" id="fAdd" type="button" style="align-self:end">기록</button>
+      </div>
+    </div>
+      </details>
+      <details class="box" id="cfgBox" name="hold-tools" style="margin:10px 0"><summary>입출금 · 배당 · 현금 맞추기</summary>
       <div class="form" style="margin-top:10px">
         <div class="full seg4" role="group" aria-label="종류"><button type="button" data-ct="dep" aria-pressed="true">입금</button><button type="button" data-ct="wd" aria-pressed="false">출금</button><button type="button" data-ct="div" aria-pressed="false">배당</button><button type="button" data-ct="adj" aria-pressed="false">조정</button></div>
         <label>날짜<input id="cDate" type="date"></label>
@@ -320,23 +410,9 @@ progress { width: 100%; accent-color: var(--brand); }
       </div>
       <div class="scroll-x" style="margin-top:10px"><table class="mini-tbl" id="cashTbl"></table></div>
     </details>
-    <h2 class="h">보유 종목</h2>
-    <div class="list" id="holdList"></div>
-    <h2 class="h" id="recFormH">매매 기록하기</h2>
-    <div class="btnrow" style="margin-bottom:10px"><button class="btn" id="ocrOpen" type="button">체결 내역 이미지로 일괄 등록</button></div>
-    <div class="card" id="recForm">
-      <div class="form">
-        <label class="full">종목<input id="fName" list="stockList" placeholder="종목명 또는 코드" autocomplete="off"></label>
-        <div class="full seg2" role="group" aria-label="매수 또는 매도"><button type="button" class="b" data-side="buy" aria-pressed="true">매수</button><button type="button" class="s" data-side="sell" aria-pressed="false">매도</button></div>
-        <label>날짜<input id="fDate" type="date"></label>
-        <label>가격(원)<input id="fPrice" type="text" inputmode="numeric" placeholder="비우면 종가"></label>
-        <label>수량(주)<input id="fQty" type="text" inputmode="numeric"></label>
-        <button class="btn pri" id="fAdd" type="button" style="align-self:end">기록</button>
-      </div>
-      <div class="msg" id="hmsg" role="status" aria-live="polite"></div>
-    </div>
-    <details class="box" id="logBox"><summary>매매 기록 <span id="logCount"></span></summary><div class="list" id="logList" style="margin-top:8px"></div><div class="scroll-x log-desktop" style="margin-top:8px"><table class="mini-tbl" id="logTbl"></table></div></details>
-    <p class="note">매수하면 현금이 줄고 매도하면 현금으로 돌아옵니다(입출금 장부와 매매 기록으로 자동 계산). 매수를 기록하면 기록하는 날의 순위·변동성에 맞는 손절 폭을 함께 저장합니다. 종가로 열 때마다 매수 뒤 최고 종가를 기록해 손절가를 따라 올립니다. 기록은 이 기기의 브라우저에만 저장되니 관심 탭의 '백업'을 가끔 눌러 두세요.</p>
+      <details class="box" id="logBox" name="hold-tools"><summary>매매 기록 <span id="logCount"></span></summary><div class="list" id="logList" style="margin-top:8px"></div><div class="scroll-x log-desktop" style="margin-top:8px"><table class="mini-tbl" id="logTbl"></table></div></details>
+      <details class="record-help"><summary>기록 이용 안내</summary><p class="note">매수하면 현금이 줄고 매도하면 현금으로 돌아옵니다(입출금 장부와 매매 기록으로 자동 계산). 매수를 기록하면 기록하는 날의 순위·변동성에 맞는 손절 폭을 함께 저장합니다. 종가로 열 때마다 매수 뒤 최고 종가를 기록해 손절가를 따라 올립니다. 기록은 이 기기의 브라우저에만 저장되니 관심 탭의 '백업'을 가끔 눌러 두세요.</p></details>
+    </div></details>
   </section>
 
   <section id="p-watch" role="tabpanel" aria-labelledby="t-watch" hidden>
@@ -358,17 +434,29 @@ progress { width: 100%; accent-color: var(--brand); }
   </section>
 
   <section id="p-stat" role="tabpanel" aria-labelledby="t-stat" hidden>
-    <header class="page-heading"><p class="eyebrow">투자 돌아보기</p><h2>나의 투자 통계</h2><p>수익과 자산의 변화를 차분히 살펴보세요.</p></header>
-    <div class="sum" id="ssum"></div>
-    <div class="card"><b>총자산 · 투자원금 추이</b> <span class="covtag">(종가로 열 때마다 기록)</span><div class="legend"><span><i style="background:var(--c1)"></i>총자산</span><span><i style="background:var(--c4)"></i>투자원금</span></div><div class="chartbox" id="eqChart"></div></div>
-    <div class="card"><b>월별 흐름</b><div class="scroll-x"><table class="mini-tbl" id="monthTbl"></table></div></div>
-    <div class="card"><b>자산 구성</b><div class="donut-wrap" id="donut"></div></div>
-    <div class="card"><b>종목별 손익</b> <span class="covtag">(평가 손익률)</span><div class="chartbox" id="plChart"></div></div>
-    <div class="card"><b>지난 추천의 이후 수익</b> <span class="covtag">(그날 종가에 샀다면 지금까지)</span><div class="scroll-x"><table class="mini-tbl" id="recPerf"></table></div></div>
-    <h2 class="h">알고리즘 검증</h2>
-
-    <div class="box" id="p-sim">
-      <h2>알고리즘 신뢰도: 과거에 1억을 이 규칙대로 굴렸다면</h2>
+    <header class="page-heading compact-heading"><h2>투자 통계</h2><p>핵심 지표와 선택한 분석만 간단히 확인하세요.</p></header>
+    <div class="sum stat-summary" id="ssum"></div>
+    <div class="stat-tabs" role="tablist" aria-label="통계 항목">
+      <button id="st-assets" type="button" role="tab" data-stat-view="assets" aria-controls="sv-assets" aria-selected="true">자산</button>
+      <button id="st-profit" type="button" role="tab" tabindex="-1" data-stat-view="profit" aria-controls="sv-profit" aria-selected="false">손익</button>
+      <button id="st-months" type="button" role="tab" tabindex="-1" data-stat-view="months" aria-controls="sv-months" aria-selected="false">월별</button>
+      <button id="st-recs" type="button" role="tab" tabindex="-1" data-stat-view="recs" aria-controls="sv-recs" aria-selected="false">추천</button>
+    </div>
+    <div id="sv-assets" data-stat-panel="assets" role="tabpanel" aria-labelledby="st-assets">
+      <div class="card stat-card"><h3>총자산 · 투자원금</h3><div class="legend"><span><i style="background:var(--c1)"></i>총자산</span><span><i style="background:var(--c4)"></i>투자원금</span></div><div class="chartbox" id="eqChart"></div></div>
+      <details class="box compact-panel" id="allocationPanel" name="stat-extras"><summary>자산 구성</summary><div class="panel-body"><div class="donut-wrap" id="donut"></div></div></details>
+    </div>
+    <div id="sv-profit" data-stat-panel="profit" role="tabpanel" aria-labelledby="st-profit" hidden>
+      <div class="card stat-card"><h3>종목별 평가 손익률</h3><div class="stat-detail-kpis" id="statPLMeta"></div><div class="chart-window"><div class="chartbox" id="plChart"></div></div></div>
+    </div>
+    <div id="sv-months" data-stat-panel="months" role="tabpanel" aria-labelledby="st-months" hidden>
+      <div class="card stat-card"><h3>월별 입출금과 매매</h3><div class="scroll-x table-window" tabindex="0" aria-label="월별 흐름 표"><table class="mini-tbl" id="monthTbl"></table></div></div>
+    </div>
+    <div id="sv-recs" data-stat-panel="recs" role="tabpanel" aria-labelledby="st-recs" hidden>
+      <div class="card stat-card"><h3>지난 추천의 이후 수익</h3><p class="cap">그날 종가에 샀다면 현재까지의 수익입니다.</p><div class="scroll-x table-window" tabindex="0" aria-label="지난 추천 성과 표"><table class="mini-tbl" id="recPerf"></table></div></div>
+    </div>
+    <details class="box compact-panel" id="researchPanel" name="stat-extras"><summary>규칙·알고리즘 검증</summary><div class="research-body">
+      <details class="research-item" name="research" id="p-sim"><summary>가상 1억 운용 결과</summary><div class="research-content">
       <p class="desc" id="simDesc"></p>
       <div class="sum" id="simSum"></div>
       <div class="legend" id="simLegend"></div>
@@ -393,10 +481,9 @@ progress { width: 100%; accent-color: var(--brand); }
         <div class="scroll-x" style="margin-top:8px"><table class="mini-tbl" id="simLog"></table></div>
       </details>
       <p class="note">한계: 지금 상장된 종목만으로 돌려 상장폐지 종목이 빠졌고(실제보다 좋게 나옴), 수식과 규칙을 같은 기간 데이터로 정했기 때문에 특히 낙관적입니다. 2023~2026년은 대형주가 시장을 이끈 시기라 '규모' 비중이 유리했을 수 있습니다. 소수점 주식 매수를 가정했고, 이 시뮬레이션은 <span id="simTo"></span> 기준으로 한 번 계산한 값입니다.</p>
-    </div>
+      </div></details>
 
-    <div class="box">
-      <h2>점수는 어떻게 계산하나</h2>
+      <details class="research-item" name="research"><summary>점수는 어떻게 계산하나</summary><div class="research-content">
       <div class="scroll-x"><table>
         <thead><tr><th>묶음</th><th class="num">비중</th><th>보는 것</th></tr></thead>
         <tbody>
@@ -407,10 +494,9 @@ progress { width: 100%; accent-color: var(--brand); }
         </tbody>
       </table></div>
       <p class="note">모든 항목은 그날 전 종목 중 백분위(0~100)로 바꿔 더합니다. AI 판단이나 공시 해석 없이 Yahoo Finance의 시세·재무 데이터만 씁니다. 신호는 점수가 아니라 그날 전 종목 중 순위로 정합니다.</p>
-    </div>
+      </div></details>
 
-    <div class="box">
-      <h2>수식은 어떻게 정했나 (세분화 검증)</h2>
+      <details class="research-item" name="research"><summary>수식은 어떻게 정했나 (세분화 검증)</summary><div class="research-content">
       <p class="act">① 후보 14개 항목을 하나씩 검증 → ② 비슷한 항목을 5개 묶음으로 → ③ 묶음 비중 1,001가지를 <b>앞 기간(2023.4~2024.12)으로 고르고 보지 않은 뒤 기간(2025~2026.9)으로 확인</b>, 반대 방향도 확인 → ④ 두 기간 모두 좋았던 조합을 실제 운용 규칙으로 다시 시험.</p>
       <div class="scroll-x"><table class="mini-tbl">
         <thead><tr><th>항목 단독 (상위−하위 20%, 이후 6개월)</th><th class="num">전체</th><th class="num">앞 기간</th><th class="num">뒤 기간</th><th>쓰임</th></tr></thead>
@@ -436,10 +522,9 @@ progress { width: 100%; accent-color: var(--brand); }
         </tbody>
       </table></div>
       <p class="note">배당은 과했나? 배당수익률과 배당 증가는 둘 다 효과가 있었지만 서로 겹쳤습니다(상관 0.59). 그래서 '배당 증가'만 남겨 비중을 6.7%로 줄였습니다(이전 식은 배당 관련 약 21%). 앞 기간으로 고른 비중은 뒤 기간에서 20개 중 12개가, 뒤 기간으로 고른 비중은 앞 기간에서 20개 모두가 이전 식보다 나았습니다.</p>
-    </div>
+      </div></details>
 
-    <div class="box">
-      <h2>매수·매도 규칙</h2>
+      <details class="research-item" name="research"><summary>매수·매도 규칙</summary><div class="research-content">
       <div class="scroll-x"><table>
         <thead><tr><th>순위 (전 종목 중)</th><th>신호</th><th>할 일</th><th class="num">과거 6개월 초과수익</th></tr></thead>
         <tbody>
@@ -454,10 +539,9 @@ progress { width: 100%; accent-color: var(--brand); }
         </tbody>
       </table></div>
       <p class="note">과거 6개월 초과수익: 2023.4~2026.9 매달 말 전 종목을 새 식 점수순으로 나눴을 때 이후 6개월 동안 같은 달 종목 평균보다 얼마나 더 벌었는지의 평균입니다. 보유는 10종목(종목당 10%)을 권합니다.</p>
-    </div>
+      </div></details>
 
-    <div class="box">
-      <h2>나눠 사고 나눠 팔기 (새 식, 시작 시점 5번 평균)</h2>
+      <details class="research-item" name="research"><summary>나눠 사고 나눠 팔기 (새 식, 시작 시점 5번 평균)</summary><div class="research-content">
       <div class="scroll-x"><table class="mini-tbl">
         <thead><tr><th>방식</th><th class="num">평균 수익률</th><th class="num">평균 낙폭</th><th>판정</th></tr></thead>
         <tbody>
@@ -467,9 +551,8 @@ progress { width: 100%; accent-color: var(--brand); }
           <tr><td>분할 매도: 손절 때 절반 → 다음 날도 아래면 나머지</td><td class="num">+153.2%</td><td class="num">−41.8%</td><td>더 나쁨 → 손절은 한 번에</td></tr>
         </tbody>
       </table></div>
-    </div>
-    <div class="box">
-      <h2>매매 시간 · 종목 수 (이전 식으로 검증)</h2>
+      </div></details>
+      <details class="research-item" name="research"><summary>매매 시간 · 종목 수 (이전 식으로 검증)</summary><div class="research-content">
       <div class="scroll-x"><table class="mini-tbl">
         <thead><tr><th>방식</th><th class="num">평균 수익률 (시작 5번)</th><th class="num">평균 낙폭</th><th>판정</th></tr></thead>
         <tbody>
@@ -482,10 +565,9 @@ progress { width: 100%; accent-color: var(--brand); }
         </tbody>
       </table></div>
       <p class="note">이 표는 이전 식으로 검증했습니다. 매매 방식에 관한 결론이라 새 식에도 같게 적용했습니다.</p>
-    </div>
+      </div></details>
 
-    <div class="box">
-      <h2>목표가·손절가·기대수익은 어떻게 정하나</h2>
+      <details class="research-item" name="research"><summary>목표가·손절가·기대수익은 어떻게 정하나</summary><div class="research-content">
       <p class="act">과거 같은 순위 구간이면서 변동성이 비슷한(연 41% 미만 / 41~60% / 60% 이상) 종목들이 실제로 어떻게 움직였는지를 오늘 종가에 적용합니다. 목표가 = 6개월 뒤 상위 25% 결과(참고용, 닿아도 팔지 않음), 손절가 = 하위 10% 결과(−8%~−25%로 제한).</p>
       <div class="scroll-x"><table class="mini-tbl">
         <thead><tr><th>순위 · 변동성</th><th class="num">1개월 보통</th><th class="num">6개월 보통</th><th class="num">1년 보통</th><th class="num">1년 평균</th><th class="num">1년 오른 비율</th></tr></thead>
@@ -498,15 +580,16 @@ progress { width: 100%; accent-color: var(--brand); }
         </tbody>
       </table></div>
       <p class="note">'보통'은 중앙값, '평균'은 크게 오른 소수 종목까지 더한 값입니다. 같은 상위 구간이라도 변동성이 낮은 종목이 훨씬 꾸준했습니다. 예측이 아니라 과거 결과입니다.</p>
-    </div>
+      </div></details>
 
-    <div class="box">
-      <h2>갱신 방법</h2>
+      <details class="research-item" name="research"><summary>갱신 방법</summary><div class="research-content">
       <p class="act">장 마감(15:30) 뒤 <code>종가스코어링_갱신.bat</code>을 두 번 누르거나 <code>node scoring/update.js --open</code>을 실행합니다. 분기 실적 시즌 뒤에는 <code>--fund</code>를 붙여 재무를 다시 받습니다 (45일 지난 재무는 자동으로 다시 받음).</p>
-    </div>
+      </div></details>
   
+
+    </div></details>
   </section>
-  <p class="note" id="foot"></p>
+  <footer class="app-foot"><p>투자 권유가 아닌 참고 자료입니다.</p><details><summary>데이터 기준 · 이용 안내</summary><p class="note" id="foot"></p></details></footer>
 </main>
 
 <dialog id="refDlg" aria-labelledby="refTitle">
@@ -651,7 +734,15 @@ function drawChart(box) {
   const leave = () => { tip.style.opacity = 0; xh.setAttribute('opacity', 0); xd.setAttribute('opacity', 0); };
   const hit = svg.querySelector('.hit'); hit.onmousemove = move; hit.onmouseleave = leave; hit.addEventListener('touchmove', move, { passive: true }); hit.addEventListener('touchend', leave);
 }
-document.addEventListener('toggle', e => { const d = e.target; if (d.tagName === 'DETAILS' && d.open) d.querySelectorAll('[data-chart]').forEach(drawChart); }, true);
+document.addEventListener('toggle', e => {
+  const d = e.target; if (d.tagName !== 'DETAILS' || !d.open) return;
+  if (d.classList.contains('holding-row') || d.classList.contains('research-item')) {
+    const group = d.classList.contains('holding-row') ? '#holdList > details' : '.research-item';
+    document.querySelectorAll(group).forEach(other => { if (other !== d) other.open = false; });
+  }
+  d.querySelectorAll('[data-chart]').forEach(drawChart);
+  if (d.closest('#p-stat')) { drawEq(); drawPL(); drawSim(); }
+}, true);
 addEventListener('resize', () => document.querySelectorAll('details[open] [data-chart]').forEach(drawChart));
 const STAR_O = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>', STAR_F = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
 const starBtn = r => `<button type="button" class="star" data-star="${r.k}" aria-pressed="${inWatch(r.k)}" aria-label="${r.n} 관심종목 ${inWatch(r.k) ? '빼기' : '추가'}">${inWatch(r.k) ? STAR_F : STAR_O}</button>`;
@@ -768,6 +859,8 @@ function renderHold() {
   const val = stockValue(), cost = list.reduce((s2, o) => s2 + o.p.avg * o.p.qty, 0), total = CFG.cash + val;
   const A = acctNums();
   document.getElementById('hsum').innerHTML = '';
+  document.getElementById('holdCount').textContent = `${list.length}개`;
+  document.getElementById('acctBrief').innerHTML = `<span class="account-primary"><small>총자산</small><b>${won(A.total)}원</b></span><span class="account-secondary"><b class="${A.pnl >= 0 ? 'up' : 'down'}">손익 ${A.pnl >= 0 ? '+' : ''}${won(A.pnl)}원</b><small>현금 ${won(CFG.cash)}원</small></span><span class="holding-chevron" aria-hidden="true"></span>`;
   document.getElementById('acct').innerHTML = `<div class="acct">
       <div class="big"><span>총자산 (현금 + 주식)</span><b>${won(A.total)}원</b> <span class="${A.pnl >= 0 ? 'up' : 'down'}" style="display:inline;font-size:14px;font-weight:700">${A.pnl >= 0 ? '+' : ''}${won(A.pnl)}원 (${A.prin ? pct(A.pnl / A.prin) : '-'})</span></div>
       <div><span>투자원금 (입금 − 출금)</span><b>${won(A.prin)}원</b></div>
@@ -783,21 +876,18 @@ function renderHold() {
   document.getElementById('holdList').innerHTML = list.map(({ r, p, x, m }) => {
     const t = TRACK[r.k] && TRACK[r.k].firstD === p.firstD ? TRACK[r.k].hist : [];
     const days = Math.round((new Date(META.asOf) - new Date(p.firstD)) / 864e5);
-    return `<details class="row"><summary>
-      <span class="hold-light">${lightHtml(m.light)}</span>
-      <div class="nm"><b>${r.n}</b></div>
-      <div class="px"><b>${won(r.p)}원</b><small class="${m.gain >= 0 ? 'up' : 'down'}">${pct(m.gain)}</small></div>
-      <div class="stock-meta holding-meta"><span>${p.qty.toLocaleString()}주 · 평균 ${won(p.avg)}원</span><span>보유 ${days}일</span></div>
-      <div class="sc">${x.f ? `<span class="score-main"><b>${Math.floor(x.f.total)}</b>점</span><span class="score-meta">상위 ${Math.round(r.rk)}% · 기록 때 ${p.rkAt != null ? Math.round(p.rkAt) + '%' : '-'}</span>` : '-'}</div>
-      <div class="sg"><span class="sig">${MK[m.k]}</span></div>
-      <div class="act">${m.act}${m.flags.map(f2 => `<br><span class="warn">주의 · ${f2}</span>`).join('')}<br><span class="covtag">평가 손익 ${won(m.val - p.avg * p.qty)}원 · 손절가 ${won(m.stop)}원 · 참고 목표 ${won(m.ref)}원 · 비중 ${total > 0 ? Math.round(m.val / total * 100) : 0}%</span></div><span class="more">보유 내역 자세히 보기 <span aria-hidden="true">⌄</span></span>
+    return `<details class="holding-row" name="holdings"><summary aria-label="${r.n} ${p.qty.toLocaleString()}주, 수익률 ${pct(m.gain)}, ${MK[m.k]}. 상세 보기">
+      <span class="holding-dot ${LIGHT[m.light][0]}" title="${MK[m.k]}"></span><b class="holding-name">${r.n}</b><span class="holding-qty">${p.qty.toLocaleString()}주</span><span class="holding-return ${m.gain >= 0 ? 'up' : 'down'}">${pct(m.gain)}</span><span class="holding-chevron" aria-hidden="true"></span>
     </summary><div class="det">
+      <div class="holding-overview"><div><small>현재가</small><b>${won(r.p)}원</b></div><div><small>평가 손익</small><b class="${m.gain >= 0 ? 'up' : 'down'}">${won(m.val - p.avg * p.qty)}원</b></div><div><small>평균 매수가</small><b>${won(p.avg)}원</b></div><div><small>보유 수량 · 기간</small><b>${p.qty.toLocaleString()}주 · ${days}일</b></div></div>
+      <div class="parts"><span>${MK[m.k]}</span>${x.f ? `<span>${Math.floor(x.f.total)}점 · 상위 ${Math.round(r.rk)}%</span><span>기록 때 상위 ${p.rkAt != null ? Math.round(p.rkAt) + '%' : '-'}</span>` : ''}</div>
+      <div class="act">${m.act}${m.flags.map(f2 => `<br><span class="warn">주의 · ${f2}</span>`).join('')}<br><span class="covtag">손절가 ${won(m.stop)}원 · 참고 목표 ${won(m.ref)}원 · 비중 ${total > 0 ? Math.round(m.val / total * 100) : 0}%</span></div>
       <div class="cmt">${comment(r, p, x, m, t, total)}</div>
       <div class="pchart" data-chart="${r.k}"></div>
       <div class="exp"><b>매일 기록</b> <span class="covtag">(종가로 열 때마다 쌓임)</span><div class="scroll-x"><table class="mini-tbl" style="min-width:0"><thead><tr><th>날짜</th><th class="num">종가</th><th class="num">순위</th><th class="num">손절가</th><th>신호</th></tr></thead><tbody>${t.slice(-10).reverse().map(e => `<tr><td>${md(e.d)}</td><td class="num">${won(e.p)}</td><td class="num">${Math.round(e.rk)}%</td><td class="num">${won(e.stop)}</td><td>${lightHtml(e.light)}</td></tr>`).join('') || '<tr><td colspan="5">장 마감 뒤 갱신하면 쌓입니다.</td></tr>'}</tbody></table></div></div>
       <div class="btnrow"><button type="button" class="btn sm" data-fill='${JSON.stringify({ code: r.k, side: 'sell', qty: p.qty })}'>매도 기록</button><button type="button" class="btn sm" data-fill='${JSON.stringify({ code: r.k, side: 'buy', qty: 0 })}'>추가 매수 기록</button></div>
     </div></details>`;
-  }).join('') || '<p class="empty">아직 보유 기록이 없습니다. 아래 \'매매 기록하기\'에 매수를 남기거나, 추천 카드를 펼쳐 \'매수 기록하기\'를 누르세요.</p>';
+  }).join('') || '<p class="empty">보유 종목이 없습니다.<br>위에서 매매를 기록하거나 체결 이미지를 등록하세요.</p>';
   renderCompactLogs();
   document.getElementById('logTbl').innerHTML = '<thead><tr><th>날짜</th><th>종목</th><th>구분</th><th class="num">가격</th><th class="num">수량</th><th></th></tr></thead><tbody>'
     + LOG.slice().sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id).map(l => `<tr><td><input class="le" type="date" data-le="${l.id}" data-f="date" value="${l.date}"></td><td>${BY[l.code].n}</td>
@@ -929,11 +1019,12 @@ const PAL = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c5)', 'v
 function renderStats() {
   const A = acctNums(), wins = CLOSED.filter(c => c.pnl > 0).length;
   document.getElementById('ssum').innerHTML = [
-    [won(A.prin) + '원', '투자원금 (입금 − 출금)', 'var(--c4)'],
+    [won(A.prin) + '원', '투자원금', 'var(--c4)'],
     [`<span class="${A.pnl >= 0 ? 'up' : 'down'}">${won(A.pnl)}원</span>`, `총손익 ${A.prin ? pct(A.pnl / A.prin) : ''}`, 'var(--c1)'],
-    [`<span class="${A.real >= 0 ? 'up' : 'down'}">${won(A.real)}원</span>`, `실현 손익 · 평가 ${won(A.unreal)}`, 'var(--c3)'],
-    [CLOSED.length ? `${Math.round(wins / CLOSED.length * 100)}%` : '-', `매도 승률 · 배당 ${won(A.div)}원`, 'var(--c2)'],
+    [`<span class="${A.real >= 0 ? 'up' : 'down'}">${won(A.real)}원</span>`, '실현 손익', 'var(--c3)'],
+    [CLOSED.length ? `${Math.round(wins / CLOSED.length * 100)}%` : '-', '매도 승률', 'var(--c2)'],
   ].map(([n, t, c]) => `<div><b>${n}</b><span class="sig" style="font-weight:400"><span class="dot" style="background:${c}"></span>${t}</span></div>`).join('');
+  document.getElementById('statPLMeta').innerHTML = `<span>평가 <b class="${A.unreal >= 0 ? 'up' : 'down'}">${won(A.unreal)}원</b></span><span>실현 <b>${won(A.real)}원</b></span><span>배당 <b>${won(A.div)}원</b></span>`;
   renderMonths();
   // 자산 구성 도넛
   const parts = Object.entries(POS).map(([k, p]) => [BY[k].n, p.qty * BY[k].p]).sort((a, b) => b[1] - a[1]);
@@ -972,7 +1063,7 @@ function renderMonths() {
     : '<tbody><tr><td>입출금이나 매매를 기록하면 월별로 정리됩니다.</td></tr></tbody>';
 }
 function drawEq() {
-  const box = document.getElementById('eqChart'); if (!box || box.offsetParent === null) return;
+  const box = document.getElementById('eqChart'); if (!box || box.offsetParent === null || box.closest('details:not([open])')) return;
   const pts = Object.entries(EQ).sort((a, b) => a[0] < b[0] ? -1 : 1).map(([d, v]) => [d, typeof v === 'number' ? v : v.t, typeof v === 'number' ? null : v.p]);
   if (pts.length < 2) { box.innerHTML = `<p class="empty">${pts.length ? `${md(pts[0][0])} ${won(pts[0][1])}원 기록됨. ` : ''}장 마감 뒤 갱신해서 열 때마다 하루씩 쌓여 그래프가 됩니다.</p>`; return; }
   const W = Math.max(280, box.clientWidth), H = 180, m = { l: 46, r: 8, t: 10, b: 20 }, n = pts.length, vs = pts.map(x => x[1]), ps = pts.map(x => x[2]);
@@ -989,7 +1080,7 @@ function drawEq() {
   const hit = svg.querySelector('.hit'); hit.onmousemove = move; hit.addEventListener('touchmove', move, { passive: true }); hit.onmouseleave = () => { tip.style.opacity = 0; xh.setAttribute('opacity', 0); };
 }
 function drawPL() {
-  const box = document.getElementById('plChart'); if (!box || box.offsetParent === null) return;
+  const box = document.getElementById('plChart'); if (!box || box.offsetParent === null || box.closest('details:not([open])')) return;
   const d = Object.entries(POS).map(([k, p]) => [BY[k].n, BY[k].p / p.avg - 1, (BY[k].p - p.avg) * p.qty]).sort((a, b) => b[1] - a[1]);
   if (!d.length) { box.innerHTML = '<p class="empty">보유 종목이 생기면 나옵니다.</p>'; return; }
   const W = Math.max(280, box.clientWidth), rowH = 30, H = d.length * rowH + 8, lab = 92, mx = Math.max(0.05, ...d.map(x => Math.abs(x[1]))), half = (W - lab - 104) / 2, cx = lab + 50 + half, sc = half / mx;
@@ -1023,7 +1114,7 @@ function renderSim() {
   document.getElementById('simLog').innerHTML = '<thead><tr><th>날짜</th><th>종목</th><th>매매</th><th class="num">손익</th></tr></thead><tbody>' + SIM.recent.map(x2 => `<tr><td>${md(x2.d)}</td><td>${x2.name}</td><td>${x2.side}</td><td class="num ${x2.pnl > 0 ? 'up' : x2.pnl < 0 ? 'down' : ''}">${x2.pnl == null ? '-' : won(x2.pnl / 1e4) + '만'}</td></tr>`).join('') + '</tbody>';
 }
 function drawSim() {
-  const box = document.getElementById('simChart'); if (!box || box.offsetParent === null || !SIM) return;
+  const box = document.getElementById('simChart'); if (!box || box.offsetParent === null || box.closest('details:not([open])') || !SIM) return;
   const keys = Object.keys(SIMC), S2 = keys.map(k => SIM.series[k]), n = S2[0].length;
   const W = Math.max(280, box.clientWidth), H = 240, m = { l: 40, r: 8, t: 10, b: 22 };
   const all = S2.flat().map(x2 => x2[1]), lo = Math.min(...all) * 0.95, hi = Math.max(...all) * 1.03;
@@ -1065,6 +1156,26 @@ function showTab(t) {
   if (t === 'stat') { drawSim(); drawEq(); drawPL(); }
 }
 TABS.forEach(k => document.getElementById('t-' + k).onclick = () => showTab(k));
+
+const STAT_VIEWS = ['assets', 'profit', 'months', 'recs'];
+function showStatsView(view) {
+  if (!STAT_VIEWS.includes(view)) view = 'assets';
+  STAT_VIEWS.forEach(key => {
+    const active = key === view, tab = document.getElementById('st-' + key);
+    document.getElementById('sv-' + key).hidden = !active;
+    tab.setAttribute('aria-selected', active); tab.tabIndex = active ? 0 : -1;
+  });
+  drawEq(); drawPL();
+}
+document.querySelectorAll('[data-stat-view]').forEach(button => {
+  button.onclick = () => showStatsView(button.dataset.statView);
+  button.onkeydown = e => {
+    const index = STAT_VIEWS.indexOf(button.dataset.statView);
+    const next = e.key === 'Home' ? 0 : e.key === 'End' ? STAT_VIEWS.length - 1 : e.key === 'ArrowRight' ? (index + 1) % STAT_VIEWS.length : e.key === 'ArrowLeft' ? (index + STAT_VIEWS.length - 1) % STAT_VIEWS.length : null;
+    if (next === null) return;
+    e.preventDefault(); showStatsView(STAT_VIEWS[next]); document.getElementById('st-' + STAT_VIEWS[next]).focus();
+  };
+});
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function renderCompactLogs() {
@@ -1226,15 +1337,23 @@ document.getElementById('ocrCommit').onclick = () => {
   const invalid = TOSS_OCR.oversold([...LOG, ...records]);
   if (invalid) return ocrStatus(`${invalid.date} ${BY[invalid.code].n}: 보유 수량보다 매도가 많습니다. 누락된 매수를 먼저 기록하거나 수량·날짜를 고치세요. 등록하지 않았습니다.`);
   if (!saveTrades(records)) return ocrStatus('저장 공간이 부족하거나 저장이 차단됐습니다. 등록하지 않았습니다.');
-  const count = records.length; cancelOcr(); document.getElementById('logBox').open = true; hsay(`${count}건을 일괄 등록했습니다.`); toast(`${count}건 등록 완료`);
+  const count = records.length; cancelOcr(); document.getElementById('holdTools').open = true; document.getElementById('logBox').open = true; hsay(`${count}건을 일괄 등록했습니다.`); toast(`${count}건 등록 완료`);
 };
 
 // 매매 기록 양식 채우기
 let SIDE = 'buy';
 const setSide = s => { SIDE = s; document.querySelectorAll('.seg2 button').forEach(b => b.setAttribute('aria-pressed', b.dataset.side === s)); };
 document.querySelectorAll('.seg2 button').forEach(b => b.onclick = () => setSide(b.dataset.side));
+function openHoldTool(id, scroll = true) {
+  document.getElementById('holdTools').open = true;
+  const panel = document.getElementById(id); panel.open = true;
+  if (scroll) requestAnimationFrame(() => panel.scrollIntoView({ block: 'start', behavior: 'auto' }));
+}
+document.getElementById('manualEntry').onclick = () => openHoldTool('tradeEntry');
+document.getElementById('ledgerEntry').onclick = () => openHoldTool('cfgBox');
 function fillForm(o) {
   const r = BY[o.code]; showTab('hold'); setSide(o.side);
+  openHoldTool('tradeEntry', false);
   document.getElementById('fName').value = `${r.n} ${r.k}`; document.getElementById('fPrice').value = won(r.p);
   document.getElementById('fQty').value = o.qty || (o.side === 'buy' ? Math.floor(eff().capital / CFG.slots / 3 / r.p) : '');
   document.getElementById('fDate').value = o.date && o.date !== '다음' ? o.date : META.asOf;
@@ -1350,7 +1469,7 @@ document.getElementById('resetCommit').onclick = () => {
   cancelOcr();
   ['fName', 'fPrice', 'fQty', 'cAmt', 'cMemo', 'cfgCash'].forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('hmsg').textContent = '';
-  document.getElementById('logBox').open = false; document.getElementById('cfgBox').open = false;
+  ['logBox', 'cfgBox', 'holdTools', 'tradeEntry', 'acctBox'].forEach(id => { document.getElementById(id).open = false; });
   resetDlg.close(); renderAll(); toast('투자 기록을 초기화했습니다.');
 };
 
