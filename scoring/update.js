@@ -5,7 +5,8 @@
 //   --fund  재무(EPS·자본·주식 수)를 전부 다시 받기 (분기 실적 시즌 뒤 권장. 없거나 45일 지난 파일은 자동으로 다시 받음)
 const fs = require('fs'), path = require('path');
 const SCORE = require('./score.js');
-const themeAssets = require('./theme-assets.js');
+const buildDashboard = require('./build.js');
+const { selectMarketSnapshot } = require('./market-snapshot.js');
 const TRADING = require('./trading.js');
 const DIR = __dirname, DATA = path.join(DIR, 'data'), OUT = path.join(DIR, '..', '종가스코어링_대시보드.html');
 const REC_N = 15, SECTOR_CAP = 3, CONC = +process.env.CONC || 10;
@@ -19,6 +20,17 @@ const addDays = (d, n) => { const t = new Date(d + 'T00:00:00Z'); t.setUTCDate(t
 const LIST = fs.readFileSync(path.join(DATA, 'list.txt'), 'utf8').trim().split('\n').map(l => l.split('\t'));
 const HIST_F = path.join(DATA, 'history.json'), hist = rd(HIST_F, {});
 const LAST_F = path.join(DATA, 'last_px.json'), lastPx = rd(LAST_F, {});
+const SNAPSHOT_F = path.join(DATA, 'market_snapshot.json'), savedSnapshot = rd(SNAPSHOT_F, null);
+const wi = process.argv.indexOf('--web'), buildOptions = { output: OUT, web: wi > 0 ? process.argv[wi + 1] || 'site' : null };
+const latestConfirmed = Object.keys(hist).sort().pop() || null;
+// Price-fetch fallback also uses the newest verified row after a failed deployment.
+const verifiedRows = Object.fromEntries((savedSnapshot?.ROWS || []).map(r => [r.k, r]));
+for (const [tk] of LIST) { const row = verifiedRows[tk.split('.')[0]]; if (row && (!lastPx[tk] || row.d > lastPx[tk].d)) lastPx[tk] = row; }
+function keepVerifiedSnapshot(reason) {
+  const { snapshot } = selectMarketSnapshot(null, savedSnapshot, latestConfirmed, reason);
+  buildDashboard(snapshot, buildOptions);
+  console.warn('시세 갱신 보류: ' + reason + ' · 마지막 정상 ' + snapshot.META.asOf + ' 데이터 유지');
+}
 
 async function get(url) {
   for (let i = 0; i < 3; i++) {
@@ -69,6 +81,12 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
 
 (async () => {
   const t0 = Date.now(), refund = process.argv.includes('--fund');
+  let kospi;
+  try { kospi = parseChart(await get(chartUrl('^KS11'))); } catch (e) { keepVerifiedSnapshot('코스피 시세를 받지 못했습니다.'); return; }
+  const kb = kospi?.bars, asOf = last(kb || [])?.d, regEnd = kospi?.meta?.currentTradingPeriod?.regular?.end || 0;
+  const final = asOf ? !(asOf === kst(Date.now() / 1000) && Date.now() / 1000 < regEnd + 600) : false;
+  const initial = selectMarketSnapshot({ META: { asOf, final } }, savedSnapshot, latestConfirmed);
+  if (initial.reason) { keepVerifiedSnapshot(initial.reason); return; }
   fs.mkdirSync(path.join(DATA, 'fund'), { recursive: true }); // 처음 실행(클라우드)이면 재무 폴더부터
   // 1) 재무: 없거나 45일 지났거나 --fund면 다시 받기
   const stale = LIST.filter(([tk]) => { const f = path.join(DATA, 'fund', tk + '.json'); return refund || !fs.existsSync(f) || Date.now() - fs.statSync(f).mtimeMs > 45 * 864e5; });
@@ -78,16 +96,13 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
   }
   // 2) 시세 (배당 증가를 보려고 2년치)
   console.log(`시세 받는 중: ${LIST.length}종목`);
-  const kospi = parseChart(await get(chartUrl('^KS11')));
   const charts = await pool(LIST, async ([tk]) => parseChart(await get(chartUrl(tk))));
-  const kb = kospi.bars, asOf = last(kb).d, regEnd = (kospi.meta.currentTradingPeriod || {}).regular?.end || 0;
-  const final = !(asOf === kst(Date.now() / 1000) && Date.now() / 1000 < regEnd + 600);
 
   // 3) 종목 행: off=0 오늘(마지막 거래일), off=1 하루 전. 재무 값은 같고 시세만 하루 당겨 계산한다
   const ctxs = [], newLast = {}; let failed = 0, reused = 0;
   LIST.forEach(([tk, name, sector], i) => {
     const ch = charts[i];
-    if (!ch || ch.bars.length < 2 || last(ch.bars).d < addDays(asOf, -7)) { failed++; if (lastPx[tk]) { reused++; newLast[tk] = lastPx[tk]; ctxs.push({ tk, old: lastPx[tk] }); } return; }
+    if (!ch || ch.bars.length < 2 || last(ch.bars).d < addDays(asOf, -7) || (lastPx[tk]?.d <= asOf && last(ch.bars).d < lastPx[tk].d)) { failed++; if (lastPx[tk]) { reused++; newLast[tk] = lastPx[tk]; ctxs.push({ tk, old: lastPx[tk] }); } return; }
     const fd = parseFund(rd(path.join(DATA, 'fund', tk + '.json')));
     let e = 0, bps = 0, shares = 0, eg = null, sh = null;
     if (fd) {
@@ -169,7 +184,7 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
   const rows = live.map(c => { const r = buildRow(c, 0); newLast[c.tk] = r; return r; }).filter(Boolean);
   ctxs.filter(c => c.old).forEach(c => rows.push({ ...c.old, old: c.old.d }));
   const { B, TS, cut, cand, recs } = rank(rows);
-  fs.writeFileSync(LAST_F, JSON.stringify(newLast));
+
 
   // 6) 기록 (종가일 때만, 최근 90일): 추천 목록·순위·추천 종목 가격 (지난 추천 성과 계산용)
   if (!hist[pdate] && pdate) hist[pdate] = { recs: P1.recs, rk: prevSnap.rk, rp: Object.fromEntries(P1.recs.map(k => [k, prevSnap.p[k]])) };
@@ -178,7 +193,7 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
     hist[asOf] = { recs, rk: Object.fromEntries(rows.filter(r => r.rk != null).map(r => [r.k, r.rk])), rp: Object.fromEntries(recs.map(k => [k, rows.find(r => r.k === k).p])) };
     Object.keys(hist).sort().slice(0, -90).forEach(d => delete hist[d]);
   }
-  fs.writeFileSync(HIST_F, JSON.stringify(hist));
+
   // 지난 추천 성과: 그날 추천 종목을 그날 종가에 샀다면 지금까지 수익
   const byK = Object.fromEntries(rows.map(r => [r.k, r]));
   const recPerf = Object.keys(hist).filter(d => d < asOf && hist[d].rp).sort().reverse().slice(0, 30).map(d => {
@@ -192,30 +207,13 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
     builtAt: new Date().toISOString(), recs, cut, tsort: TS, base: B.length, eligible: cand.length, total: rows.length, failed, reused, prevSnap, recPerf,
     fundOldest: (() => { const t = fs.readdirSync(path.join(DATA, 'fund')).map(f => fs.statSync(path.join(DATA, 'fund', f)).mtimeMs); return new Date(Math.min(...t) + 9 * 3600e3).toISOString().slice(0, 10); })() };
 
-  const tpl = fs.readFileSync(path.join(DIR, 'template.html'), 'utf8').replace('/*__TRADING__*/', () => fs.readFileSync(path.join(DIR, 'trading.js'), 'utf8')).replace('/*__OCR__*/', () => fs.readFileSync(path.join(DIR, 'ocr.js'), 'utf8')), scoreJs = fs.readFileSync(path.join(DIR, 'score.js'), 'utf8');
-  const simJson = fs.existsSync(path.join(DATA, 'sim.json')) ? fs.readFileSync(path.join(DATA, 'sim.json'), 'utf8') : 'null';
-  // 파일 버전: 데이터를 HTML 안에 넣는다
-  const html = themeAssets(tpl, true).replace('/*__SCORE__*/', () => scoreJs).replace('/*__END__*/', '})();')
-    .replace('/*__BOOT__*/', () => `(async () => {\nconst META = ${JSON.stringify(META)};\nconst ROWS = ${JSON.stringify(rows)};\nconst SIM = ${simJson};`);
-  fs.writeFileSync(OUT, html, 'utf8');
-  // 웹앱 버전: 화면은 index.html, 데이터는 data.json (열 때마다 새로 받음)
-  const wi = process.argv.indexOf('--web');
-  if (wi > 0) {
-    const WD = path.resolve(process.argv[wi + 1] || 'site'), WEB = path.join(DIR, 'web');
-    fs.mkdirSync(WD, { recursive: true });
-    const boot = `window.WEB_MODE = true;
-(async () => {
-let D = null;
-try { const r = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' }); if (!r.ok) throw new Error(r.status); D = await r.json(); }
-catch (e) { try { const c = await caches.match(new URL('data.json', location.href).href); if (c) { D = await c.json(); window.OFFLINE = true; } } catch (e2) {} }
-if (!D) { document.querySelector('main').innerHTML = '<p class="empty">데이터를 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 열어 주세요.</p>'; return; }
-const { META, ROWS, SIM } = D;`;
-    const head = '<link rel="manifest" href="manifest.webmanifest">\n<link rel="icon" href="icon-192.png">\n<link rel="apple-touch-icon" href="icon-192.png">\n<script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js"));</script>\n</head>';
-    fs.writeFileSync(path.join(WD, 'index.html'), themeAssets(tpl).replace('/*__SCORE__*/', () => scoreJs).replace('/*__BOOT__*/', () => boot).replace('/*__END__*/', '})();').replace('</head>', () => head), 'utf8');
-    fs.writeFileSync(path.join(WD, 'data.json'), `{"META":${JSON.stringify(META)},"ROWS":${JSON.stringify(rows)},"SIM":${simJson}}`, 'utf8');
-    for (const f of fs.readdirSync(WEB)) fs.cpSync(path.join(WEB, f), path.join(WD, f), { recursive: true });
-    console.log('웹앱 파일:', WD);
-  }
+  const candidate = { META, ROWS: rows }, selected = selectMarketSnapshot(candidate, savedSnapshot, latestConfirmed);
+  if (selected.reason) { keepVerifiedSnapshot(selected.reason); return; }
+  // Commit caches only after freshness checks; no incomplete run can overwrite them.
+  fs.writeFileSync(LAST_F, JSON.stringify(newLast));
+  fs.writeFileSync(HIST_F, JSON.stringify(hist));
+  fs.writeFileSync(SNAPSHOT_F, JSON.stringify(candidate));
+  buildDashboard({ META, ROWS: rows }, buildOptions);
   console.log(`${asOf} ${final ? '종가' : '장중 잠정'} · 전 종목 ${rows.length} · 순위 대상 ${B.length} · 추천 조건 ${cand.length} · 추천 ${recs.length} · 받기 실패 ${failed}(직전 값 ${reused}) · ${Math.round((Date.now() - t0) / 1000)}초`);
   console.log(`  구간 경계 점수: 상위5% ${cut[5].toFixed(1)} · 20% ${cut[20].toFixed(1)} · 40% ${cut[40].toFixed(1)} · 70% ${cut[70].toFixed(1)}`);
   recs.forEach((k, i) => { const r = rows.find(y => y.k === k); console.log(`  ${i + 1}. ${r.n} ${r.p.toLocaleString()}원 ${r.t.toFixed(1)}점 (상위 ${r.rk}%)`); });
