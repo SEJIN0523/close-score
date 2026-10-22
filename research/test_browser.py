@@ -44,6 +44,7 @@ with sync_playwright() as p:
  page=context.new_page(); errors=[]
  page.on('pageerror',lambda e: errors.append(str(e)))
  page.goto(base); page.wait_for_selector('#todayCount:not(:empty)')
+ rec_codes=page.evaluate('async () => (await (await fetch("data.json")).json()).META.recs')
  print('Loaded',page.title(),flush=True)
  def check_alignment():
   assert page.evaluate('''() => {
@@ -54,6 +55,10 @@ with sync_playwright() as p:
    const nm=s.querySelector('.nm').getBoundingClientRect(),px=s.querySelector('.px').getBoundingClientRect(),sc=s.querySelector('.sc').getBoundingClientRect(),sg=s.querySelector('.sg').getBoundingClientRect();
    return nm.right<=px.left+1 && sc.right<=sg.left+1;
   })'''),'stock name/price or score/signal overlap'
+  assert page.evaluate('''() => [...document.querySelectorAll('.recommendation-row > summary')].filter(s=>s.getBoundingClientRect().width).every(s=>{
+   const name=s.querySelector('.rec-stock').getBoundingClientRect(),price=s.querySelector('.rec-price').getBoundingClientRect(),score=s.querySelector('.rec-score').getBoundingClientRect();
+   return name.right<=price.left && price.right<=score.left && Math.abs(name.top-price.top)<5;
+  })'''),'recommendation columns overlap'
  for width in [320,412,1024]:
   page.set_viewport_size({'width':width,'height':915})
   for tab in ['todo','rec','hold','watch','stat']:
@@ -61,9 +66,27 @@ with sync_playwright() as p:
    overflow=page.evaluate('document.documentElement.scrollWidth > innerWidth + 1')
    assert not overflow,(width,tab,'horizontal overflow')
    check_alignment()
+   if tab=='rec':
+    assert page.locator('#recList > details').evaluate_all('(rows) => rows.map(r=>r.dataset.code)')==rec_codes,'recommendation order changed'
+    assert page.locator('#recList').evaluate('(el) => el.getBoundingClientRect().height')<=len(rec_codes)*58+1,'recommendations too tall'
    page.screenshot(path=f'{OUTPUT}/{width}-{tab}.png',full_page=True)
   print(f'{width}px: all five tabs fit',flush=True)
- page.set_viewport_size({'width':412,'height':915});page.locator('#t-todo').click()
+ page.set_viewport_size({'width':412,'height':915});page.locator('#t-rec').click()
+ rec_rows=page.locator('#recList > details')
+ rec_rows.nth(0).locator('summary').click()
+ rec_rows.nth(0).locator('[data-chart] svg').wait_for(state='visible')
+ assert rec_rows.nth(0).locator('[data-copy]').is_visible()
+ assert rec_rows.nth(0).locator('[data-star]').is_visible()
+ assert rec_rows.nth(0).locator('.act').is_visible()
+ page.screenshot(path=f'{OUTPUT}/412-rec-expanded.png',full_page=True)
+ rec_rows.nth(1).locator('summary').click()
+ assert page.locator('#recList > details[open]').count()==1,'multiple recommendations expanded'
+ rec_rows.nth(1).locator('[data-recbuy]').click()
+ assert page.locator('#p-hold').is_visible() and page.locator('#fName').is_visible(),'recommendation trade shortcut missing'
+ rec_rows.nth(1).evaluate('(el)=>el.open=false')
+ page.evaluate('document.getElementById("tradeEntry").open=false;document.getElementById("holdTools").open=false')
+ print('Compact recommendations preserve order, open one chart at a time and fill the trade form.',flush=True)
+ page.locator('#t-todo').click()
  assert page.locator('#todayCard').get_attribute('open') is not None
  page.locator('#todayCard > summary').click();assert page.locator('#todayCard').get_attribute('open') is None
  page.locator('#todayCard > summary').click()
@@ -190,7 +213,7 @@ with sync_playwright() as p:
    check_alignment()
    page.screenshot(path=f'{OUTPUT}/{width}-{tab}-dark.png',full_page=True)
  page.evaluate('document.documentElement.dataset.theme="light"')
- page.locator('#t-rec').click();page.locator('#recList [data-star]').first.click()
+ page.locator('#t-rec').click();page.locator('#recList > details > summary').first.click();page.locator('#recList [data-star]').first.click()
  page.locator('#t-watch').click()
  page.evaluate('localStorage.setItem("close-score-gh","test-connection");localStorage.setItem("unrelated-app-key","keep-me")')
  snapshot=lambda: page.evaluate('Object.fromEntries(Object.entries(localStorage))')

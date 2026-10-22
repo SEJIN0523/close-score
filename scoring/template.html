@@ -273,6 +273,39 @@ progress { width: 100%; accent-color: var(--brand); }
 .holding-overview small { display: block; font-size: 11px; color: var(--muted); }
 .holding-overview b { font-size: 14px; overflow-wrap: anywhere; }
 .holding-row .act { background: var(--surface-2); padding: 11px; border-radius: 10px; line-height: 1.8; }
+.rec-summary { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 12px; color: var(--ink-2); font-size: 11px; }
+.rec-summary b { color: var(--ink); margin-left: 4px; font-variant-numeric: tabular-nums; }
+.recommendations { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; }
+.rec-columns,.recommendation-row > summary { display: grid; grid-template-columns: 18px minmax(0,1fr) 86px 32px 6px; align-items: center; gap: 8px; padding-inline: 12px; }
+.rec-columns { height: 30px; color: var(--muted); font-size: 10px; background: var(--surface-2); }
+.rec-columns span:first-child { grid-column: 2; }
+.rec-columns span:not(:first-child) { text-align: right; }
+.recommendation-row { border-top: 1px solid var(--line); min-width: 0; }
+.recommendation-row > summary { height: 56px; list-style: none; }
+.rec-rank { font-size: 12px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+.rec-stock,.rec-price { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.rec-stock > b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rec-signal { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--ink-2); white-space: nowrap; }
+.rec-signal .dot { width: 5px; height: 5px; }
+.rec-fresh { color: var(--brand-ink); font-size: 9px; }
+.rec-price { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rec-price b { font-size: 13px; font-weight: 650; }
+.rec-price small { font-size: 10px; }
+.rec-score { font-size: 16px; font-weight: 750; text-align: right; font-variant-numeric: tabular-nums; }
+.recommendation-row[open] > summary { background: var(--surface-2); }
+.recommendation-row[open] .holding-chevron { transform: rotate(225deg); }
+.rec-info { padding: 14px 14px 0; display: grid; gap: 10px; font-size: 12px; }
+.rec-info-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rec-info-heading > b { font-size: 16px; overflow-wrap: anywhere; }
+.rec-info-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; color: var(--ink-2); }
+.rec-info .act { padding: 11px; background: var(--surface-2); border-radius: 10px; font-size: 12px; line-height: 1.8; }
+.recommendation-row .det { padding: 14px; gap: 12px; }
+#recList > .note { margin: 0; padding: 16px; }
+.rec-help { margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.rec-help > summary { min-height: 40px; display: flex; align-items: center; gap: 7px; list-style: none; }
+.rec-help > summary::before { content: '+'; font-size: 16px; color: var(--muted); }
+.rec-help[open] > summary::before { content: '−'; }
+.rec-help .note { margin-top: 5px; }
 .box.compact-panel { padding: 0; border-radius: 13px; margin-top: 10px; }
 details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-size: 13px; }
 .compact-panel .panel-body,.tool-body { padding: 0 14px 14px; }
@@ -367,11 +400,13 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-rec" role="tabpanel" aria-labelledby="t-rec" hidden>
-    <header class="page-heading"><p class="eyebrow">종목 살펴보기</p><h2>오늘의 추천</h2><p>같은 기준으로 비교하고, 펼쳐서 자세히 살펴보세요.</p></header>
-    <div class="sum" id="sum"></div>
-    <p class="desc" id="recDesc"></p>
-    <div class="list" id="recList"></div>
-    <p class="note" id="dropped"></p>
+    <header class="page-heading compact-heading"><h2>오늘의 추천</h2><p id="recDesc"></p></header>
+    <div class="rec-summary" id="sum"></div>
+    <div class="recommendations">
+      <div class="rec-columns" aria-hidden="true"><span>종목 · 상세 보기</span><span>현재가</span><span>점수</span></div>
+      <div id="recList"></div>
+    </div>
+    <details class="rec-help"><summary>선정 기준 · 변경 종목</summary><p class="note" id="recCriteria"></p><p class="note" id="dropped"></p></details>
   </section>
 
   <section id="p-hold" role="tabpanel" aria-labelledby="t-hold" hidden>
@@ -736,8 +771,8 @@ function drawChart(box) {
 }
 document.addEventListener('toggle', e => {
   const d = e.target; if (d.tagName !== 'DETAILS' || !d.open) return;
-  if (d.classList.contains('holding-row') || d.classList.contains('research-item')) {
-    const group = d.classList.contains('holding-row') ? '#holdList > details' : '.research-item';
+  if (d.classList.contains('holding-row') || d.classList.contains('research-item') || d.classList.contains('recommendation-row')) {
+    const group = d.classList.contains('holding-row') ? '#holdList > details' : d.classList.contains('recommendation-row') ? '#recList > details' : '.research-item';
     document.querySelectorAll(group).forEach(other => { if (other !== d) other.open = false; });
   }
   d.querySelectorAll('[data-chart]').forEach(drawChart);
@@ -766,12 +801,21 @@ function renderRec() {
     x.dec.act += POS[r.k] ? '<br>이미 보유 중' : `<br>한 종목 몫 ${won(slot * share)}원${eff().example ? '(예시 1억)' : ''}을 1/3씩 3번 → 먼저 <b>${nq.toLocaleString()}주</b>, 5·10거래일 뒤에도 상위 20%면 같은 만큼 더${free <= 0 ? ' · 빈 자리 없음' : ''}`; } });
   const cnt = ks => recs.filter(o => ks.includes(o.x.dec.k)).length;
   document.getElementById('sum').innerHTML = [
-    [cnt(['strong']), '적극 매수 (상위 5%)', 'var(--good)'], [cnt(['buy']), '매수 (상위 5~20%)', 'var(--good)'],
-    [META.base.toLocaleString(), '순위 매긴 종목', 'var(--neutral)'], [Math.max(0, CFG.slots - Object.keys(POS).length) + ' / ' + CFG.slots, '빈 자리', 'var(--star)'],
-  ].map(([n, t, c]) => `<div><b>${n}</b><span class="sig" style="font-weight:400"><span class="dot" style="background:${c}"></span>${t}</span></div>`).join('');
+    [cnt(['strong']), '적극 매수'], [cnt(['buy']), '매수'], [Math.max(0, free) + '/' + CFG.slots, '빈 자리'],
+  ].map(([n, t]) => `<span>${t}<b>${n}</b></span>`).join('');
   const prev = META.prevRecs ? new Set(META.prevRecs) : null;
-  document.getElementById('recDesc').innerHTML = `${META.asOf} ${META.final ? '종가' : '장중'} 기준 전 종목 ${META.base.toLocaleString()}개 중 상위 20% 안에서 점수 순 ${recs.length}개 (한 업종 최대 3개). 카드를 누르면 그래프와 기대수익이 나옵니다.`;
-  document.getElementById('recList').innerHTML = recs.map(({ r, x }, i) => `<details class="row"><summary>${rowHead(r, x, `<span class="rk">${i + 1}</span>`, { fresh: prev && !prev.has(r.k), keyword: keyword(r), star: true })}</summary>${detail(r, x)}</details>`).join('')
+  document.getElementById('recDesc').textContent = `${META.asOf} ${META.final ? '종가' : '장중'} · 점수 순 ${recs.length}종목`;
+  document.getElementById('recCriteria').textContent = `전 종목 ${META.base.toLocaleString()}개 중 상위 20% 안에서 점수 순으로 선정합니다. 한 업종 최대 3개. 적극 매수는 상위 5%, 매수는 상위 5~20%입니다. 별 버튼과 종목코드 복사는 종목을 펼치면 나옵니다.`;
+  document.getElementById('recList').innerHTML = recs.map(({ r, x }, i) => {
+    const [lab, col] = SIG[x.dec.k], previous = META.prevRk[r.k], delta = previous != null && r.rk != null ? previous - r.rk : null;
+    return `<details class="recommendation-row" name="recommendations" data-code="${r.k}"><summary aria-label="${i + 1}위 ${r.n}, ${won(r.p)}원, ${x.f ? Math.floor(x.f.total) + '점' : '점수 없음'}, ${lab}. 상세 보기">
+      <span class="rec-rank">${i + 1}</span><span class="rec-stock"><b title="${esc(r.n)}">${r.n}</b><span class="rec-signal"><span class="dot" style="background:${col}"></span>${lab}${prev && !prev.has(r.k) ? '<span class="rec-fresh">· 신규</span>' : ''}</span></span>
+      <span class="rec-price"><b>${won(r.p)}원</b><small class="${r.ch >= 0 ? 'up' : 'down'}">${pct(r.ch, 2)}${r.old ? ' · 이전' : ''}</small></span><span class="rec-score">${x.f ? Math.floor(x.f.total) : '–'}</span><span class="holding-chevron" aria-hidden="true"></span>
+      </summary><div class="rec-info"><div class="rec-info-heading"><b>${r.n}</b>${starBtn(r)}</div>
+      <div class="rec-info-meta"><button type="button" class="code" data-copy="${r.k}" aria-label="종목코드 ${r.k} 복사">${r.k} 복사</button><span>${r.s}</span><span class="kw">${keyword(r)}</span></div>
+      <div class="rec-info-meta"><span>${x.f ? `${Math.floor(x.f.total)}점 · 상위 ${r.rk < 1 ? r.rk.toFixed(1) : Math.round(r.rk)}%` : '점수 없음'}</span>${delta != null && Math.abs(delta) >= 1 ? `<span class="${delta > 0 ? 'up' : 'down'}">${delta > 0 ? '↑' : '↓'}${Math.abs(delta).toFixed(0)}%p</span>` : ''}${r.old ? `<span>가격 기준: ${r.old} 값</span>` : ''}</div>
+      <div class="act">${x.dec.act}${x.dec.flags.map(t => `<br><span class="warn">주의 · ${t}</span>`).join('')}</div></div>${detail(r, x)}</details>`;
+  }).join('')
     || '<p class="note">오늘은 추천 조건을 통과한 상위 20% 종목이 없습니다.</p>';
   const out = prev ? META.prevRecs.filter(k => !META.recs.includes(k) && BY[k]) : [];
   document.getElementById('dropped').textContent = out.length ? `${META.prevDate} 추천에서 빠진 종목: ${out.map(k => `${BY[k].n}(상위 ${BY[k].rk != null ? Math.round(BY[k].rk) + '%' : '-'})`).join(', ')}` : '';
