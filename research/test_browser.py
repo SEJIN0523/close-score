@@ -45,12 +45,22 @@ with sync_playwright() as p:
  page.on('pageerror',lambda e: errors.append(str(e)))
  page.goto(base); page.wait_for_selector('#todayCount:not(:empty)')
  print('Loaded',page.title(),flush=True)
+ def check_alignment():
+  assert page.evaluate('''() => {
+   const title=document.querySelector('.top h1').getBoundingClientRect(), refresh=document.getElementById('refreshBtn').getBoundingClientRect(), theme=document.getElementById('themeBtn').getBoundingClientRect();
+   return title.right<=refresh.left && refresh.right<=theme.left && Math.abs(title.top-refresh.top)<12;
+  }'''),'header controls out of order'
+  assert page.evaluate('''() => [...document.querySelectorAll('.row > summary,.row > details > summary')].filter(s=>s.getBoundingClientRect().width).every(s=>{
+   const nm=s.querySelector('.nm').getBoundingClientRect(),px=s.querySelector('.px').getBoundingClientRect(),sc=s.querySelector('.sc').getBoundingClientRect(),sg=s.querySelector('.sg').getBoundingClientRect();
+   return nm.right<=px.left+1 && sc.right<=sg.left+1;
+  })'''),'stock name/price or score/signal overlap'
  for width in [320,412,1024]:
   page.set_viewport_size({'width':width,'height':915})
   for tab in ['todo','rec','hold','watch','stat']:
    page.locator('#t-'+tab).click(); page.wait_for_timeout(100)
    overflow=page.evaluate('document.documentElement.scrollWidth > innerWidth + 1')
    assert not overflow,(width,tab,'horizontal overflow')
+   check_alignment()
    page.screenshot(path=f'{OUTPUT}/{width}-{tab}.png',full_page=True)
   print(f'{width}px: all five tabs fit',flush=True)
  page.set_viewport_size({'width':412,'height':915});page.locator('#t-todo').click()
@@ -106,9 +116,54 @@ with sync_playwright() as p:
   for tab in ['todo','rec','hold','watch','stat']:
    page.locator('#t-'+tab).click()
    assert not page.evaluate('document.documentElement.scrollWidth > innerWidth + 1'),(width,tab,'populated overflow')
+   check_alignment()
  page.locator('#t-hold').click()
  page.screenshot(path=f'{OUTPUT}/412-hold-populated.png',full_page=True)
  assert not errors,errors
  print('Two-image OCR, duplicate detection, correction, exclusion, 9-row batch registration and populated mobile layouts passed.',flush=True)
+ # Readability in dark mode, including populated holdings and long stock names.
+ page.evaluate('document.documentElement.dataset.theme="dark";localStorage.setItem("close-score-theme","dark")')
+ for width in [320,412]:
+  page.set_viewport_size({'width':width,'height':915})
+  for tab in ['todo','rec','hold','watch','stat']:
+   page.locator('#t-'+tab).click()
+   assert not page.evaluate('document.documentElement.scrollWidth > innerWidth + 1'),(width,tab,'dark overflow')
+   check_alignment()
+   page.screenshot(path=f'{OUTPUT}/{width}-{tab}-dark.png',full_page=True)
+ page.evaluate('document.documentElement.dataset.theme="light"')
+ page.locator('#t-rec').click();page.locator('#recList [data-star]').first.click()
+ page.locator('#t-watch').click()
+ page.evaluate('localStorage.setItem("close-score-gh","test-connection");localStorage.setItem("unrelated-app-key","keep-me")')
+ snapshot=lambda: page.evaluate('Object.fromEntries(Object.entries(localStorage))')
+ before_reset=snapshot()
+ page.locator('#resetOpen').click();assert page.locator('#resetCommit').is_disabled()
+ page.locator('#resetPhrase').fill('초기');assert page.locator('#resetCommit').is_disabled()
+ page.screenshot(path=f'{OUTPUT}/412-reset.png',full_page=True)
+ with page.expect_download() as download:
+  page.locator('#resetBackup').click()
+ backup=json.loads(pathlib.Path(download.value.path()).read_text())
+ assert len(backup['log'])==len(logs) and len(backup['watch'])==1
+ assert snapshot()==before_reset
+ page.locator('#resetCancel').click();assert snapshot()==before_reset
+ page.locator('#resetOpen').click();page.keyboard.press('Escape');assert snapshot()==before_reset
+ page.locator('#resetOpen').click();page.locator('#resetPhrase').fill('초기화')
+ # Simulate a mid-write failure: the earlier keys must be rolled back.
+ page.evaluate('''() => { window.originalSetItem=Storage.prototype.setItem;let fail=true;Storage.prototype.setItem=function(k,v){if(k==="close-score-cash"&&fail){fail=false;throw new DOMException("Test storage failure","QuotaExceededError");}return window.originalSetItem.call(this,k,v);};}''')
+ page.locator('#resetCommit').click();assert '못했습니다' in page.locator('#resetMsg').inner_text()
+ assert snapshot()==before_reset
+ page.evaluate('Storage.prototype.setItem=window.originalSetItem;delete window.originalSetItem')
+ page.locator('#resetCommit').click()
+ reset_state=snapshot()
+ assert json.loads(reset_state['close-score-log'])==[] and json.loads(reset_state['close-score-cash'])==[]
+ assert json.loads(reset_state['close-score-track'])=={} and json.loads(reset_state['close-score-equity'])=={}
+ assert json.loads(reset_state['close-score-cfg'])=={'cash':0,'slots':10}
+ assert json.loads(reset_state['close-score-watch'])==backup['watch']
+ for key in ['close-score-theme','close-score-gh','unrelated-app-key']: assert reset_state[key]==before_reset[key]
+ page.reload();page.wait_for_selector('#resetOpen')
+ assert json.loads(page.evaluate('localStorage.getItem("close-score-log")'))==[]
+ page.locator('#resetOpen').click();page.locator('#resetWatch').check();page.locator('#resetPhrase').fill('초기화');page.locator('#resetCommit').click()
+ assert json.loads(page.evaluate('localStorage.getItem("close-score-watch")'))==[]
+ assert not errors,errors
+ print('Dark layouts, reset backup/cancel/Escape/confirmation, write-failure rollback, optional watch deletion and preservation of connection/theme/unrelated data passed.',flush=True)
  browser.close()
 if server: server.shutdown()
