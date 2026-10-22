@@ -1,19 +1,20 @@
-# Blossom SD companion
+# Blossom character artwork
 
-`blossom-sd.png` is a transparent 2 by 2 sprite sheet generated from the user's
-character reference. Each quadrant is a new full-body SD pose:
+The character reference is developed into three complementary forms, all kept
+as transparent 2 by 2 sheets. Each cell is selected by CSS, without editing the
+source image. Generated originals remain in the workspace `generated_images`.
 
-| Position | Pose | Application |
-| --- | --- | --- |
-| Top left | Pointing guide | Help, neutral/empty account, recommendations and watchlist |
-| Top right | Happy | Positive actual total account profit |
-| Bottom left | Sad | Negative actual total account profit |
-| Bottom right | Celebration | Successful trade persistence, briefly |
+| Sheet | Top left | Top right | Bottom left | Bottom right | Use |
+| --- | --- | --- | --- | --- | --- |
+| `blossom-scenes.png` | Pointing | Explaining a clipboard | Welcoming wave | Thumbs up | Today's plan, recommendations, watchlist, OCR guidance and help |
+| `blossom-portraits.png` | Calm | Delighted | Concerned | Encouraging wink | Actual total P&L in holdings and statistics |
+| `blossom-sd.png` | Pointing | Happy | Sad | Celebration | Small saved-record feedback and preview |
 
-The original generated sheet is preserved in the workspace `generated_images`.
-CSS selects a complete pose without modifying or cropping the source file.
-`companion.js` only reads account values already calculated by the app. The
-preview picker cannot change account values or the real reaction.
+Main illustrations and portraits retain ordinary anime proportions. Only the
+small feedback sheet uses SD proportions. The preview offers all three forms
+without changing real account values or the active financial expression.
 
-Web builds use the local PNG. Standalone builds embed its bytes and create a
-short document-local Blob URL through `scoring/theme-assets.js`.
+`companion.js` reads account values already calculated by the app. It never
+changes records, scoring, trading, or storage. Web builds load local PNGs;
+standalone builds embed all three sheets as document-local Blob URLs through
+`scoring/theme-assets.js`, avoiding large CSS custom-property values.

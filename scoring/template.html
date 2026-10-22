@@ -15,6 +15,7 @@
   --bar-bg: #e4eae6; --star: #eda100; --s1: #2a78d6; --grid: #e9eeeb; --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a; --c4: #eda100; --c5: #e87ba4; --c6: #008300; --c7: #6250d6; --c8: #e34948;
   --lt-g: #1baf7a; --lt-y: #eda100; --lt-r: #e34948; --shadow: 0 3px 16px rgba(25,48,70,.035);
   --character-image: url("/*__BLOSSOM_ASSET__*/");
+  --character-scene: url("/*__BLOSSOM_SCENES__*/"); --character-portrait: url("/*__BLOSSOM_PORTRAITS__*/");
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="blossom"]) {
@@ -491,7 +492,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 .preview-system::after { background: linear-gradient(110deg,white 50%,#293a4c 50%); }
 .preview-blossom { background: radial-gradient(ellipse at 20% 90%,#e8def6,transparent 80%),#fff1f8; }
 .preview-blossom::before { background: #b1548b; box-shadow: 0 13px #dfbcd4; width: 38%; }
-.preview-blossom::after { background: var(--character-image) 100% 0 / 200% 200% no-repeat; left: auto; right: 2px; top: -2px; width: 88px; height: 80.4px; border-radius: 0; box-shadow: none; }
+.preview-blossom::after { background: var(--character-scene) 0 0 / 200% 200% no-repeat; left: auto; right: 2px; top: -2px; width: 88px; height: 80.4px; border-radius: 0; box-shadow: none; }
 #themeCurrent { font-size: 11px; color: var(--brand-ink); margin: 14px 0 0; }
 /* Blossom: the supplied character's flowers, rose quartz and lilac silk. */
 :root[data-theme=blossom] {
@@ -505,7 +506,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 :root[data-theme=blossom] .logo { background: linear-gradient(135deg,#c35d99,#9873bc); box-shadow: 0 2px 8px #c17fac25; }
 
 :root[data-theme=blossom] #themeBtn { color: var(--brand); background: #f7e5f0; }
-:root[data-theme=blossom] .page-heading { position: relative; padding-right: 86px; min-height: 85px; }
+:root[data-theme=blossom] .page-heading { position: relative; padding-right: 98px; min-height: 85px; }
 
 :root[data-theme=blossom] #p-todo .page-heading { min-height: 164px; border: 1px solid #ecd5e6; border-radius: 21px; padding: 17px 151px 16px 18px; background: radial-gradient(ellipse at 20% 90%,#eadef5,transparent 70%),linear-gradient(110deg,#fff8fb,#f9e8f2); overflow: hidden; box-shadow: 0 5px 22px #b8759b0d; }
 
@@ -518,11 +519,17 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 :root[data-theme=blossom] .btn.pri { background: linear-gradient(110deg,#b24883,#9463ad); border-color: transparent; }
 :root[data-theme=blossom] .btn.danger.pri { background: var(--up); }
 :root[data-theme=blossom] .holding-row[open],:root[data-theme=blossom] .theme-option[aria-pressed=true] { border-color: #bf77a5; }
-/* Four generated SD poses share one transparent sprite sheet. */
+/* The same character uses different artwork for guidance, expressions and feedback. */
 .buddy-sprite { background-image: var(--character-image); background-size: 200% 200%; background-repeat: no-repeat; background-position: 0 0; }
 .buddy-sprite[data-pose=happy] { background-position: 100% 0; }
 .buddy-sprite[data-pose=sad] { background-position: 0 100%; }
 .buddy-sprite[data-pose=celebrate] { background-position: 100% 100%; }
+.buddy-sprite[data-art=scene] { background-image: var(--character-scene); }
+.buddy-sprite[data-art=scene][data-pose=reading] { background-position: 100% 0; }
+.buddy-sprite[data-art=scene][data-pose=welcome] { background-position: 0 100%; clip-path: inset(2px 0 0); }
+.buddy-sprite[data-art=scene][data-pose=celebrate] { clip-path: inset(2px 0 0); }
+.buddy-sprite[data-art=portrait] { background-image: var(--character-portrait); }
+:root[data-theme=blossom] .theme-character[data-art=portrait] { width: 78px; height: 78px; top: -2px; right: 2px; border-radius: 15px; background-color: #f8eaf4; box-shadow: 0 0 0 1px #ecd9e9; }
 :root[data-theme=blossom] .page-heading > p:not(.eyebrow):not(#recDesc) { display: none; }
 :root[data-theme=blossom] .buddy-dialogue { display: block; position: relative; margin-top: 6px; }
 .buddy-message { margin: 0; font-size: 11px; color: var(--ink-2); line-height: 1.7; overflow-wrap: anywhere; }
@@ -539,7 +546,15 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 :root[data-theme=blossom] .buddy-playground { display: block; border-top: 1px solid var(--line); margin-top: 17px; padding-top: 13px; }
 .buddy-playground h3 { font-size: 12px; margin: 0 0 8px; }
 .buddy-demo-stage { display: flex; align-items: center; gap: 10px; min-height: 84px; }
-.buddy-demo-stage .buddy-sprite { width: 96px; height: 87.7px; flex: none; }
+.buddy-demo-stage .buddy-sprite { width: 104px; height: 95px; flex: none; }
+.buddy-demo-stage .buddy-sprite[data-art=portrait] { width: 88px; height: 88px; }
+.buddy-art-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; margin: 8px 0; }
+.buddy-art-options button { min-height: 36px; padding: 4px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; font-size: 11px; }
+.buddy-art-options button[aria-pressed=true] { border-color: var(--brand); color: var(--brand-ink); background: var(--surface-2); }
+.ocr-character { display: none; }
+:root[data-theme=blossom] .ocr-guide-line { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+:root[data-theme=blossom] .ocr-character { display: block; width: 94px; height: 86px; flex: none; }
+:root[data-theme=blossom] .ocr-guide-line .note { margin: 0; }
 #buddyPreviewText { font-size: 11px; color: var(--ink-2); margin: 0; line-height: 1.8; }
 .buddy-preview-buttons { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 5px; margin-top: 6px; }
 .buddy-preview-buttons button { min-height: 36px; padding: 4px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; font-size: 11px; }
@@ -588,13 +603,13 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
     <button type="button" class="theme-option" data-theme-choice="dark" aria-pressed="false"><span class="theme-preview preview-dark" aria-hidden="true"></span><span class="theme-option-copy"><b>미드나이트</b><svg class="theme-check" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 10 3 3 7-7"/></svg></span></button>
     <button type="button" class="theme-option" data-theme-choice="blossom" aria-pressed="false"><span class="theme-preview preview-blossom" aria-hidden="true"></span><span class="theme-option-copy"><b>블로썸</b><svg class="theme-check" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 10 3 3 7-7"/></svg></span></button>
   </div>
-  <div class="buddy-playground"><h3>SD 캐릭터 · 표정 미리보기</h3><div class="buddy-demo-stage"><div id="buddyDemo" class="buddy-sprite" data-pose="guide" role="img" aria-label="손가락으로 안내하는 SD 캐릭터"></div><p id="buddyPreviewText">손가락으로 화면 사용법을 안내해요.</p></div><div class="buddy-preview-buttons" role="group" aria-label="캐릭터 표정 미리보기"><button type="button" data-buddy-preview="guide" aria-pressed="true">안내</button><button type="button" data-buddy-preview="happy" aria-pressed="false">수익</button><button type="button" data-buddy-preview="sad" aria-pressed="false">손실</button><button type="button" data-buddy-preview="celebrate" aria-pressed="false">완료</button></div></div>
+  <div class="buddy-playground"><h3>캐릭터가 쓰이는 모습</h3><div class="buddy-art-options" role="group" aria-label="캐릭터 표현 미리보기"><button type="button" data-buddy-art-choice="scene" aria-pressed="true">안내 일러스트</button><button type="button" data-buddy-art-choice="portrait" aria-pressed="false">손익 표정</button><button type="button" data-buddy-art-choice="mini" aria-pressed="false">작은 반응</button></div><div class="buddy-demo-stage"><div id="buddyDemo" class="buddy-sprite" data-art="scene" data-pose="guide" role="img" aria-label="손가락으로 안내하는 일러스트"></div><p id="buddyPreviewText" role="status">할 일·추천·이미지 등록에서 동작으로 안내해요.</p></div><div class="buddy-preview-buttons" role="group" aria-label="캐릭터 동작 미리보기"><button type="button" data-buddy-preview="guide" aria-pressed="true">가리키기</button><button type="button" data-buddy-preview="reading" aria-pressed="false">자료 확인</button><button type="button" data-buddy-preview="welcome" aria-pressed="false">인사</button><button type="button" data-buddy-preview="celebrate" aria-pressed="false">완료 안내</button></div></div>
   <p id="themeCurrent" role="status"></p>
 </dialog>
 
 <main class="wrap">
   <section id="p-todo" role="tabpanel" aria-labelledby="t-todo">
-    <header data-buddy-context="todo" class="page-heading"><p class="eyebrow">나의 포트폴리오</p><h2>오늘의 투자</h2><p>계획 확인부터 실제 체결 기록까지.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-pose="guide" aria-label="SD 캐릭터 안내 보기"></button></header>
+    <header data-buddy-context="todo" class="page-heading"><p class="eyebrow">나의 포트폴리오</p><h2>오늘의 투자</h2><p>계획 확인부터 실제 체결 기록까지.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-art="scene" data-pose="guide" aria-label="캐릭터 안내 보기"></button></header>
     <div class="sum" id="tsum"></div>
     <div class="execution-toolbar"><span id="executionSummary" aria-live="polite"></span><div class="execution-filter" role="group" aria-label="오늘 계획 필터"><button type="button" data-task-filter="all" aria-pressed="true">전체</button><button type="button" data-task-filter="pending" aria-pressed="false">남은 계획</button></div></div>
     <details class="card todo-card" id="todayCard" open><summary>오늘 할 일 <span id="todayCount"></span></summary><div id="todoA"></div></details>
@@ -603,7 +618,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-rec" role="tabpanel" aria-labelledby="t-rec" hidden>
-    <header data-buddy-context="rec" class="page-heading compact-heading"><h2>오늘의 추천</h2><p id="recDesc"></p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-pose="guide" aria-label="SD 캐릭터 안내 보기"></button></header>
+    <header data-buddy-context="rec" class="page-heading compact-heading"><h2>오늘의 추천</h2><p id="recDesc"></p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-art="scene" data-pose="guide" aria-label="캐릭터 안내 보기"></button></header>
     <div class="rec-summary" id="sum"></div>
     <div class="recommendations">
       <div class="rec-columns" aria-hidden="true"><span>종목 · 상세 보기</span><span>현재가</span><span>점수</span></div>
@@ -613,7 +628,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-hold" role="tabpanel" aria-labelledby="t-hold" hidden>
-    <header data-buddy-context="hold" class="page-heading compact-heading"><h2>보유 종목</h2><p>종목을 누르면 상세 내역이 펼쳐집니다.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-pose="guide" aria-label="SD 캐릭터 안내 보기"></button></header>
+    <header data-buddy-context="hold" class="page-heading compact-heading"><h2>보유 종목</h2><p>종목을 누르면 상세 내역이 펼쳐집니다.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-art="scene" data-pose="guide" aria-label="캐릭터 안내 보기"></button></header>
     <div class="sum" id="hsum" hidden></div>
     <details class="account-overview" id="acctBox"><summary id="acctBrief"></summary><div id="acct"></div></details>
     <div class="hold-actions"><button class="btn" id="manualEntry" type="button">매매 기록</button><button class="btn" id="ocrOpen" type="button">이미지 등록</button><button class="btn" id="ledgerEntry" type="button">입출금</button></div>
@@ -654,7 +669,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-watch" role="tabpanel" aria-labelledby="t-watch" hidden>
-    <header data-buddy-context="watch" class="page-heading"><p class="eyebrow">나의 목록</p><h2>관심종목</h2><p>살펴볼 종목을 모으고, 아래에서 데이터를 관리하세요.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-pose="guide" aria-label="SD 캐릭터 안내 보기"></button></header>
+    <header data-buddy-context="watch" class="page-heading"><p class="eyebrow">나의 목록</p><h2>관심종목</h2><p>살펴볼 종목을 모으고, 아래에서 데이터를 관리하세요.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-art="scene" data-pose="guide" aria-label="캐릭터 안내 보기"></button></header>
     <div class="addbar">
       <input id="q" list="stockList" placeholder="종목명 또는 코드" aria-label="추가할 종목" autocomplete="off">
       <button class="btn pri" id="addBtn" type="button">추가</button>
@@ -672,7 +687,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-stat" role="tabpanel" aria-labelledby="t-stat" hidden>
-    <header data-buddy-context="stat" class="page-heading compact-heading"><h2>투자 통계</h2><p>핵심 지표와 선택한 분석만 간단히 확인하세요.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-pose="guide" aria-label="SD 캐릭터 안내 보기"></button></header>
+    <header data-buddy-context="stat" class="page-heading compact-heading"><h2>투자 통계</h2><p>핵심 지표와 선택한 분석만 간단히 확인하세요.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-art="scene" data-pose="guide" aria-label="캐릭터 안내 보기"></button></header>
     <div class="sum stat-summary" id="ssum"></div>
     <div class="stat-tabs" role="tablist" aria-label="통계 항목">
       <button id="st-assets" type="button" role="tab" data-stat-view="assets" aria-controls="sv-assets" aria-selected="true">자산</button>
@@ -858,7 +873,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 </dialog>
 <dialog id="ocrDialog" class="review" aria-labelledby="ocrTitle">
   <div class="review-head"><h2 id="ocrTitle">체결 내역 일괄 등록</h2><button type="button" class="btn sm" id="ocrClose">취소</button></div>
-  <p class="note">토스증권 체결 내역 이미지를 선택하세요. 이미지는 이 기기에서만 인식하며 서버에 보내지 않습니다. 인식값과 연도·날짜를 원본과 확인한 뒤 등록하세요.</p>
+  <div class="ocr-guide-line"><span class="ocr-character buddy-sprite" data-art="scene" data-pose="reading" aria-hidden="true"></span><p class="note">토스증권 체결 내역 이미지를 선택하세요. 이미지는 이 기기에서만 인식하며 서버에 보내지 않습니다. 인식값과 연도·날짜를 원본과 확인한 뒤 등록하세요.</p></div>
   <label for="ocrFiles">이미지 선택 (여러 장 가능)</label><input id="ocrFiles" type="file" accept="image/*" multiple>
   <div class="form"><label>기본 체결일<input id="ocrDate" type="date"></label><button type="button" class="btn" id="ocrRun">이미지 인식</button></div>
   <p class="msg" id="ocrStatus" role="status" aria-live="polite"></p><progress id="ocrProgress" max="1" value="0" hidden></progress>

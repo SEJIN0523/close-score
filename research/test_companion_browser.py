@@ -33,24 +33,30 @@ with sync_playwright() as p:
    cash=[{'id':1,'date':data['date'],'type':'dep','amt':100000000,'memo':'Isolated companion fixture'}]
   page.evaluate('''v=>{localStorage.setItem('close-score-log',JSON.stringify(v.logs));localStorage.setItem('close-score-cash',JSON.stringify(v.cash));localStorage.setItem('close-score-theme','blossom');localStorage.setItem('close-score-tab','todo')}''',{'logs':logs,'cash':cash})
   page.reload();page.wait_for_selector('#todayCount:not(:empty)')
-  buddy=page.locator('#p-todo [data-buddy]');assert buddy.get_attribute('data-pose')==expected,(label,'wrong P&L reaction')
-  if delta is not None:assert ('+10,000' if delta<0 else '-10,000' if delta>0 else '0원') in page.locator('#p-todo [data-buddy-caption]').inner_text()
+  buddy=page.locator('#p-hold [data-buddy]');assert buddy.get_attribute('data-pose')==expected,(label,'wrong P&L reaction')
+  if delta is not None:assert ('+10,000' if delta<0 else '-10,000' if delta>0 else '0원') in page.locator('#p-hold [data-buddy-caption]').inner_text()
   before=page.evaluate('Object.fromEntries(Object.entries(localStorage).filter(([k])=>/^close-score-(log|cash|cfg|watch|track|equity)$/.test(k)))')
   for width in [320,412,1024]:
    page.set_viewport_size({'width':width,'height':915})
    for tab in ['todo','hold','stat','rec','watch']:
     page.locator('#t-'+tab).click()
-    assert page.locator('#p-'+tab+' [data-buddy]').get_attribute('data-pose')==('guide' if tab in ['rec','watch'] else expected)
+    assert page.locator('#p-'+tab+' [data-buddy]').get_attribute('data-pose')==({'todo':'guide','rec':'reading','watch':'welcome'}.get(tab,expected))
+    assert page.locator('#p-'+tab+' [data-buddy]').get_attribute('data-art')==('portrait' if tab in ['hold','stat'] else 'scene')
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth+1'),(label,width,tab,'overflow')
-    if tab=='todo':page.screenshot(path=str(output/f'{width}-{label}.png'))
-  page.set_viewport_size({'width':412,'height':915});page.locator('#t-todo').click()
+    if tab in ['todo','hold','stat','rec','watch']:page.screenshot(path=str(output/f'{width}-{label}-{tab}.png'))
+  page.set_viewport_size({'width':412,'height':915});page.locator('#t-hold').click()
   buddy.click();assert buddy.get_attribute('data-pose')=='guide'
-  assert '실제 체결 가격' in page.locator('#p-todo [data-buddy-message]').inner_text()
+  assert buddy.get_attribute('data-art')=='scene'
+  assert '매매 기록' in page.locator('#p-hold [data-buddy-message]').inner_text()
   page.wait_for_timeout(4400);assert buddy.get_attribute('data-pose')==expected
   page.locator('#themeBtn').click()
-  for pose in ['guide','happy','sad','celebrate']:
-   page.locator('[data-buddy-preview='+pose+']').click();assert page.locator('#buddyDemo').get_attribute('data-pose')==pose
-   assert buddy.get_attribute('data-pose')==expected,'preview changed actual financial state'
+  for art,poses in [('scene',['guide','reading','welcome','celebrate']),('portrait',['guide','happy','sad','celebrate']),('mini',['guide','happy','sad','celebrate'])]:
+   page.locator('[data-buddy-art-choice='+art+']').click()
+   for pose in poses:
+    page.locator('[data-buddy-preview='+pose+']').click();assert page.locator('#buddyDemo').get_attribute('data-pose')==pose
+    assert page.locator('#buddyDemo').get_attribute('data-art')==art
+    assert buddy.get_attribute('data-pose')==expected,'preview changed actual financial state'
+   if label=='profit':page.screenshot(path=str(output/f'preview-{art}.png'))
   page.screenshot(path=str(output/f'{label}-pose-picker.png'));page.keyboard.press('Escape')
   after=page.evaluate('Object.fromEntries(Object.entries(localStorage).filter(([k])=>/^close-score-(log|cash|cfg|watch|track|equity)$/.test(k)))')
   assert before==after,'character interaction changed investment data'
@@ -68,7 +74,7 @@ with sync_playwright() as p:
    assert json.loads(page.evaluate('localStorage.getItem("close-score-cash")'))==cash,'celebration changed ledger'
    page.wait_for_timeout(4400);assert buddy.get_attribute('data-pose')=='happy'
   assert not errors,errors
-  print(label+': real P&L pose, pointing help, isolated previews, responsive tabs and unchanged records passed.',flush=True)
+  print(label+': mixed artwork, real P&L portraits, pointing help, three isolated previews and unchanged records passed.',flush=True)
   context.close()
  browser.close()
 if server:server.shutdown()
