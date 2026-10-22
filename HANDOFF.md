@@ -126,3 +126,4 @@ research/         수식·규칙을 정한 백테스트 스크립트 (research/R
 - Chromium 검증: 320·412·1024px 전체 5개 탭의 가로 넘침 없음, 실제 체결가 입력·모바일 기록 수정 통과. 첨부 실이미지 10건 인식, 동일 이미지 2장의 중복 감지, 결과 수정·제외 후 9건 일괄 등록 및 장부 보존을 확인했습니다. 종목명·수량·가격 오인식이 있으므로 원본 대조가 필수입니다.
 - 브라우저 검증 재실행: `python research/test_browser.py --site <빌드폴더> --sample-image <첨부_23898.jpg>` (Playwright·Chromium 필요). 배포 후에는 `--site` 대신 `--url https://sejin0523.github.io/close-score/`를 사용합니다. 매번 새 브라우저 환경을 만들어 실제 사용자 기록과 분리합니다.
 - 배포는 기존 `update` Actions 워크플로를 사용합니다. PWA 파일과 캐시 버전은 변경하지 않았습니다.
+- 운영 검증 완료: 커밋 `061c0a3`의 GitHub Pages 배포 성공 후 실제 앱에서 위 브라우저 검증을 다시 통과했습니다. 배포된 OCR 엔진·언어 모델과 기존 SW·manifest의 SHA-256도 검증본과 일치합니다. 프록시 인증서를 Chromium이 신뢰하지 않는 환경에서는 브라우저 검증에 `--https-via-system-trust`를 추가하면 시스템 신뢰 저장소로 HTTPS를 검증해 받은 응답을 사용합니다(TLS 검증 생략 없음).

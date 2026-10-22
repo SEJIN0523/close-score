@@ -1,7 +1,7 @@
 # Fresh browser context: test records never touch the user's browser data.
 # Requires Python Playwright and Chromium. Use --sample-image with the supplied
 # 10.22 Toss screenshot (10 trades). --site serves a built app; --url tests a deployment.
-import threading,json,pathlib,time,argparse
+import threading,json,pathlib,time,argparse,urllib.request
 from http.server import ThreadingHTTPServer,SimpleHTTPRequestHandler
 from playwright.sync_api import sync_playwright
 parser=argparse.ArgumentParser()
@@ -10,6 +10,7 @@ parser.add_argument('--url')
 parser.add_argument('--sample-image',required=True)
 parser.add_argument('--output',default='/tmp/close-score-browser-results')
 parser.add_argument('--chromium',default='/usr/bin/chromium')
+parser.add_argument('--https-via-system-trust',action='store_true',help='Fetch HTTPS test assets with verified system trust when Chromium lacks the environment proxy CA')
 args=parser.parse_args()
 ROOT=args.site
 OUTPUT=args.output
@@ -26,6 +27,20 @@ else:
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path=args.chromium,headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
  context=browser.new_context(viewport={'width':412,'height':915},device_scale_factor=1,service_workers='block')
+ if args.https_via_system_trust:
+  from urllib.parse import urlsplit
+  origin=urlsplit(base)
+  def verified_fetch(route):
+   request=route.request
+   # No TLS bypass: urllib verifies the certificate using the managed system trust.
+   if request.method!='GET' or urlsplit(request.url).netloc!=origin.netloc:
+    route.abort();return
+   req=urllib.request.Request(request.url,headers={'Accept-Encoding':'identity','User-Agent':'close-score-browser-verification'})
+   with urllib.request.urlopen(req,timeout=30) as response:
+    body=response.read()
+    headers={k:v for k,v in response.headers.items() if k.lower() in ['content-type','cache-control','access-control-allow-origin']}
+    route.fulfill(status=response.status,headers=headers,body=body)
+  context.route(origin.scheme+'://'+origin.netloc+'/**',verified_fetch)
  page=context.new_page(); errors=[]
  page.on('pageerror',lambda e: errors.append(str(e)))
  page.goto(base); page.wait_for_selector('#todayCount:not(:empty)')
