@@ -13,7 +13,7 @@ if (!data.META.rankHistory) {
   data.META.rankHistory = Object.fromEntries(Object.entries(history).filter(([d]) => d <= data.META.asOf).map(([d, v]) => [d, v.rk]));
 }
 if (simulation) data.SIM = JSON.parse(fs.readFileSync(simulation, 'utf8'));
-let html = fs.readFileSync(path.join(scoring, 'template.html'), 'utf8');
+let html = require(path.join(scoring, 'theme-assets.js'))(fs.readFileSync(path.join(scoring, 'template.html'), 'utf8'));
 for (const name of ['trading', 'score', 'ocr']) html = html.replace(`/*__${name.toUpperCase()}__*/`, () => fs.readFileSync(path.join(scoring, name + '.js'), 'utf8'));
 html = html.replace('/*__BOOT__*/', 'window.WEB_MODE=true;(async()=>{const {META,ROWS,SIM}=await (await fetch("data.json")).json();').replace('/*__END__*/', '})();');
 for (const script of html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);

@@ -245,6 +245,51 @@ with sync_playwright() as p:
  page.screenshot(path=f'{OUTPUT}/412-hold-populated.png',full_page=True)
  assert not errors,errors
  print('Two-image OCR, duplicate detection, correction, exclusion, 9-row batch registration and populated mobile layouts passed.',flush=True)
+ # Theme selection is UI-only, survives reload, and respects system dark mode.
+ protected_before=page.evaluate('Object.fromEntries(Object.entries(localStorage).filter(([k])=>/^close-score-(log|cash|cfg|watch|track|equity)$/.test(k)))')
+ page.emulate_media(color_scheme='dark')
+ for theme in ['system','light','dark','blossom']:
+  page.set_viewport_size({'width':412,'height':915})
+  page.locator('#themeBtn').click()
+  page.locator('[data-theme-choice="'+theme+'"]').click()
+  assert page.locator('[data-theme-choice="'+theme+'"]').get_attribute('aria-pressed')=='true'
+  assert page.evaluate('document.documentElement.dataset.theme')==theme
+  if theme=='system': assert page.evaluate('getComputedStyle(document.documentElement).getPropertyValue("--bg").trim()')=='#101720'
+  if theme=='blossom':
+   assert page.evaluate('getComputedStyle(document.documentElement).colorScheme')=='light','system dark overrode blossom'
+   asset=page.evaluate('async()=>{const r=await fetch("themes/blossom.png");return {ok:r.ok,type:r.headers.get("content-type"),size:(await r.blob()).size}}')
+   assert asset['ok'] and asset['type'].startswith('image/png') and asset['size']>10000,'character asset unavailable'
+   page.screenshot(path=f'{OUTPUT}/412-theme-picker.png',full_page=True)
+  page.keyboard.press('Escape')
+  assert not page.locator('#themeDialog').is_visible()
+  assert page.locator('#themeBtn').evaluate('(el)=>el===document.activeElement'),'theme dialog lost focus'
+  for width in [320,412,1024]:
+   page.set_viewport_size({'width':width,'height':915})
+   for tab in ['todo','rec','hold','watch','stat']:
+    page.locator('#t-'+tab).click()
+    assert not page.evaluate('document.documentElement.scrollWidth > innerWidth+1'),(theme,width,tab,'theme overflow')
+    check_alignment()
+    if tab=='rec': assert page.locator('#recList').bounding_box()['height']<=len(rec_codes)*58+1
+    if tab=='stat': assert page.evaluate('document.documentElement.scrollHeight')<=1050,(theme,width,'statistics too tall')
+    if theme=='blossom':
+     if tab=='todo':
+      assert page.evaluate('''()=>{const text=document.querySelector('#p-todo .page-heading > p:not(.eyebrow)').getBoundingClientRect(),art=document.querySelector('.theme-character').getBoundingClientRect();return text.right<=art.left}'''),'hero text overlaps character'
+     page.screenshot(path=f'{OUTPUT}/{width}-{tab}-blossom.png',full_page=True)
+ page.reload();page.wait_for_selector('#todayCount:not(:empty)',state='attached')
+ assert page.evaluate('document.documentElement.dataset.theme')=='blossom'
+ protected_after=page.evaluate('Object.fromEntries(Object.entries(localStorage).filter(([k])=>/^close-score-(log|cash|cfg|watch|track|equity)$/.test(k)))')
+ assert protected_after==protected_before,'theme selection changed investment records'
+ page.locator('#t-todo').click()
+ page.locator('[data-task-filter="pending"]').click()
+ assert page.locator('#todoA .todo-item[data-status=overfilled]:visible').count()==0
+ assert page.locator('#todoA .todo-item[data-status=open]:visible').count()>0
+ page.locator('[data-task-filter="all"]').click()
+ assert page.locator('#todoA .todo-item[data-status=overfilled]:visible').count()==1
+ assert page.locator('#todoA .execution-numbers').count()>0 and page.locator('#todoA [role=meter]').count()>0
+ page.locator('#todoA .todo-item').first.locator('summary').click()
+ page.screenshot(path=f'{OUTPUT}/412-execution-blossom.png',full_page=True)
+ page.emulate_media(color_scheme='light')
+ print('Four themes, system preference, character asset, compact layouts, persistence, dialog focus, remaining-plan filter and unchanged investment records passed.',flush=True)
  # Readability in dark mode, including populated holdings and long stock names.
  page.evaluate('document.documentElement.dataset.theme="dark";localStorage.setItem("close-score-theme","dark")')
  for width in [320,412]:
