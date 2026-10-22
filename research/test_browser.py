@@ -44,6 +44,9 @@ with sync_playwright() as p:
  page=context.new_page(); errors=[]
  page.on('pageerror',lambda e: errors.append(str(e)))
  page.goto(base); page.wait_for_selector('#todayCount:not(:empty)')
+ # Use actual available funds for execution tests; the initial empty-device view is an example.
+ page.evaluate('localStorage.setItem("close-score-cash",JSON.stringify([{id:1,date:"2026-10-01",type:"dep",amt:100000000,memo:"Browser test"}]))')
+ page.reload();page.wait_for_selector('#todayCount:not(:empty)')
  rec_codes=page.evaluate('async () => (await (await fetch("data.json")).json()).META.recs')
  print('Loaded',page.title(),flush=True)
  def check_alignment():
@@ -101,6 +104,45 @@ with sync_playwright() as p:
   price=page.locator('#logList [data-f=price]').first;price.fill('102222');price.dispatch_event('change')
   assert json.loads(page.evaluate('localStorage.getItem("close-score-log")'))[-1]['price']==102222
  print('Direct execution and mobile edit passed',flush=True)
+ # Daily plans keep their quantity while real fills accumulate, including identical separate fills.
+ page.locator('#t-todo').click()
+ execution=page.locator('#todoA .todo-item').first
+ plan_id=execution.get_attribute('data-plan')
+ plan=page.evaluate('(id)=>JSON.parse(localStorage.getItem("close-score-cfg")).planBook[id]',plan_id)
+ assert plan['qty']>5 and execution.get_attribute('data-status')=='partial'
+ if execution.get_attribute('open') is None: execution.locator('summary').click()
+ assert execution.locator('[name=qty]').input_value()==str(plan['qty']-1)
+ original_ledger=page.evaluate('localStorage.getItem("close-score-cash")')
+ def fill_execution(qty,duplicate=False):
+  form=page.locator('#todoA .todo-item').first.locator('form')
+  form.locator('[name=price]').fill('102222');form.locator('[name=qty]').fill(str(qty))
+  if duplicate: form.locator('[name=duplicate]').check()
+  form.locator('[type=submit]').click()
+ fill_execution(2);assert execution.get_attribute('data-status')=='partial'
+ fill_execution(2,True)
+ assert execution.locator('[name=qty]').input_value()==str(plan['qty']-5)
+ frozen=page.evaluate('(id)=>JSON.parse(localStorage.getItem("close-score-cfg")).planBook[id]',plan_id)
+ assert frozen==plan,'a partial fill changed the original daily target'
+ cfg_before=page.evaluate('localStorage.getItem("close-score-cfg")')
+ page.evaluate('''() => { window.originalSetItem=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==="close-score-cfg")throw new DOMException("Test plan failure","QuotaExceededError");return window.originalSetItem.call(this,k,v);};}''')
+ execution.locator('[data-plan-cancel]').click()
+ assert page.evaluate('localStorage.getItem("close-score-cfg")')==cfg_before
+ assert execution.get_attribute('data-status')=='partial'
+ page.evaluate('Storage.prototype.setItem=window.originalSetItem;delete window.originalSetItem')
+ execution.locator('[data-plan-cancel]').click();assert execution.get_attribute('data-status')=='cancelled'
+ assert execution.locator('form').count()==0
+ page.reload();page.wait_for_selector('#todayCount:not(:empty)')
+ execution=page.locator('#todoA .todo-item').first
+ if execution.get_attribute('open') is None: execution.locator('summary').click()
+ assert execution.get_attribute('data-status')=='cancelled'
+ execution.locator('[data-plan-cancel]').click();assert execution.get_attribute('data-status')=='partial'
+ page.screenshot(path=f'{OUTPUT}/412-execution-partial.png',full_page=True)
+ fill_execution(plan['qty']-5+2)
+ assert execution.get_attribute('data-status')=='overfilled'
+ assert '계획보다 2주' in execution.inner_text()
+ assert page.evaluate('localStorage.getItem("close-score-cash")')==original_ledger
+ print('Frozen daily plans, partial/identical/extra fills, cancellation persistence and plan-write rollback passed.',flush=True)
+ page.locator('#t-hold').click()
  page.locator('#ocrOpen').click()
  page.locator('#ocrFiles').set_input_files(args.sample_image)
  page.locator('#ocrDate').fill('2026-10-22');page.locator('#ocrRun').click()
@@ -225,6 +267,7 @@ with sync_playwright() as p:
   page.locator('#resetBackup').click()
  backup=json.loads(pathlib.Path(download.value.path()).read_text())
  assert len(backup['log'])==len(logs) and len(backup['watch'])==1
+ assert backup['cfg']['planBook'][plan_id]['qty']==plan['qty']
  assert snapshot()==before_reset
  page.locator('#resetCancel').click();assert snapshot()==before_reset
  page.locator('#resetOpen').click();page.keyboard.press('Escape');assert snapshot()==before_reset
@@ -245,6 +288,36 @@ with sync_playwright() as p:
  assert json.loads(page.evaluate('localStorage.getItem("close-score-log")'))==[]
  page.locator('#resetOpen').click();page.locator('#resetWatch').check();page.locator('#resetPhrase').fill('초기화');page.locator('#resetCommit').click()
  assert json.loads(page.evaluate('localStorage.getItem("close-score-watch")'))==[]
+ # Restore the unchanged backup envelope in a fresh device context, with optional plan metadata.
+ restored=browser.new_context(viewport={'width':412,'height':915},service_workers='block')
+ if args.https_via_system_trust: restored.route(origin.scheme+'://'+origin.netloc+'/**',verified_fetch)
+ other=restored.new_page();other.goto(base);other.wait_for_selector('#todayCount:not(:empty)')
+ other.locator('#t-watch').click()
+ other.locator('#impFile').set_input_files({'name':'backup.json','mimeType':'application/json','buffer':json.dumps(backup).encode()})
+ other.wait_for_function('JSON.parse(localStorage.getItem("close-score-log")).length>0')
+ assert json.loads(other.evaluate('localStorage.getItem("close-score-log")'))==backup['log']
+ assert json.loads(other.evaluate('localStorage.getItem("close-score-cash")'))==backup['cash']
+ assert json.loads(other.evaluate('localStorage.getItem("close-score-cfg")'))['planBook'][plan_id]==backup['cfg']['planBook'][plan_id]
+ other.locator('#t-hold').click();other.locator('#manualEntry').click()
+ other.locator('#fName').fill(plan['code']);other.locator('#fPrice').fill('12.5');other.locator('#fQty').fill('2')
+ other.locator('#fDate').fill(plan['date']);other.locator('#fAdd').click()
+ assert len(json.loads(other.evaluate('localStorage.getItem("close-score-log")')))==len(backup['log'])
+ other.locator('#fPrice').fill('333333');other.locator('#fAdd').click()
+ manual=json.loads(other.evaluate('localStorage.getItem("close-score-log")'))
+ assert len(manual)==len(backup['log'])+1 and manual[-1]['price']==333333 and manual[-1]['qty']==2
+ assert len({r['id'] for r in manual})==len(manual)
+ assert json.loads(other.evaluate('localStorage.getItem("close-score-cash")'))==backup['cash']
+ restored.close()
+ legacy=browser.new_context(viewport={'width':412,'height':915},service_workers='block')
+ if args.https_via_system_trust: legacy.route(origin.scheme+'://'+origin.netloc+'/**',verified_fetch)
+ old=legacy.new_page();old.goto(base);old.wait_for_selector('#todayCount:not(:empty)');old.locator('#t-watch').click()
+ old_backup={**backup,'cfg':{'cash':backup['cfg']['cash'],'slots':backup['cfg']['slots']}}
+ old.locator('#impFile').set_input_files({'name':'legacy.json','mimeType':'application/json','buffer':json.dumps(old_backup).encode()})
+ old.wait_for_function('JSON.parse(localStorage.getItem("close-score-log")).length>0')
+ assert json.loads(old.evaluate('localStorage.getItem("close-score-log")'))==backup['log']
+ assert json.loads(old.evaluate('localStorage.getItem("close-score-cash")'))==backup['cash']
+ legacy.close()
+ print('Plan-aware and legacy backups restore correctly; manual execution validates numbers, preserves the ledger and uses unique record IDs.',flush=True)
  assert not errors,errors
  print('Dark layouts, reset backup/cancel/Escape/confirmation, write-failure rollback, optional watch deletion and preservation of connection/theme/unrelated data passed.',flush=True)
  browser.close()

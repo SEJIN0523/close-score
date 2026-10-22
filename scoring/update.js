@@ -5,6 +5,7 @@
 //   --fund  재무(EPS·자본·주식 수)를 전부 다시 받기 (분기 실적 시즌 뒤 권장. 없거나 45일 지난 파일은 자동으로 다시 받음)
 const fs = require('fs'), path = require('path');
 const SCORE = require('./score.js');
+const TRADING = require('./trading.js');
 const DIR = __dirname, DATA = path.join(DIR, 'data'), OUT = path.join(DIR, '..', '종가스코어링_대시보드.html');
 const REC_N = 15, SECTOR_CAP = 3, CONC = +process.env.CONC || 10;
 const rd = (f, d) => { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) { return d; } };
@@ -118,6 +119,8 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
       tv: Math.round(tv * 10) / 10, mc: Math.round(mc), eg: c.eg == null ? null : Math.round(c.eg * 1000) / 1000, sh: c.sh == null ? null : Math.round(c.sh * 1000) / 1000, dg: Math.round(dg * 1000) / 1000,
       mom: mom == null ? null : Math.round(mom * 1000) / 1000, lg: mc > 0 ? Math.round(Math.log(mc) * 1000) / 1000 : null, base, el };
     if (off) return row;
+    // One prior-close suffix series serves both views: max(prior peaks, selected close).
+    row.peaks = TRADING.peakSeries(all.slice(0, -1));
     const lr = b.slice(-121).map((x, k, a2) => k ? Math.log(x.a / a2[k - 1].a) : null).slice(1), lm = mean(lr);
     row.vol = lr.length > 60 ? Math.round(Math.sqrt(lr.reduce((s2, x) => s2 + (x - lm) ** 2, 0) / (lr.length - 1) * 252) * 1000) / 1000 : null; // 최근 120일 변동성(연)
     // 최근 1년 주간 종가 (그래프용): 주마다 마지막 거래일 종가
@@ -181,11 +184,14 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
     const rs = Object.entries(hist[d].rp).filter(([k]) => byK[k]).map(([k, p0]) => [k, byK[k].p / p0 - 1]);
     return { d, n: rs.length, avg: rs.length ? +(rs.reduce((s2, x) => s2 + x[1], 0) / rs.length).toFixed(4) : 0, up: rs.filter(x => x[1] > 0).length, items: rs.map(([k, r]) => [k, +r.toFixed(4)]) };
   });
-  const META = { asOf, final, kospi: last(kb).c, kchg: last(kb).c / kb[kb.length - 2].c - 1, prevDate, prevRecs: prev ? prev.recs : null, prevRk: prev ? prev.rk : {},
+  const forecast = rd(path.join(DIR, 'calendar.json'), { sessions: [] });
+  const tradingCalendar = { sessions: [...new Set([...forecast.sessions.filter(d => d < kb[0].d || d > asOf), ...kb.map(b => b.d)])].sort(), observedThrough: asOf, forecastThrough: forecast.through, source: forecast.source };
+  const rankHistory = Object.fromEntries(Object.keys(hist).filter(d => d <= asOf).sort().map(d => [d, hist[d].rk]));
+  const META = { asOf, final, tradingCalendar, rankHistory, kospi: last(kb).c, kchg: last(kb).c / kb[kb.length - 2].c - 1, prevDate, prevRecs: prev ? prev.recs : null, prevRk: prev ? prev.rk : {},
     builtAt: new Date().toISOString(), recs, cut, tsort: TS, base: B.length, eligible: cand.length, total: rows.length, failed, reused, prevSnap, recPerf,
     fundOldest: (() => { const t = fs.readdirSync(path.join(DATA, 'fund')).map(f => fs.statSync(path.join(DATA, 'fund', f)).mtimeMs); return new Date(Math.min(...t) + 9 * 3600e3).toISOString().slice(0, 10); })() };
 
-  const tpl = fs.readFileSync(path.join(DIR, 'template.html'), 'utf8').replace('/*__OCR__*/', () => fs.readFileSync(path.join(DIR, 'ocr.js'), 'utf8')), scoreJs = fs.readFileSync(path.join(DIR, 'score.js'), 'utf8');
+  const tpl = fs.readFileSync(path.join(DIR, 'template.html'), 'utf8').replace('/*__TRADING__*/', () => fs.readFileSync(path.join(DIR, 'trading.js'), 'utf8')).replace('/*__OCR__*/', () => fs.readFileSync(path.join(DIR, 'ocr.js'), 'utf8')), scoreJs = fs.readFileSync(path.join(DIR, 'score.js'), 'utf8');
   const simJson = fs.existsSync(path.join(DATA, 'sim.json')) ? fs.readFileSync(path.join(DATA, 'sim.json'), 'utf8') : 'null';
   // 파일 버전: 데이터를 HTML 안에 넣는다
   const html = tpl.replace('/*__SCORE__*/', () => scoreJs).replace('/*__END__*/', '})();')

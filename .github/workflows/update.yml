@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['scoring/*.js', 'scoring/template.html', 'scoring/web/**', '.github/workflows/**']
+    paths: ['scoring/*.js', 'scoring/template.html', 'scoring/calendar.json', 'scoring/web/**', '.github/workflows/**']
 permissions:
   contents: write
   pages: write
@@ -28,6 +28,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: 매매·체결·OCR 회귀 검사
+        run: |
+          node research/test_trading.js
+          node research/test_plan_ui.js
+          node research/test_ocr.js
+          node research/test_trade_ui.js
       - name: 전 종목 계산
         run: node scoring/update.js --web site
         env:

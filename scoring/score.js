@@ -5,6 +5,7 @@
 // 항목별 검증과 기간을 나눈 비중 검증(2023.4~2024.12로 고르고 2025~2026.9로 확인, 반대도)으로 정했다
 // 신호는 그날 전 종목 중 순위로 정한다 (검증: 상위 5% +17.7%, 5~20% +7.7%, 20~40% +1.7%, 40~70% −1.8%, 하위 30% −6.3%, 이후 6개월 평균 대비)
 const SCORE = (() => {
+  const execution = typeof TRADING !== 'undefined' ? TRADING : require('./trading.js');
   const c01 = v => Math.max(0, Math.min(1, v));
   const BANDS = [[5, '적극 매수'], [20, '매수'], [40, '탐색 매수'], [70, '관망'], [100, '보류']];
   // 과거(2023.4~2026.9) 같은 순위 구간 × 변동성(연 41%·60% 경계)이었던 종목의 이후 6개월 실제 수익 분포
@@ -64,7 +65,7 @@ const SCORE = (() => {
     const lim3 = tick(s.p * 0.97, false), lim5 = tick(s.p * 0.95, false);
     if (b === 0) { k = 'strong'; act = `다음 거래일 <b>15:20~15:30 장 마감 동시호가</b>에 한 종목 몫 매수`; }
     else if (b === 1) { k = 'buy'; act = `다음 거래일 <b>15:20~15:30 장 마감 동시호가</b>에 한 종목 몫 매수`; }
-    else if (b === 2) { k = 'probe'; act = `다음 거래일 15:20~15:30 장 마감 동시호가에 <b>한 종목 몫의 40%만</b> 매수`; }
+    else if (b === 2) { k = 'wait'; act = '탐색 구간 · 신규 매수 계획에서 제외. 보유 중이면 보유 탭의 관리 신호를 확인하세요.'; }
     else if (b === 3) { k = 'wait'; act = `새로 사지 않음${ln.buy ? ` · 종가 <b>${won(ln.buy)}원</b> 이상이면 매수 구간(상위 20%)` : ''}`; }
     else { k = 'avoid'; act = '사지 않음 (하위 30%)'; }
     if (b <= 2 && s.ch <= -0.08) { k = 'wait'; act = '급락 원인을 확인하기 전까지 <b>매수 보류</b>'; }
@@ -76,21 +77,10 @@ const SCORE = (() => {
   // pos: {qty, avg, maxP(매수 뒤 최고 종가), stopPct, upPct, lastD(마지막 매매일)}, cfg: {capital 총 운용 금액, slots 목표 종목 수}
   // 손절가는 '평균 매수가'와 '매수 뒤 최고 종가' 중 높은 값에서 stopPct만큼 아래 → 주가가 오르면 따라 올라감(트레일링)
   function manage(s, b, pos, cfg, asOf) {
-    const val = pos.qty * s.p, target = cfg.capital / cfg.slots, gain = s.p / pos.avg - 1;
-    const stop = tick(Math.max(pos.avg, pos.maxP) * (1 + pos.stopPct), false), ref = tick(pos.avg * (1 + pos.upPct), true);
-    const days = (new Date(asOf) - new Date(pos.lastD)) / 864e5, flags = [];
-    if (s.ch <= -0.08) flags.push(`하루 ${pct(s.ch)} 급락 · 원인 확인 전 추가 매수 금지`);
-    const half = Math.floor(pos.qty / 2), base = { stop, ref, gain, val, target, flags };
-    if (s.p <= stop) return { ...base, light: 'red', k: 'stop', act: `손절가 ${won(stop)}원 이하로 마감 → 다음 거래일 15:20~15:30 <b>전량 매도 ${pos.qty.toLocaleString()}주</b> (약 ${won(val)}원)`, sellQty: pos.qty };
-    if (b === 4) return { ...base, light: 'red', k: 'sell', act: `순위가 하위 30%로 떨어짐 → 다음 거래일 15:20~15:30 <b>전량 매도 ${pos.qty.toLocaleString()}주</b> (약 ${won(val)}원)`, sellQty: pos.qty };
-    if (b === 3 && val > 0.6 * target && half > 0) return { ...base, light: 'yellow', k: 'trim', act: `순위가 상위 40% 밖 → 다음 거래일 15:20~15:30 <b>절반 매도 ${half.toLocaleString()}주</b> (약 ${won(half * s.p)}원)`, sellQty: half };
-    if (s.p <= stop * 1.05) return { ...base, light: 'yellow', k: 'near', act: `<b>보유 유지</b> · 손절가 ${won(stop)}원까지 ${pct(stop / s.p - 1)} 남음, 추가 매수하지 않음` };
-    const addN = Math.floor((target - val) / s.p), nb = (pos.buys || []).length || 1, since = (new Date(asOf) - new Date(pos.firstD || pos.lastD)) / 864e5;
-    // 분할 매수: 첫 매수 뒤 7일·14일(약 5·10거래일)에 아직 상위 20%면 1/3씩 더 산다
-    if (b <= 1 && nb < 3 && val < target * 0.95 && days >= 5 && since >= 7 * nb && s.ch > -0.08) { const n3 = Math.floor(Math.min(target / 3, target - val) / s.p);
-      if (n3 > 0) return { ...base, light: 'green', k: 'add', act: `분할 매수 ${nb + 1}/3번째 · 아직 상위 20% → 다음 거래일 15:20~15:30 <b>추가 매수 ${n3.toLocaleString()}주</b> (약 ${won(n3 * s.p)}원)`, buyQty: n3 }; }
-    if (b <= 1 && val < 0.6 * target && days >= 7 && addN > 0 && s.ch > -0.08) return { ...base, light: 'green', k: 'add', act: `상위 20% 유지 · 비중이 목표의 ${Math.round(val / target * 100)}% → 다음 거래일 15:20~15:30 <b>추가 매수 ${addN.toLocaleString()}주</b> (약 ${won(addN * s.p)}원)`, buyQty: addN };
-    return { ...base, light: 'green', k: 'hold', act: `<b>보유 유지</b> · 손절가 <b>${won(stop)}원</b> (종가 기준, 주가가 오르면 따라 올라감)` };
+    const m = execution.manage(s, b, pos, cfg, asOf);
+    const quantity = m.sellQty || m.buyQty;
+    const action = m.sellQty ? `${m.k === 'trim' ? '일부' : '전량'} 매도` : m.buyQty ? '추가 매수' : '보유 유지';
+    return { ...m, act: `${m.reason}${quantity ? `<br>다음 거래일 15:20~15:30 <b>${action} ${quantity.toLocaleString()}주</b> (약 ${won(quantity * s.p)}원)` : ''}<br>손절가 <b>${won(m.stop)}원</b> (종가 기준)` };
   }
   return { score, setT, band, lines, decide, plan, manage, BANDS, won, pct, tick, DIST };
 })();

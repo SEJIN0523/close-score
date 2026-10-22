@@ -1,7 +1,7 @@
 // 검증용 데이터 받기: 전 종목 일별 시세(2022~)·재무 시계열·코스피 지수를 research/data에 저장 (이미 받은 파일은 건너뜀)
 // 사용: node research/fetch_data.js   (약 5분, 약 190MB)
 const fs = require('fs'), path = require('path');
-const D = path.join(__dirname, 'data'), CONC = 8, NOW = Math.floor(Date.now() / 1000);
+const D = path.resolve(process.argv[2] || path.join(__dirname, 'data')), CONC = 8, NOW = Math.floor(Date.now() / 1000);
 for (const d of ['allpx', 'allfund', 'krx']) fs.mkdirSync(path.join(D, d), { recursive: true });
 const TYPES = 'annualDilutedEPS,annualStockholdersEquity,annualOrdinarySharesNumber,annualNetIncomeCommonStockholders,quarterlyDilutedEPS,quarterlyStockholdersEquity,quarterlyOrdinarySharesNumber';
 const chart = (tk, p1) => `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(tk)}?period1=${p1}&period2=${NOW}&interval=1d&events=div%2Csplit`;
