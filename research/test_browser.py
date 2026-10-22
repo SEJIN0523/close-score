@@ -257,7 +257,7 @@ with sync_playwright() as p:
   if theme=='system': assert page.evaluate('getComputedStyle(document.documentElement).getPropertyValue("--bg").trim()')=='#101720'
   if theme=='blossom':
    assert page.evaluate('getComputedStyle(document.documentElement).colorScheme')=='light','system dark overrode blossom'
-   asset=page.evaluate('async()=>{const r=await fetch("themes/blossom.png");return {ok:r.ok,type:r.headers.get("content-type"),size:(await r.blob()).size}}')
+   asset=page.evaluate('async()=>{const r=await fetch("themes/blossom-sd.png");return {ok:r.ok,type:r.headers.get("content-type"),size:(await r.blob()).size}}')
    assert asset['ok'] and asset['type'].startswith('image/png') and asset['size']>10000,'character asset unavailable'
    page.screenshot(path=f'{OUTPUT}/412-theme-picker.png',full_page=True)
   page.keyboard.press('Escape')
@@ -273,7 +273,7 @@ with sync_playwright() as p:
     if tab=='stat': assert page.evaluate('document.documentElement.scrollHeight')<=1050,(theme,width,'statistics too tall')
     if theme=='blossom':
      if tab=='todo':
-      assert page.evaluate('''()=>{const text=document.querySelector('#p-todo .page-heading > p:not(.eyebrow)').getBoundingClientRect(),art=document.querySelector('.theme-character').getBoundingClientRect();return text.right<=art.left}'''),'hero text overlaps character'
+      assert page.evaluate('''()=>{const text=document.querySelector('#p-todo .buddy-dialogue').getBoundingClientRect(),art=document.querySelector('.theme-character').getBoundingClientRect();return text.right<=art.left}'''),'hero text overlaps character'
      page.screenshot(path=f'{OUTPUT}/{width}-{tab}-blossom.png',full_page=True)
  page.reload();page.wait_for_selector('#todayCount:not(:empty)',state='attached')
  assert page.evaluate('document.documentElement.dataset.theme')=='blossom'

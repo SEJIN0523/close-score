@@ -35,6 +35,7 @@ jobs:
           node research/test_ocr.js
           node research/test_trade_ui.js
           node research/test_theme_assets.js
+          node research/test_companion.js
           node research/test_market_snapshot.js
       - name: 전 종목 계산
         run: node scoring/update.js --web site

@@ -1,0 +1,18 @@
+const assert = require('node:assert/strict');
+const buddy = require('../scoring/companion.js');
+const input = { pnl: 12345, records: 2, pending: 3 }, original = JSON.stringify(input);
+assert.equal(buddy.describe(input).pose, 'happy');
+assert.match(buddy.describe(input).caption, /총손익 기준.*\+12,345원/);
+assert.equal(buddy.describe({ ...input, pnl: -12345 }).pose, 'sad');
+assert.match(buddy.describe({ ...input, pnl: -12345 }).caption, /-12,345원/);
+assert.equal(buddy.describe({ ...input, pnl: 0 }).pose, 'guide');
+assert.match(buddy.describe({ ...input, pnl: 0 }).message, /3건/);
+assert.equal(buddy.describe({ ...input, pnl: .1 }).pose, 'guide', 'zero displayed won cannot show profit');
+assert.equal(buddy.describe({ ...input, pnl: -.1 }).pnl, 0);
+assert(!buddy.describe({ ...input, pnl: -.1 }).caption.includes('-0'));
+assert.equal(buddy.describe({ ...input, pnl: NaN }).pose, 'guide');
+assert.equal(buddy.describe({ ...input, records: 0 }).pose, 'guide');
+for (const tab of ['hold', 'stat']) assert.equal(buddy.describe(input, tab).pose, 'happy');
+for (const tab of ['rec', 'watch']) assert.equal(buddy.describe(input, tab).pose, 'guide', 'ranking/selection must not imply a profit');
+buddy.update(input); assert.equal(JSON.stringify(input), original, 'presentation mutated account input');
+console.log('Companion: actual total P&L, neutral/empty accounts, rounded zero, tab context and read-only state passed.');

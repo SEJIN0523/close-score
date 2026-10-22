@@ -245,7 +245,7 @@ progress { width: 100%; accent-color: var(--brand); }
 .page-heading.compact-heading { margin-bottom: 14px; }
 .page-heading.compact-heading h2 { font-size: 23px; }
 .compact-heading > p:not(.eyebrow) { font-size: 12px; margin-top: 4px; }
-#p-hold .compact-heading p,#p-stat .compact-heading p { display: none; }
+#p-hold .compact-heading > p,#p-stat .compact-heading > p { display: none; }
 .account-overview { border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
 .account-overview > summary { display: grid; grid-template-columns: minmax(0,1fr) auto 8px; align-items: center; gap: 10px; padding: 13px 15px; list-style: none; }
 .account-overview small { display: block; font-size: 11px; color: var(--muted); }
@@ -394,7 +394,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 #p-todo .page-heading { position: relative; margin-bottom: 16px; }
 #p-todo .page-heading h2 { font-size: 28px; }
 #p-todo .page-heading > p:not(.eyebrow) { font-size: 12px; margin-top: 5px; }
-.theme-character { display: none; pointer-events: none; }
+.theme-character,.buddy-dialogue { display: none; }
 .bnav { background: color-mix(in srgb,var(--surface) 95%,transparent); backdrop-filter: blur(18px); box-shadow: 0 -4px 24px #17334a05; }
 .bnav .ic { transition: background .15s; border-radius: 12px; }
 .bnav button[aria-selected=true] .ic { background: color-mix(in srgb,var(--brand) 12%,var(--surface)); }
@@ -491,7 +491,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 .preview-system::after { background: linear-gradient(110deg,white 50%,#293a4c 50%); }
 .preview-blossom { background: radial-gradient(ellipse at 20% 90%,#e8def6,transparent 80%),#fff1f8; }
 .preview-blossom::before { background: #b1548b; box-shadow: 0 13px #dfbcd4; width: 38%; }
-.preview-blossom::after { background: var(--character-image) no-repeat right 13%; background-size: 112px auto; left: auto; right: -6px; top: 0; bottom: 0; width: 115px; height: auto; border-radius: 0; box-shadow: none; }
+.preview-blossom::after { background: var(--character-image) 100% 0 / 200% 200% no-repeat; left: auto; right: 2px; top: -2px; width: 88px; height: 80.4px; border-radius: 0; box-shadow: none; }
 #themeCurrent { font-size: 11px; color: var(--brand-ink); margin: 14px 0 0; }
 /* Blossom: the supplied character's flowers, rose quartz and lilac silk. */
 :root[data-theme=blossom] {
@@ -502,29 +502,59 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 }
 :root[data-theme=blossom] body { background: radial-gradient(ellipse at 0 0,#f3e9fc 0,transparent 420px),radial-gradient(ellipse at 100% 400px,#ffe8f1 0,transparent 500px),var(--bg); }
 :root[data-theme=blossom] .top { background: #fffafdF2; border-color: #ecdfee; }
-:root[data-theme=blossom] .logo { background: var(--character-image) 50% 20% / 180% auto no-repeat,#f1dcec; box-shadow: 0 0 0 2px #fff,0 0 0 3px #eac9de; }
-:root[data-theme=blossom] .logo > svg { visibility: hidden; }
+:root[data-theme=blossom] .logo { background: linear-gradient(135deg,#c35d99,#9873bc); box-shadow: 0 2px 8px #c17fac25; }
+
 :root[data-theme=blossom] #themeBtn { color: var(--brand); background: #f7e5f0; }
-:root[data-theme=blossom] .page-heading { position: relative; padding-right: 64px; min-height: 42px; }
-:root[data-theme=blossom] .page-heading::after { content: ''; position: absolute; right: 0; top: -12px; width: 58px; height: 58px; border: 1px solid #e8d2e6; border-radius: 50%; background: var(--character-image) 50% 15% / 140% auto no-repeat,#f6e4f1; box-shadow: inset 0 0 0 3px #fff9; pointer-events: none; }
-:root[data-theme=blossom] #p-todo .page-heading { min-height: 126px; border: 1px solid #ecd5e6; border-radius: 21px; padding: 19px 150px 19px 18px; background: radial-gradient(ellipse at 20% 90%,#eadef5,transparent 70%),linear-gradient(110deg,#fff8fb,#f9e8f2); overflow: hidden; box-shadow: 0 5px 22px #b8759b0d; }
-:root[data-theme=blossom] #p-todo .page-heading::after { width: 140px; height: 140px; top: -17px; right: -25px; border: 1px solid #fff7; background: transparent; box-shadow: 0 0 0 13px #ffffff2e,0 0 0 30px #ffffff1c; }
+:root[data-theme=blossom] .page-heading { position: relative; padding-right: 86px; min-height: 85px; }
+
+:root[data-theme=blossom] #p-todo .page-heading { min-height: 164px; border: 1px solid #ecd5e6; border-radius: 21px; padding: 17px 151px 16px 18px; background: radial-gradient(ellipse at 20% 90%,#eadef5,transparent 70%),linear-gradient(110deg,#fff8fb,#f9e8f2); overflow: hidden; box-shadow: 0 5px 22px #b8759b0d; }
+
 :root[data-theme=blossom] #p-todo .page-heading h2 { font-size: 25px; white-space: nowrap; }
 :root[data-theme=blossom] #p-todo .page-heading > p:not(.eyebrow) { position: relative; z-index: 1; }
-:root[data-theme=blossom] .theme-character { display: block; position: absolute; right: -10px; bottom: -34px; width: 146px; height: 160px; background: var(--character-image) center top / contain no-repeat; z-index: 1; filter: drop-shadow(-4px 2px 7px #b580a51a); }
+:root[data-theme=blossom] .theme-character { display: block; position: absolute; width: 88px; height: 80.4px; right: -3px; top: -6px; border: 0; padding: 0; background-color: transparent; z-index: 1; }
 :root[data-theme=blossom] #tsum > div:first-child { background: linear-gradient(125deg,#faeaf3,#fffdfd); }
 :root[data-theme=blossom] .todo-card > summary { color: #603951; }
 :root[data-theme=blossom] .bnav button[aria-selected=true] .ic { background: linear-gradient(120deg,#f5d9e9,#ece1f8); }
 :root[data-theme=blossom] .btn.pri { background: linear-gradient(110deg,#b24883,#9463ad); border-color: transparent; }
 :root[data-theme=blossom] .btn.danger.pri { background: var(--up); }
 :root[data-theme=blossom] .holding-row[open],:root[data-theme=blossom] .theme-option[aria-pressed=true] { border-color: #bf77a5; }
+/* Four generated SD poses share one transparent sprite sheet. */
+.buddy-sprite { background-image: var(--character-image); background-size: 200% 200%; background-repeat: no-repeat; background-position: 0 0; }
+.buddy-sprite[data-pose=happy] { background-position: 100% 0; }
+.buddy-sprite[data-pose=sad] { background-position: 0 100%; }
+.buddy-sprite[data-pose=celebrate] { background-position: 100% 100%; }
+:root[data-theme=blossom] .page-heading > p:not(.eyebrow):not(#recDesc) { display: none; }
+:root[data-theme=blossom] .buddy-dialogue { display: block; position: relative; margin-top: 6px; }
+.buddy-message { margin: 0; font-size: 11px; color: var(--ink-2); line-height: 1.7; overflow-wrap: anywhere; }
+.buddy-caption.up { color: var(--up); } .buddy-caption.down { color: var(--down); }
+.buddy-caption { display: block; margin-top: 4px; font-size: 10px; color: var(--muted); line-height: 1.6; font-variant-numeric: tabular-nums; }
+:root[data-theme=blossom] #p-todo .theme-character { width: 142px; height: 129.8px; top: 24px; right: 3px; filter: drop-shadow(0 5px 5px #ac6b9f15); }
+:root[data-theme=blossom] #p-todo .buddy-dialogue { margin-top: 8px; }
+:root[data-theme=blossom] #p-todo .buddy-message { position: relative; padding: 8px 10px; background: #fffafdd9; border: 1px solid #ead6e7; border-radius: 10px 10px 2px 10px; font-size: 11px; }
+:root[data-theme=blossom] #p-todo .buddy-caption { margin-top: 5px; }
+:root[data-theme=blossom] .theme-character:hover { filter: drop-shadow(0 0 4px #ce8fbc55); }
+:root[data-theme=blossom] .theme-character[data-pose=celebrate] { animation: buddy-pop .55s ease-out 2; }
+@keyframes buddy-pop { 0%,100% { transform: translateY(0); } 45% { transform: translateY(-5px) rotate(-3deg); } }
+.buddy-playground { display: none; }
+:root[data-theme=blossom] .buddy-playground { display: block; border-top: 1px solid var(--line); margin-top: 17px; padding-top: 13px; }
+.buddy-playground h3 { font-size: 12px; margin: 0 0 8px; }
+.buddy-demo-stage { display: flex; align-items: center; gap: 10px; min-height: 84px; }
+.buddy-demo-stage .buddy-sprite { width: 96px; height: 87.7px; flex: none; }
+#buddyPreviewText { font-size: 11px; color: var(--ink-2); margin: 0; line-height: 1.8; }
+.buddy-preview-buttons { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 5px; margin-top: 6px; }
+.buddy-preview-buttons button { min-height: 36px; padding: 4px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; font-size: 11px; }
+.buddy-preview-buttons button[aria-pressed=true] { border-color: var(--brand); color: var(--brand-ink); background: var(--surface-2); }
+:root[data-theme=blossom][data-buddy-reaction=celebrate] #toast { min-height: 70px; padding-left: 82px; display: flex; align-items: center; }
+:root[data-theme=blossom][data-buddy-reaction=celebrate] #toast::before { content: ''; position: absolute; left: 5px; bottom: 3px; width: 70px; height: 64px; background: var(--character-image) 100% 100% / 200% 200% no-repeat; }
+@media (prefers-reduced-motion: reduce) { .buddy-sprite { animation: none !important; } }
+
 @media (min-width: 760px) {
  #tsum { grid-template-columns: repeat(4,minmax(0,1fr)); }
  #tsum > div:nth-child(n) { padding: 16px 18px; border-top: 0; display: flex; flex-direction: column; align-items: flex-start; }
  #tsum > div + div { border-left: 1px solid var(--line); }
  #tsum > div:nth-child(n+3) b,#tsum .lt3 { font-size: 20px; }
- :root[data-theme=blossom] #p-todo .page-heading { padding-right: 260px; }
- :root[data-theme=blossom] .theme-character { width: 230px; height: 230px; bottom: -82px; right: 6px; }
+ :root[data-theme=blossom] #p-todo .page-heading { padding-right: 200px; }
+ :root[data-theme=blossom] #p-todo .theme-character { width: 168px; height: 153.5px; right: 16px; top: 3px; }
 }
 @media (max-width: 360px) {
  .execution-toolbar { padding: 8px; gap: 5px; }
@@ -533,9 +563,9 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
  .todo-card { padding: 14px; }
  .todo-card > summary { font-size: 14px; }
  .todo-card > summary > span { font-size: 10px; }
- :root[data-theme=blossom] #p-todo .page-heading { padding-right: 135px; padding-left: 14px; }
+ :root[data-theme=blossom] #p-todo .page-heading { padding-right: 119px; padding-left: 14px; }
  :root[data-theme=blossom] #p-todo .page-heading h2 { font-size: 23px; }
- :root[data-theme=blossom] .theme-character { right: -22px; width: 135px; }
+ :root[data-theme=blossom] #p-todo .theme-character { right: -1px; top: 26px; width: 116px; height: 106px; }
 }
 
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
@@ -558,12 +588,13 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
     <button type="button" class="theme-option" data-theme-choice="dark" aria-pressed="false"><span class="theme-preview preview-dark" aria-hidden="true"></span><span class="theme-option-copy"><b>미드나이트</b><svg class="theme-check" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 10 3 3 7-7"/></svg></span></button>
     <button type="button" class="theme-option" data-theme-choice="blossom" aria-pressed="false"><span class="theme-preview preview-blossom" aria-hidden="true"></span><span class="theme-option-copy"><b>블로썸</b><svg class="theme-check" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 10 3 3 7-7"/></svg></span></button>
   </div>
+  <div class="buddy-playground"><h3>SD 캐릭터 · 표정 미리보기</h3><div class="buddy-demo-stage"><div id="buddyDemo" class="buddy-sprite" data-pose="guide" role="img" aria-label="손가락으로 안내하는 SD 캐릭터"></div><p id="buddyPreviewText">손가락으로 화면 사용법을 안내해요.</p></div><div class="buddy-preview-buttons" role="group" aria-label="캐릭터 표정 미리보기"><button type="button" data-buddy-preview="guide" aria-pressed="true">안내</button><button type="button" data-buddy-preview="happy" aria-pressed="false">수익</button><button type="button" data-buddy-preview="sad" aria-pressed="false">손실</button><button type="button" data-buddy-preview="celebrate" aria-pressed="false">완료</button></div></div>
   <p id="themeCurrent" role="status"></p>
 </dialog>
 
 <main class="wrap">
   <section id="p-todo" role="tabpanel" aria-labelledby="t-todo">
-    <header class="page-heading"><p class="eyebrow">나의 포트폴리오</p><h2>오늘의 투자</h2><p>계획 확인부터 실제 체결 기록까지.</p><div class="theme-character" aria-hidden="true"></div></header>
+    <header data-buddy-context="todo" class="page-heading"><p class="eyebrow">나의 포트폴리오</p><h2>오늘의 투자</h2><p>계획 확인부터 실제 체결 기록까지.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-pose="guide" aria-label="SD 캐릭터 안내 보기"></button></header>
     <div class="sum" id="tsum"></div>
     <div class="execution-toolbar"><span id="executionSummary" aria-live="polite"></span><div class="execution-filter" role="group" aria-label="오늘 계획 필터"><button type="button" data-task-filter="all" aria-pressed="true">전체</button><button type="button" data-task-filter="pending" aria-pressed="false">남은 계획</button></div></div>
     <details class="card todo-card" id="todayCard" open><summary>오늘 할 일 <span id="todayCount"></span></summary><div id="todoA"></div></details>
@@ -572,7 +603,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-rec" role="tabpanel" aria-labelledby="t-rec" hidden>
-    <header class="page-heading compact-heading"><h2>오늘의 추천</h2><p id="recDesc"></p></header>
+    <header data-buddy-context="rec" class="page-heading compact-heading"><h2>오늘의 추천</h2><p id="recDesc"></p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-pose="guide" aria-label="SD 캐릭터 안내 보기"></button></header>
     <div class="rec-summary" id="sum"></div>
     <div class="recommendations">
       <div class="rec-columns" aria-hidden="true"><span>종목 · 상세 보기</span><span>현재가</span><span>점수</span></div>
@@ -582,7 +613,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-hold" role="tabpanel" aria-labelledby="t-hold" hidden>
-    <header class="page-heading compact-heading"><h2>보유 종목</h2><p>종목을 누르면 상세 내역이 펼쳐집니다.</p></header>
+    <header data-buddy-context="hold" class="page-heading compact-heading"><h2>보유 종목</h2><p>종목을 누르면 상세 내역이 펼쳐집니다.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-pose="guide" aria-label="SD 캐릭터 안내 보기"></button></header>
     <div class="sum" id="hsum" hidden></div>
     <details class="account-overview" id="acctBox"><summary id="acctBrief"></summary><div id="acct"></div></details>
     <div class="hold-actions"><button class="btn" id="manualEntry" type="button">매매 기록</button><button class="btn" id="ocrOpen" type="button">이미지 등록</button><button class="btn" id="ledgerEntry" type="button">입출금</button></div>
@@ -623,7 +654,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-watch" role="tabpanel" aria-labelledby="t-watch" hidden>
-    <header class="page-heading"><p class="eyebrow">나의 목록</p><h2>관심종목</h2><p>살펴볼 종목을 모으고, 아래에서 데이터를 관리하세요.</p></header>
+    <header data-buddy-context="watch" class="page-heading"><p class="eyebrow">나의 목록</p><h2>관심종목</h2><p>살펴볼 종목을 모으고, 아래에서 데이터를 관리하세요.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-pose="guide" aria-label="SD 캐릭터 안내 보기"></button></header>
     <div class="addbar">
       <input id="q" list="stockList" placeholder="종목명 또는 코드" aria-label="추가할 종목" autocomplete="off">
       <button class="btn pri" id="addBtn" type="button">추가</button>
@@ -641,7 +672,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
   </section>
 
   <section id="p-stat" role="tabpanel" aria-labelledby="t-stat" hidden>
-    <header class="page-heading compact-heading"><h2>투자 통계</h2><p>핵심 지표와 선택한 분석만 간단히 확인하세요.</p></header>
+    <header data-buddy-context="stat" class="page-heading compact-heading"><h2>투자 통계</h2><p>핵심 지표와 선택한 분석만 간단히 확인하세요.</p><div class="buddy-dialogue"><p class="buddy-message" data-buddy-message role="status"></p><small class="buddy-caption" data-buddy-caption></small></div><button type="button" class="theme-character buddy-sprite" data-buddy data-pose="guide" aria-label="SD 캐릭터 안내 보기"></button></header>
     <div class="sum stat-summary" id="ssum"></div>
     <div class="stat-tabs" role="tablist" aria-label="통계 항목">
       <button id="st-assets" type="button" role="tab" data-stat-view="assets" aria-controls="sv-assets" aria-selected="true">자산</button>
@@ -1398,7 +1429,7 @@ function renderHead() {
   document.getElementById('asof').innerHTML = `${md(META.asOf)} <span class="badge ${META.final ? 'final' : 'temp'}">${META.final ? '종가' : '장중'}</span>${META.refreshWarning ? ' <span class="badge temp">마지막 정상 시세</span>' : ''} 코스피 ${META.kospi.toLocaleString('ko-KR', { maximumFractionDigits: 0 })} <span class="${META.kchg >= 0 ? 'up' : 'down'}">${pct(META.kchg, 2)}</span>`;
   document.getElementById('foot').innerHTML = `시세: Yahoo Finance 일봉 (${META.asOf})${META.failed ? ` · 못 받은 ${META.failed}종목` : ''}. 재무: Yahoo Finance (가장 오래된 파일 ${META.fundOldest}). AI·공시 해석 없이 데이터만으로 계산합니다. 상승은 빨강, 하락은 파랑.<br>※ 투자 권유가 아닌 참고 자료입니다. 점수와 규칙은 과거 데이터로 만든 것이라 앞으로도 맞는다는 보장이 없습니다.`;
 }
-function renderAll() { buildPos(); renderTodo(); buildPos(); renderRec(); renderHold(); renderWatch(); renderStats(); }
+function renderAll() { buildPos(); renderTodo(); buildPos(); renderRec(); renderHold(); renderWatch(); renderStats(); globalThis.BLOSSOM_BUDDY?.update({ pnl: acctNums().pnl, records: LOG.length + LEDGER.length, pending: document.querySelectorAll('#todoA .ti[data-actionable=true]').length }); }
 
 let taskFilter = 'all';
 function applyTaskFilter() {
@@ -1465,7 +1496,7 @@ function newTrade(r, id) {
 function saveTrades(records) {
   const next = [...LOG, ...records];
   if (!store.set(LKEY, next)) return false;
-  LOG = next; buildPos(); saveAll(); renderAll(); return true;
+  LOG = next; buildPos(); saveAll(); renderAll(); globalThis.BLOSSOM_BUDDY?.celebrate(); return true;
 }
 document.addEventListener('submit', e => {
   const form = e.target.closest('.todo-exec'); if (!form) return;
@@ -1644,6 +1675,7 @@ function addLog() {
   if (TOSS_OCR.oversold([...LOG, rec])) return hsay('해당 체결일의 보유 수량보다 많습니다. 누락된 매수·날짜를 확인하세요.');
   if (!saveTrades([rec])) return hsay('저장하지 못했습니다. 저장 공간·브라우저 설정을 확인하세요.');
   hsay(`✓ ${r.n} ${side === 'buy' ? '매수' : '매도'} ${qty}주를 기록했습니다. 현금 ${won(CFG.cash)}원${CFG.cash < 0 ? ' · 실제 입금·예수금을 확인하세요.' : ''}`);
+  toast('체결 기록을 저장했습니다.');
   ['fName', 'fPrice', 'fQty'].forEach(i => { document.getElementById(i).value = ''; });
 }
 document.addEventListener('click', e => {
