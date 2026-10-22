@@ -272,6 +272,58 @@ button:focus-visible, summary:focus-visible, input:focus-visible, select:focus-v
   .row summary { grid-template-areas: "lead nm" "px px" "sc sc" "sg sg" "act act"; }
   .row .sg { justify-self: start; justify-content: flex-start; }
 }
+/* 압축 목록과 검토 화면 */
+.todo-card > summary { cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 800; min-height: 44px; }
+.todo-card > summary span { margin-left: auto; font-size: 13px; color: var(--ink-2); }
+.todo-card > div { margin-top: 10px; }
+.todo-card:not([open]) { padding-block: 8px; }
+.todo-item { display: block; border-top: 1px solid var(--line); }
+.todo-item > summary { cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 56px; padding: 8px 0; list-style: none; }
+.todo-item > summary::-webkit-details-marker, .log-item > summary::-webkit-details-marker { display: none; }
+.todo-item .what { min-width: 0; overflow-wrap: anywhere; grid-column: auto; }
+.todo-item small, .log-item small { display: block; font-size: 12px; color: var(--ink-2); font-weight: 400; }
+.todo-item .qty { text-align: right; }
+.todo-item[open] > summary { border-bottom: 1px dashed var(--line); }
+.todo-item .form { padding-block: 10px; }
+.todo-item.done > summary { opacity: .65; }
+.log-item { border: 1px solid var(--line); border-radius: 12px; padding: 0 10px; }
+.log-item summary { cursor: pointer; min-height: 60px; display: flex; justify-content: space-between; gap: 10px; align-items: center; font-size: 14px; }
+.log-item summary > span { min-width: 0; overflow-wrap: anywhere; }
+.log-item .form { padding-bottom: 12px; }
+#logList { display: none; }
+.review { width: min(94vw, 720px); max-height: calc(100dvh - 24px); overflow-y: auto; }
+.review h2 { margin: 0; font-size: 18px; }
+.review-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.review .note { color: var(--ink-2); }
+.review input[type=file] { width: 100%; min-height: 44px; margin: 10px 0; }
+.ocr-row { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-top: 10px; }
+.ocr-row.excluded { background: var(--surface-2); }
+.ocr-row .form { margin-top: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.review .chk { display: flex; gap: 8px; align-items: center; min-height: 44px; }
+.ocr-row input[type=checkbox] { width: 22px; height: 22px; }
+.ocr-issue { color: var(--up); font-size: 13px; white-space: pre-line; }
+.ocr-actions { position: sticky; bottom: -18px; background: var(--surface); padding: 12px 0; border-top: 1px solid var(--line); margin-top: 12px; }
+button:disabled { cursor: default; opacity: .5; }
+progress { width: 100%; accent-color: var(--brand); }
+@media (max-width: 600px) {
+  .form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .acct { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .row summary { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "lead nm px" "sc sc sg" "act act act"; }
+  .row .px { display: block; text-align: right; }
+  .row .px b { font-size: 14px; }
+  .row .nm b { font-size: 14px; }
+  #logList { display: flex; }
+  .log-desktop { display: none; }
+  .todo-item .form .btn { grid-column: 1 / -1; }
+  .seg4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .review { width: calc(100% - 16px); padding: 12px; }
+  .ocr-actions { bottom: -12px; }
+}
+@media (max-width: 360px) {
+  .row summary { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "lead nm" "px px" "sc sg" "act act"; }
+  .row .px { text-align: left; }
+  .form, .ocr-row .form { grid-template-columns: minmax(0, 1fr); }
+}
 </style>
 </head>
 <body>
@@ -285,8 +337,8 @@ button:focus-visible, summary:focus-visible, input:focus-visible, select:focus-v
 <main class="wrap">
   <section id="p-todo" role="tabpanel" aria-labelledby="t-todo">
     <div class="sum" id="tsum"></div>
-    <div class="card" id="todoA"></div>
-    <div class="card" id="todoB"></div>
+    <details class="card todo-card" id="todayCard" open><summary>오늘 할 일 <span id="todayCount"></span></summary><div id="todoA"></div></details>
+    <details class="card todo-card" id="tomorrowCard"><summary>내일 할 일 <span id="tomorrowCount"></span></summary><div id="todoB"></div></details>
     <p class="note">할 일은 보유 종목(보유 탭의 매매 기록)과 현금을 반영해 계산합니다. 주문은 장 마감 동시호가(15:20~15:30)에 넣고, 체결되면 '체결 기록'을 눌러 실제 가격·수량을 남기세요. 손절은 장중이 아니라 종가로 판단합니다.</p>
   </section>
 
@@ -318,6 +370,7 @@ button:focus-visible, summary:focus-visible, input:focus-visible, select:focus-v
     <h2 class="h">보유 종목</h2>
     <div class="list" id="holdList"></div>
     <h2 class="h" id="recFormH">매매 기록하기</h2>
+    <div class="btnrow" style="margin-bottom:10px"><button class="btn" id="ocrOpen" type="button">체결 내역 이미지로 일괄 등록</button></div>
     <div class="card" id="recForm">
       <div class="form">
         <label class="full">종목<input id="fName" list="stockList" placeholder="종목명 또는 코드" autocomplete="off"></label>
@@ -329,7 +382,7 @@ button:focus-visible, summary:focus-visible, input:focus-visible, select:focus-v
       </div>
       <div class="msg" id="hmsg" role="status" aria-live="polite"></div>
     </div>
-    <details class="box"><summary>매매 기록 (날짜·가격·수량 고치기)</summary><div class="scroll-x" style="margin-top:8px"><table class="mini-tbl" id="logTbl"></table></div></details>
+    <details class="box" id="logBox"><summary>매매 기록 <span id="logCount"></span></summary><div class="list" id="logList" style="margin-top:8px"></div><div class="scroll-x log-desktop" style="margin-top:8px"><table class="mini-tbl" id="logTbl"></table></div></details>
     <p class="note">매수하면 현금이 줄고 매도하면 현금으로 돌아옵니다(입출금 장부와 매매 기록으로 자동 계산). 매수를 기록하면 기록하는 날의 순위·변동성에 맞는 손절 폭을 함께 저장합니다. 종가로 열 때마다 매수 뒤 최고 종가를 기록해 손절가를 따라 올립니다. 기록은 이 기기의 브라우저에만 저장되니 관심 탭의 '백업'을 가끔 눌러 두세요.</p>
   </section>
 
@@ -525,8 +578,18 @@ button:focus-visible, summary:focus-visible, input:focus-visible, select:focus-v
   <button type="button" role="tab" id="t-stat" aria-controls="p-stat"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>통계</button>
 </div></nav>
 
+<dialog id="ocrDialog" class="review" aria-labelledby="ocrTitle">
+  <div class="review-head"><h2 id="ocrTitle">체결 내역 일괄 등록</h2><button type="button" class="btn sm" id="ocrClose">취소</button></div>
+  <p class="note">토스증권 체결 내역 이미지를 선택하세요. 이미지는 이 기기에서만 인식하며 서버에 보내지 않습니다. 인식값과 연도·날짜를 원본과 확인한 뒤 등록하세요.</p>
+  <label for="ocrFiles">이미지 선택 (여러 장 가능)</label><input id="ocrFiles" type="file" accept="image/*" multiple>
+  <div class="form"><label>기본 체결일<input id="ocrDate" type="date"></label><button type="button" class="btn" id="ocrRun">이미지 인식</button></div>
+  <p class="msg" id="ocrStatus" role="status" aria-live="polite"></p><progress id="ocrProgress" max="1" value="0" hidden></progress>
+  <div id="ocrResults"></div>
+  <div class="ocr-actions"><p class="note" id="ocrSummary"></p><label class="chk"><input id="ocrReviewed" type="checkbox">선택한 항목의 종목·날짜·가격·수량을 원본과 대조했습니다.</label><button class="btn pri" id="ocrCommit" type="button" disabled>선택 항목 일괄 등록</button></div>
+</dialog>
 <script>
 /*__SCORE__*/
+/*__OCR__*/
 /*__BOOT__*/
 
 SCORE.setT(META.tsort || []);
@@ -769,6 +832,7 @@ function renderHold() {
       <div class="btnrow"><button type="button" class="btn sm" data-fill='${JSON.stringify({ code: r.k, side: 'sell', qty: p.qty })}'>매도 기록</button><button type="button" class="btn sm" data-fill='${JSON.stringify({ code: r.k, side: 'buy', qty: 0 })}'>추가 매수 기록</button></div>
     </div></details>`;
   }).join('') || '<p class="empty">아직 보유 기록이 없습니다. 아래 \'매매 기록하기\'에 매수를 남기거나, 추천 카드를 펼쳐 \'매수 기록하기\'를 누르세요.</p>';
+  renderCompactLogs();
   document.getElementById('logTbl').innerHTML = '<thead><tr><th>날짜</th><th>종목</th><th>구분</th><th class="num">가격</th><th class="num">수량</th><th></th></tr></thead><tbody>'
     + LOG.slice().sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id).map(l => `<tr><td><input class="le" type="date" data-le="${l.id}" data-f="date" value="${l.date}"></td><td>${BY[l.code].n}</td>
       <td><select class="le" data-le="${l.id}" data-f="side" style="text-align:left;min-width:70px"><option value="buy"${l.side === 'buy' ? ' selected' : ''}>매수</option><option value="sell"${l.side === 'sell' ? ' selected' : ''}>매도</option></select></td>
@@ -823,27 +887,39 @@ function buildTodo(snap, execDate) {
     items.push({ kind: 'buy', code: k, side: 'buy', qty: n2, price: rr.p, why: `상위 ${rr.rk < 1 ? rr.rk.toFixed(1) : Math.round(rr.rk)}% · 1/3 먼저` }); cash -= n2 * rr.p; nb++;
   }
   if (E.example) notes.push('<b>예시 1억 기준</b>입니다. 보유 탭에서 입금(투자원금)과 매매를 기록하면 내 자산 기준으로 바뀝니다.');
-  if (!E.example && nb === 0 && free > 0 && recs.some(k => !HP[k] && BY[k]) && cash < slot * 0.5) notes.push(`신규 매수 후보가 있지만 현금(${won(Math.max(0, cash))}원)이 한 종목 몫의 절반(${won(slot / 2)}원)보다 적어 넣지 않았습니다.`);
+  if (!E.example && nb === 0 && free > 0 && recs.some(k => !HP[k] && BY[k]) && cash < slot / 6) notes.push(`신규 매수 후보가 있지만 현금(${won(Math.max(0, cash))}원)이 신규 매수 최소 금액(${won(slot / 6)}원)보다 적습니다.`);
   if (CFG.cash < 0) notes.push('현금이 마이너스입니다. 보유 탭에서 실제 계좌 금액으로 고쳐 주세요.');
   if (!E.example && free - nb > 0 && cash >= slot * 0.5) notes.push(`빈 자리 ${free - nb}개, 남는 현금 약 ${won(cash)}원. 매수 구간 추천이 생기면 채우고 그전엔 MMF·CMA에 둡니다.`);
-  return { items, notes, cash };
+  const reasons = [];
+  if (!items.length) {
+    if (held.length) reasons.push('보유 종목에 매도 신호나 지금 실행할 분할 매수 수량이 없습니다.');
+    if (free <= 0) reasons.push(`목표 ${CFG.slots}종목을 이미 보유해 신규 매수 자리가 없습니다.`);
+    else {
+      const candidates = recs.filter(k => !HP[k] && BY[k]).map(k => snapRow(k, snap)).filter(r => r.ch > -0.08 && rkBand(r.rk) <= 1);
+      if (!candidates.length) reasons.push('보유 종목을 제외하면 현재 규칙을 통과한 신규 매수 후보가 없습니다.');
+      else if (cash < slot / 6) reasons.push(`현금 ${won(Math.max(0, cash))}원이 신규 매수 최소 금액 ${won(slot / 6)}원보다 적습니다.`);
+      else reasons.push('이번 분할 매수 예산으로 후보 종목을 1주 이상 살 수 없습니다.');
+    }
+  }
+  return { items, notes, cash, reasons };
 }
 function todoCard(title, when, badge, res, execDate, actionable) {
   const done = it => LOG.some(l => l.code === it.code && l.side === it.side && l.date === execDate);
   const tag = { sell: '전량', trim: '절반', add: '추가', buy: '1/3' };
   const man = v => v >= 1e4 ? `${Math.round(v / 1e4).toLocaleString()}만원` : `${won(v)}원`;
   const row = it => { const r = BY[it.code], d = done(it);
-    return `<div class="ti${d ? ' done' : ''}">
-      <div class="what"><button type="button" class="nmc" data-copy="${it.code}" aria-label="${r.n} 종목코드 ${it.code} 복사">${r.n}</button> <span class="tg ${it.kind}">${tag[it.kind]}</span><small>${it.why}</small></div>
-      <div class="qty"><b>${it.qty.toLocaleString()}주</b><small>약 ${man(it.qty * it.price)}</small></div>
-      ${d ? '<span class="badge done">✓ 기록</span>' : actionable ? `<button type="button" class="btn sm rec" data-fill='${JSON.stringify({ code: it.code, side: it.side, qty: it.qty, date: execDate })}'>기록</button>` : '<span></span>'}
-    </div>`; };
+    return `<details class="ti todo-item${d ? ' done' : ''}"><summary>
+      <span class="what"><b>${r.n}</b> <span class="tg ${it.kind}">${tag[it.kind]}</span><small>${it.side === 'buy' ? '매수' : '매도'} · ${d ? '기록 완료' : actionable ? '펼쳐서 체결 기록' : '계획 보기'}</small></span>
+      <span class="qty"><b>${it.qty.toLocaleString()}주</b><small>약 ${man(it.qty * it.price)}</small></span></summary>
+      <p class="todo-when">${it.why} · 기준 ${won(it.price)}원 <button class="code" type="button" data-copy="${it.code}">${it.code} 복사</button></p>
+      ${d ? '<p class="note">체결 기록을 남겼습니다. 보유 탭의 매매 기록에서 수정할 수 있습니다.</p>' : actionable ? `<form class="form todo-exec" data-code="${it.code}" data-side="${it.side}" data-date="${execDate}"><label>실제 체결 가격(원)<input name="price" inputmode="numeric" placeholder="실제 가격 입력" required></label><label>체결 수량(주)<input name="qty" inputmode="numeric" value="${it.qty}" required></label><button type="submit" class="btn pri">체결 기록</button><p class="msg full" role="status"></p></form>` : '<p class="note">체결 후 오늘 할 일 또는 보유 탭에서 실제 가격·수량을 기록하세요.</p>'}
+    </details>`; };
   const sells = res.items.filter(it => it.side === 'sell').sort((a, b) => (a.kind === 'sell' ? 0 : 1) - (b.kind === 'sell' ? 0 : 1));
   const buys = res.items.filter(it => it.side === 'buy').sort((a, b) => (a.kind === 'add' ? 0 : 1) - (b.kind === 'add' ? 0 : 1));
   const grp = (nm, col, list) => list.length ? `<div class="grp"><span class="dot" style="background:${col}"></span>${nm} <span class="covtag">${list.length}건</span></div>${list.map(row).join('')}` : '';
   return `<div class="todo-h"><b>${title}</b>${badge}</div><p class="todo-when">${when}</p>`
     + (res.items.length ? grp('팔기', 'var(--lt-r)', sells) + grp('사기', 'var(--lt-g)', buys)
-      : `<p class="empty">할 일이 없습니다.${nStocksSafe() ? ' 그대로 보유하세요.' : ''}</p>`)
+      : `<p class="empty">할 일이 없습니다.</p><ul class="notes">${res.reasons.map(t => `<li>${t}</li>`).join('')}</ul>`)
     + (res.items.length ? `<div class="cashline">팔기 먼저, 사기는 그다음 · 끝나면 현금 약 <b>${man(Math.max(0, res.cash))}</b></div>` : '')
     + (res.notes.length ? `<ul class="notes">${res.notes.map(n2 => `<li>${n2}</li>`).join('')}</ul>` : '');
 }
@@ -855,7 +931,7 @@ function renderTodo() {
     // 다음 날 열었는데 아직 갱신 전: 어제 종가 신호 = 오늘 할 일
     const ra = buildTodo('cur', now);
     A = todoCard(`오늘 ${md(now)} 종가에 할 일`, `${md(META.asOf)} 종가 신호 · 오늘 15:20~15:30 장 마감 동시호가에 주문${hm >= '15:30' ? ' (이미 지났다면 체결 여부를 기록하세요)' : ''}`, '<span class="badge final">확정</span>', ra, now, true);
-    B = `<div class="todo-h"><b>내일 종가에 할 일</b><span class="badge">대기</span></div><p class="todo-when">오늘 장 마감(15:30) 뒤 <code>종가스코어링_갱신.bat</code>을 실행하면 오늘 종가 기준으로 나옵니다.</p>`;
+    B = `<div class="todo-h"><b>내일 종가에 할 일</b><span class="badge">대기</span></div><p class="todo-when">오늘 장 마감 뒤 최신 결과가 갱신되면 다음 거래일의 계획을 보여줍니다.</p>`;
   } else if (META.final) {
     // 장 마감 뒤 갱신: 오늘 할 일은 이미 지났고, 내일 할 일이 확정
     const ra = ps && ps.date ? buildTodo(ps, META.asOf) : null, rb = buildTodo('cur', '다음');
@@ -868,6 +944,10 @@ function renderTodo() {
     B = todoCard('내일 종가에 할 일', `지금(장중 ${META.asOf}) 가격으로 본 미리보기 · 장 마감 뒤 다시 갱신하면 바뀔 수 있습니다`, '<span class="badge temp">미리보기</span>', rb, '', false);
   }
   document.getElementById('todoA').innerHTML = A; document.getElementById('todoB').innerHTML = B;
+  ['today', 'tomorrow'].forEach((name, i) => {
+    const box = document.getElementById(i ? 'todoB' : 'todoA'), count = box.querySelectorAll('.todo-item').length, completed = box.querySelectorAll('.todo-item.done').length;
+    document.getElementById(name + 'Count').textContent = count ? `${count}건${completed ? ` · 기록 ${completed}건` : ''}` : box.textContent.includes('할 일이 없습니다') ? '0건' : '데이터 대기';
+  });
   const pending = document.querySelectorAll('#todoA .ti:not(.done)').length, c = document.getElementById('todoCnt');
   c.hidden = !pending; c.textContent = pending;
   const val = stockValue(), total = CFG.cash + val, list = Object.entries(POS).map(([k, p]) => SCORE.manage(BY[k], evalRow(BY[k], null).b, p, eff(), META.asOf));
@@ -1020,6 +1100,169 @@ function showTab(t) {
 }
 TABS.forEach(k => document.getElementById('t-' + k).onclick = () => showTab(k));
 
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function renderCompactLogs() {
+  const box = document.getElementById('logList'), opened = new Set([...box.querySelectorAll('details[open]')].map(d => d.dataset.id));
+  document.getElementById('logCount').textContent = `${LOG.length}건`;
+  box.innerHTML = LOG.slice().sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id).map(l => `<details class="log-item" data-id="${l.id}"${opened.has(String(l.id)) ? ' open' : ''}><summary><span><b>${esc(BY[l.code].n)}</b><small>${l.date} · ${l.side === 'buy' ? '매수' : '매도'} · ${l.qty.toLocaleString()}주</small></span><span>${won(l.price)}원<small>펼쳐서 수정</small></span></summary><div class="form">
+    <label>날짜<input class="le" type="date" data-le="${l.id}" data-f="date" value="${l.date}"></label>
+    <label>매매 방향<select class="le" data-le="${l.id}" data-f="side"><option value="buy"${l.side === 'buy' ? ' selected' : ''}>매수</option><option value="sell"${l.side === 'sell' ? ' selected' : ''}>매도</option></select></label>
+    <label>체결 가격(원)<input class="le" inputmode="numeric" data-le="${l.id}" data-f="price" value="${l.price}"></label><label>수량(주)<input class="le" inputmode="numeric" data-le="${l.id}" data-f="qty" value="${l.qty}"></label><button type="button" class="lnk" data-logdel="${l.id}">기록 삭제</button></div></details>`).join('') || '<p class="empty">기록이 없습니다.</p>';
+}
+function newTrade(r, id) {
+  const stock = BY[r.code], x = evalRow(stock, null), pl = x.pl || (x.b != null ? SCORE.plan(stock, Math.min(x.b, 2)) : null);
+  return { id, code: r.code, side: r.side, date: r.date, price: Number(r.price), qty: Number(r.qty), rk: stock.rk, stopPct: r.side === 'buy' && pl ? pl.stopPct : undefined, upPct: r.side === 'buy' && pl ? pl.upPct : undefined };
+}
+function saveTrades(records) {
+  const next = [...LOG, ...records];
+  if (!store.set(LKEY, next)) return false;
+  LOG = next; buildPos(); saveAll(); renderAll(); return true;
+}
+document.addEventListener('submit', e => {
+  const form = e.target.closest('.todo-exec'); if (!form) return;
+  e.preventDefault();
+  const msg = form.querySelector('.msg'), r = { code: form.dataset.code, side: form.dataset.side, date: form.dataset.date, price: Number(form.elements.price.value.replace(/,/g, '').trim()), qty: Number(form.elements.qty.value.replace(/,/g, '').trim()), included: true };
+  const issue = TOSS_OCR.issues([r], LOG, ROWS)[0];
+  if (issue.errors.length) { msg.textContent = issue.errors.join(' · '); return; }
+  if (issue.duplicate) { msg.textContent = '같은 날짜·종목·방향·가격·수량의 기록이 이미 있습니다. 보유 탭에서 확인하세요.'; return; }
+  const record = newTrade(r, Date.now());
+  if (TOSS_OCR.oversold([...LOG, record])) { msg.textContent = '해당 날짜의 보유 수량보다 많이 매도할 수 없습니다.'; return; }
+  if (!saveTrades([record])) { msg.textContent = '저장 공간이 부족하거나 저장이 차단됐습니다. 등록하지 않았습니다.'; return; }
+  toast(`${BY[r.code].n} ${won(r.price)}원 · ${r.qty}주 기록 완료`);
+});
+
+// OCR: 검토 중에는 LOG와 장부를 건드리지 않는다. 등록 시 한 번에 저장한다.
+const ocrDlg = document.getElementById('ocrDialog');
+let ocrRows = [], ocrBusy = false, ocrRunId = 0, ocrWorker = null, ocrSources = [], tesseractLoading = null;
+const ocrStatus = t => { document.getElementById('ocrStatus').textContent = t; };
+function clearOcrSources() { ocrSources.forEach(s => URL.revokeObjectURL(s.url)); ocrSources = []; }
+function cancelOcr() {
+  ocrRunId++; ocrBusy = false;
+  if (ocrWorker) { ocrWorker.terminate().catch(() => {}); ocrWorker = null; }
+  clearOcrSources(); ocrRows = []; ocrDlg.close();
+}
+document.getElementById('ocrClose').onclick = cancelOcr;
+ocrDlg.addEventListener('cancel', e => { e.preventDefault(); cancelOcr(); });
+document.getElementById('ocrOpen').onclick = () => {
+  ocrRows = []; clearOcrSources(); document.getElementById('ocrFiles').value = ''; document.getElementById('ocrDate').value = kstToday();
+  document.getElementById('ocrProgress').hidden = true; ocrStatus('선택한 이미지의 종목·수량·가격·매매 방향을 인식합니다.'); renderOcr(); ocrDlg.showModal();
+};
+function loadTesseract() {
+  if (window.Tesseract) return Promise.resolve();
+  if (tesseractLoading) return tesseractLoading;
+  tesseractLoading = new Promise((resolve, reject) => {
+    const script = document.createElement('script'), timeout = setTimeout(() => { script.remove(); tesseractLoading = null; reject(new Error('OCR 라이브러리 다운로드 시간 초과')); }, 25000);
+    script.src = new URL('ocr/tesseract.min.js', location.href).href;
+    script.onload = () => { clearTimeout(timeout); resolve(); };
+    script.onerror = () => { clearTimeout(timeout); script.remove(); tesseractLoading = null; reject(new Error('OCR 라이브러리를 불러오지 못했습니다')); };
+    document.head.appendChild(script);
+  });
+  return tesseractLoading;
+}
+async function ocrCanvas(file) {
+  const bitmap = await createImageBitmap(file);
+  // 작은 글자를 확대하고 큰 스크린샷은 메모리 사용을 제한한다.
+  const scale = Math.min(2, 1800 / bitmap.width, 7000 / bitmap.height), canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale); canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height); bitmap.close();
+  return canvas;
+}
+async function startOcrWorker(options, run) {
+  let timer, failed = false, rejectInit;
+  const timeout = new Promise((resolve, reject) => {
+    rejectInit = reject;
+    timer = setTimeout(() => { failed = true; reject(new Error('OCR 준비 시간이 초과됐습니다. 다시 시도하세요.')); }, 60000);
+  });
+  const creating = Tesseract.createWorker('kor+eng', 1, { ...options, errorHandler: err => { failed = true; rejectInit(new Error(String(err))); } });
+  creating.then(w => { if (failed || run !== ocrRunId) w.terminate().catch(() => {}); }).catch(() => {});
+  try { return await Promise.race([creating, timeout]); }
+  finally { clearTimeout(timer); }
+}
+function refreshOcrIssues() {
+  const issues = TOSS_OCR.issues(ocrRows, LOG, ROWS); let selected = 0, blocked = 0;
+  issues.forEach((issue, i) => {
+    const r = ocrRows[i], el = document.getElementById('ocr-row-' + i); if (!el) return;
+    el.classList.toggle('excluded', !r.included);
+    const texts = issue.errors.slice();
+    if (issue.duplicate) texts.push('중복 의심: 기존 기록 또는 선택한 앞 항목과 같습니다. 별도 체결이면 중복 허용을 체크하세요.');
+    el.querySelector('.ocr-issue').textContent = texts.join('\n');
+    el.querySelector('.ocr-duplicate').hidden = !issue.duplicate;
+    if (r.included) { selected++; if (issue.errors.length || (issue.duplicate && !r.allowDuplicate)) blocked++; }
+  });
+  document.getElementById('ocrRun').disabled = ocrBusy;
+  document.getElementById('ocrFiles').disabled = ocrBusy; document.getElementById('ocrDate').disabled = ocrBusy;
+  document.getElementById('ocrSummary').textContent = `전체 ${ocrRows.length}건 · 선택 ${selected}건 · 확인 필요 ${blocked}건. 등록 전 원본과 대조하세요.`;
+  document.getElementById('ocrCommit').disabled = ocrBusy || !selected || blocked > 0 || !document.getElementById('ocrReviewed').checked;
+}
+document.getElementById('ocrReviewed').onchange = refreshOcrIssues;
+function renderOcr() {
+  document.getElementById('ocrReviewed').checked = false;
+  document.getElementById('ocrResults').innerHTML = ocrRows.map((r, i) => `<div class="ocr-row" id="ocr-row-${i}"><label class="chk"><input type="checkbox" data-oi="${i}" data-of="included"${r.included ? ' checked' : ''}>${i + 1}. 등록에 포함</label>
+    <div class="form"><label class="full">종목명 또는 코드<input list="stockList" data-oi="${i}" data-of="name" value="${esc(r.name)}" autocomplete="off"></label>
+    <label>체결일<input type="date" data-oi="${i}" data-of="date" value="${esc(r.date)}"></label><label>매매 방향<select data-oi="${i}" data-of="side"><option value="">선택</option><option value="buy"${r.side === 'buy' ? ' selected' : ''}>매수</option><option value="sell"${r.side === 'sell' ? ' selected' : ''}>매도</option></select></label>
+    <label>수량(주)<input inputmode="numeric" data-oi="${i}" data-of="qty" value="${r.qty || ''}"></label><label>주당 가격(원)<input inputmode="numeric" data-oi="${i}" data-of="price" value="${r.price || ''}"></label></div>
+    <p class="ocr-issue"></p><label class="chk ocr-duplicate" hidden><input type="checkbox" data-oi="${i}" data-of="allowDuplicate"${r.allowDuplicate ? ' checked' : ''}>원본을 확인한 별도 체결입니다 (중복 허용)</label>
+    <details><summary>원본 · 인식 문구 (${esc(r.sourceName || '')})</summary>${r.sourceUrl ? `<img src="${esc(r.sourceUrl)}" alt="체결 내역 원본" style="max-width:100%;max-height:340px;object-fit:contain">` : ''}<pre style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(r.raw)}</pre></details></div>`).join('');
+  refreshOcrIssues();
+}
+document.getElementById('ocrResults').addEventListener('input', e => {
+  const el = e.target.closest('[data-oi]'); if (!el) return;
+  const r = ocrRows[Number(el.dataset.oi)], field = el.dataset.of;
+  r[field] = el.type === 'checkbox' ? el.checked : ['price', 'qty'].includes(field) ? Number(el.value.replace(/,/g, '').trim()) : el.value;
+  if (field === 'name') r.code = TOSS_OCR.matchStock(el.value, ROWS);
+  document.getElementById('ocrReviewed').checked = false;
+  if (!['allowDuplicate', 'included'].includes(field)) r.allowDuplicate = false;
+  refreshOcrIssues();
+});
+document.getElementById('ocrRun').onclick = async () => {
+  const files = [...document.getElementById('ocrFiles').files], fallback = document.getElementById('ocrDate').value;
+  if (!files.length) return ocrStatus('이미지를 선택하세요.');
+  if (!TOSS_OCR.validDate(fallback)) return ocrStatus('기본 체결일을 입력하세요.');
+  if (location.protocol === 'file:') return ocrStatus('이미지 인식은 웹앱 주소에서 이용하세요. PC 파일의 매매 기록은 직접 입력할 수 있습니다.');
+  if (files.length > 20 || files.some(f => f.size > 20 * 1024 * 1024)) return ocrStatus('한 번에 20장, 이미지 한 장당 20MB 이하로 선택하세요.');
+  const run = ++ocrRunId; ocrBusy = true; ocrRows = []; clearOcrSources(); renderOcr();
+  const progress = document.getElementById('ocrProgress'); progress.hidden = false; progress.value = 0;
+  let worker = null, failure = 0, fileIndex = 0;
+  try {
+    ocrStatus('OCR 준비 중… 처음에는 인식 엔진과 언어 모델을 내려받습니다.'); await loadTesseract();
+    if (run !== ocrRunId) return;
+    worker = await startOcrWorker({
+      workerPath: new URL('ocr/worker.min.js', location.href).href,
+      corePath: new URL('ocr/tesseract-core-lstm.wasm.js', location.href).href,
+      langPath: new URL('ocr/', location.href).href, gzip: true,
+      logger: m => { if (run === ocrRunId && m.status === 'recognizing text') { progress.value = (fileIndex + (m.progress || 0)) / files.length; ocrStatus(`${fileIndex + 1}/${files.length}장 인식 중… ${Math.round((m.progress || 0) * 100)}%`); } },
+    }, run);
+    if (run !== ocrRunId) return;
+    ocrWorker = worker; await worker.setParameters({ tessedit_pageseg_mode: '11' });
+    for (fileIndex = 0; fileIndex < files.length; fileIndex++) {
+      if (run !== ocrRunId) return;
+      try {
+        const file = files[fileIndex], canvas = await ocrCanvas(file);
+        const { data } = await worker.recognize(canvas, {}, { text: true, blocks: true });
+        if (run !== ocrRunId) return;
+        const source = { name: file.name, url: URL.createObjectURL(file) }; ocrSources.push(source);
+        ocrRows.push(...TOSS_OCR.parse(data, ROWS, fallback).map(r => ({ ...r, sourceName: source.name, sourceUrl: source.url })));
+        renderOcr();
+      } catch (e) { if (run !== ocrRunId) return; failure++; }
+    }
+    ocrStatus(`${ocrRows.length}건을 찾았습니다.${failure ? ` ${failure}장은 읽지 못했습니다. 이미지를 확인하고 다시 시도하세요.` : ''}${!ocrRows.length ? ' 글자가 선명한 체결 내역 이미지를 사용하세요.' : ' 인식 결과와 날짜·연도를 수정하고 중복 항목을 확인하세요.'}`);
+  } catch (e) { if (run === ocrRunId) ocrStatus('인식하지 못했습니다. 인터넷 연결과 이미지 형식을 확인하고 다시 시도하세요. ' + (e.message || String(e))); }
+  finally {
+    if (worker) await worker.terminate().catch(() => {});
+    if (run === ocrRunId) { ocrWorker = null; ocrBusy = false; progress.hidden = true; refreshOcrIssues(); }
+  }
+};
+document.getElementById('ocrCommit').onclick = () => {
+  if (ocrBusy || !document.getElementById('ocrReviewed').checked) return;
+  const issues = TOSS_OCR.issues(ocrRows, LOG, ROWS), selected = ocrRows.filter((r, i) => r.included && !issues[i].errors.length && (!issues[i].duplicate || r.allowDuplicate));
+  if (!selected.length || selected.length !== ocrRows.filter(r => r.included).length) { refreshOcrIssues(); return; }
+  const id = LOG.reduce((next, l) => Math.max(next, Number(l.id) + 1), Date.now()), records = selected.map((r, i) => newTrade(r, id + i));
+  const invalid = TOSS_OCR.oversold([...LOG, ...records]);
+  if (invalid) return ocrStatus(`${invalid.date} ${BY[invalid.code].n}: 보유 수량보다 매도가 많습니다. 누락된 매수를 먼저 기록하거나 수량·날짜를 고치세요. 등록하지 않았습니다.`);
+  if (!saveTrades(records)) return ocrStatus('저장 공간이 부족하거나 저장이 차단됐습니다. 등록하지 않았습니다.');
+  const count = records.length; cancelOcr(); document.getElementById('logBox').open = true; hsay(`${count}건을 일괄 등록했습니다.`); toast(`${count}건 등록 완료`);
+};
+
 // 매매 기록 양식 채우기
 let SIDE = 'buy';
 const setSide = s => { SIDE = s; document.querySelectorAll('.seg2 button').forEach(b => b.setAttribute('aria-pressed', b.dataset.side === s)); };
@@ -1060,14 +1303,18 @@ document.addEventListener('click', e => {
   if (d) { const r = BY[d.dataset.del]; if (confirm(`${r.n}을(를) 관심종목에서 삭제할까요?`)) removeCode(d.dataset.del); }
 });
 document.getElementById('fAdd').onclick = addLog;
-document.getElementById('logTbl').addEventListener('change', e => {
-  const el = e.target.closest('[data-le]'); if (!el) return;
+let logEditInProgress = false;
+document.getElementById('logBox').addEventListener('change', e => {
+  const el = e.target.closest('[data-le]'); if (!el || logEditInProgress) return;
   const l = LOG.find(x2 => String(x2.id) === el.dataset.le); if (!l) return;
+  logEditInProgress = true;
+  try {
   const before = cashEffect(l), f2 = el.dataset.f;
   if (f2 === 'date') l.date = el.value || l.date;
   else if (f2 === 'side') l.side = el.value;
   else { const v = +el.value.replace(/[^0-9]/g, ''); if (v > 0) l[f2] = v; }
   buildPos(); saveAll(); renderAll(); hsay(`${BY[l.code].n} 기록을 고쳤습니다. 할 일과 조언을 다시 계산했습니다.`);
+  } finally { logEditInProgress = false; }
 });
 document.getElementById('fDate').value = META.asOf;
 document.getElementById('cfgCash').onchange = e => { const v = +e.target.value.replace(/[^0-9-]/g, ''); if (!e.target.value.trim()) return; const diff = Math.round(v - CFG.cash);

@@ -185,7 +185,7 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
     builtAt: new Date().toISOString(), recs, cut, tsort: TS, base: B.length, eligible: cand.length, total: rows.length, failed, reused, prevSnap, recPerf,
     fundOldest: (() => { const t = fs.readdirSync(path.join(DATA, 'fund')).map(f => fs.statSync(path.join(DATA, 'fund', f)).mtimeMs); return new Date(Math.min(...t) + 9 * 3600e3).toISOString().slice(0, 10); })() };
 
-  const tpl = fs.readFileSync(path.join(DIR, 'template.html'), 'utf8'), scoreJs = fs.readFileSync(path.join(DIR, 'score.js'), 'utf8');
+  const tpl = fs.readFileSync(path.join(DIR, 'template.html'), 'utf8').replace('/*__OCR__*/', () => fs.readFileSync(path.join(DIR, 'ocr.js'), 'utf8')), scoreJs = fs.readFileSync(path.join(DIR, 'score.js'), 'utf8');
   const simJson = fs.existsSync(path.join(DATA, 'sim.json')) ? fs.readFileSync(path.join(DATA, 'sim.json'), 'utf8') : 'null';
   // 파일 버전: 데이터를 HTML 안에 넣는다
   const html = tpl.replace('/*__SCORE__*/', () => scoreJs).replace('/*__END__*/', '})();')
@@ -206,7 +206,7 @@ const { META, ROWS, SIM } = D;`;
     const head = '<link rel="manifest" href="manifest.webmanifest">\n<link rel="icon" href="icon-192.png">\n<link rel="apple-touch-icon" href="icon-192.png">\n<script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js"));</script>\n</head>';
     fs.writeFileSync(path.join(WD, 'index.html'), tpl.replace('/*__SCORE__*/', () => scoreJs).replace('/*__BOOT__*/', () => boot).replace('/*__END__*/', '})();').replace('</head>', () => head), 'utf8');
     fs.writeFileSync(path.join(WD, 'data.json'), `{"META":${JSON.stringify(META)},"ROWS":${JSON.stringify(rows)},"SIM":${simJson}}`, 'utf8');
-    for (const f of fs.readdirSync(WEB)) fs.copyFileSync(path.join(WEB, f), path.join(WD, f));
+    for (const f of fs.readdirSync(WEB)) fs.cpSync(path.join(WEB, f), path.join(WD, f), { recursive: true });
     console.log('웹앱 파일:', WD);
   }
   console.log(`${asOf} ${final ? '종가' : '장중 잠정'} · 전 종목 ${rows.length} · 순위 대상 ${B.length} · 추천 조건 ${cand.length} · 추천 ${recs.length} · 받기 실패 ${failed}(직전 값 ${reused}) · ${Math.round((Date.now() - t0) / 1000)}초`);
