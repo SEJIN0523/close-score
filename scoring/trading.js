@@ -51,23 +51,24 @@ const TRADING = (() => {
     }
     return [...stages];
   }
-  // A phase is determined by elapsed exchange sessions and cumulative holdings, never by fill count.
+  // 분할 단계는 첫 매수가 대비 종가로 정한다(불타기): +5%면 누적 2/3, +10%면 전체. 체결 건수는 단계가 아니다.
+  // 검증: 2016~2026 상장폐지 포함 데이터는 시작일 5개 모두, 원본 연구 데이터는 5개 중 3개에서 시간 기준(0·5·10거래일)보다
+  // 나았고 최대 낙폭은 두 데이터 모두 줄었다. +3·7% ~ +10·20%로 바꿔도 같은 방향 (HANDOFF 20절).
+  const PYRAMID = [.05, .10];
   function phase(pos, row, signalDate, executionDate, ctx = context) {
     const cal = ctx.calendar, age = cal.distance(pos.firstD, executionDate), events = pos.events || [];
     const history = Object.entries(ctx.ranks || {}).filter(([d]) => d >= pos.firstD && d <= signalDate).sort(([a], [b]) => a.localeCompare(b));
-    let cancelled = pos.splitCancelled === true, lastInside40 = pos.lastInside40 || pos.firstD;
-    for (const [d, ranks] of history) {
-      const rk = ranks[row.k];
-      if (finite(rk) && rk < 40) lastInside40 = d;
-      const elapsed = cal.distance(pos.firstD, d);
-      if (elapsed != null && elapsed < 10 && finite(rk) && rk >= 20) cancelled = true;
-    }
+    let lastInside40 = pos.lastInside40 || pos.firstD;
+    for (const [d, ranks] of history) if (finite(ranks[row.k]) && ranks[row.k] < 40) lastInside40 = d;
     if (band(row.rk) != null && band(row.rk) <= 2) lastInside40 = signalDate;
-    if (band(row.rk) == null || band(row.rk) > 1) cancelled = true;
+    // 순위가 상위 20% 밖인 날은 추가 매수를 보류한다(다시 들어오면 재개)
+    const cancelled = band(row.rk) == null || band(row.rk) > 1;
+    const first = events.find(e => e.side === 'buy' && (!pos.firstD || e.date >= pos.firstD)), entry = first && finite(first.price) ? first.price : pos.avg;
+    const rise = finite(entry) && entry > 0 && finite(row.p) ? row.p / entry - 1 : 0;
     const trimKey = `${row.k}:${pos.firstD}:${lastInside40}:trim`;
     const trimmed = events.filter(e => e.decision === trimKey && e.side === 'sell').reduce((s, e) => s + e.qty, 0);
-    return { age, stage: age == null ? null : age >= 10 ? 3 : age >= 5 ? 2 : 1, cancelled, lastInside40, trimKey, trimmed,
-      next: age == null ? null : cal.shift(pos.firstD, age < 5 ? 5 : age < 10 ? 10 : age) };
+    return { age, stage: age == null ? null : 1 + (rise >= PYRAMID[0]) + (rise >= PYRAMID[1]), cancelled, lastInside40, trimKey, trimmed,
+      entry, next: null };
   }
   function targetValue(row, pos, cfg, policy = {}) {
     let value = cfg.capital / cfg.slots;
@@ -106,9 +107,10 @@ const TRADING = (() => {
     // A cancelled split does not resume. A later recovery is a separate, cooled-down decision.
     if (b <= 1 && row.ch > -.08 && (split.cancelled || (pos.completedStages || []).includes(3)) && val < .6 * target && cooldown != null && cooldown >= 5) {
       const qty = Math.floor(gap / row.p);
-      if (qty > 0) return { ...base, light: 'green', k: 'add', buyQty: qty, goalQty: pos.qty + qty, reason: '분할 계획 취소 후 상위 20% 복귀 · 부족 비중 재평가' };
+      if (qty > 0) return { ...base, light: 'green', k: 'add', buyQty: qty, goalQty: pos.qty + qty, reason: '분할을 마친 뒤 비중이 부족해 재평가' };
     }
-    return { ...base, light: 'green', k: 'hold', reason: split.cancelled ? '남은 분할 계획 취소 · 보유 유지' : '누적 목표 충족 또는 다음 분할일까지 대기' };
+    const nextAt = split.stage < 3 && finite(split.entry) ? tick(split.entry * (1 + PYRAMID[split.stage - 1]), true) : null;
+    return { ...base, light: 'green', k: 'hold', reason: split.cancelled ? '순위 상위 20% 밖 · 추가 매수 보류' : nextAt ? `다음 분할: 종가 ${nextAt.toLocaleString()}원 이상 (첫 매수가 +${PYRAMID[split.stage - 1] * 100}%)` : '분할 목표 충족 · 보유 유지' };
   }
   // Sell proceeds and slots are available only after real fills, not on a hypothetical sale.
   function orders(input) {

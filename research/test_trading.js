@@ -26,15 +26,25 @@ assert.deepEqual(T.completedStages(row.k, pos(30), { [plan.id]: plan }, [fill(30
 assert.deepEqual(T.completedStages(row.k, pos(20), { [plan.id]: plan }, [fill(20)]), [1, 2]);
 assert.deepEqual(T.completedStages(row.k, pos(3), { [plan.id]: plan }, [fill(20), { ...fill(17), side: 'sell' }]), []);
 assert.deepEqual(T.completedStages(row.k, { ...pos(3), events: [fill(3)] }, { [plan.id]: plan }, [fill(10), fill(3)]), []); // a fresh cycle after a same-day exit
+// 분할 단계 = 첫 매수가 대비 종가 (불타기): 그대로면 1/3, +5%면 누적 2/3, +10%면 전체. 날짜가 지나도 오르지 않으면 더 사지 않는다
 assert.equal(T.manage(row, 0, pos(3), cfg, '2026-10-07', { context: ctx }).buyQty, 7);
-assert.equal(T.manage(row, 0, pos(3), cfg, '2026-10-08', { context: ctx }).buyQty, 17);
-assert.equal(T.manage(row, 0, pos(15), cfg, '2026-10-08', { context: ctx }).buyQty, 5);
+assert.equal(T.manage(row, 0, pos(10), cfg, '2026-10-20', { context: ctx }).buyQty, undefined);
+assert.match(T.manage(row, 0, pos(10), cfg, '2026-10-20', { context: ctx }).reason, /1,050원 이상/);
+assert.equal(T.manage({ ...row, p: 1050 }, 0, pos(3), cfg, '2026-10-07', { context: ctx }).buyQty, 16);
+assert.equal(T.manage({ ...row, p: 1050 }, 0, pos(15), cfg, '2026-10-07', { context: ctx }).buyQty, 4);
+assert.equal(T.manage({ ...row, p: 1100 }, 0, pos(15), cfg, '2026-10-07', { context: ctx }).buyQty, 12);
 assert.equal(T.manage(row, 0, pos(35), cfg, '2026-10-08', { context: ctx }).buyQty, undefined);
-assert.equal(T.manage(row, 0, { ...pos(19), completedStages: [1, 2] }, cfg, '2026-10-12', { context: ctx }).buyQty, undefined);
+assert.equal(T.manage({ ...row, p: 1050 }, 0, { ...pos(19), completedStages: [1, 2] }, cfg, '2026-10-12', { context: ctx }).buyQty, undefined);
 assert.equal(T.manage(row, 0, { ...pos(3), buys: ['a', 'b', 'c', 'd'] }, cfg, '2026-10-07', { context: ctx }).buyQty, 7);
-const failedCtx = { ...ctx, ranks: { '2026-10-02': { [row.k]: 30 } } };
-assert.equal(T.manage(row, 0, { ...pos(3), lastD: '2026-10-07' }, cfg, '2026-10-08', { context: failedCtx }).buyQty, undefined);
-assert.match(T.manage(row, 0, pos(3), cfg, '2026-10-08', { context: failedCtx }).reason, /재평가/); // separate recovery after cooldown
+// 기준은 평균가가 아니라 이번 보유의 첫 매수 체결가
+const firstBuy = { ...pos(3), avg: 1000, events: [{ code: row.k, date: '2026-10-01', side: 'buy', qty: 3, price: 900 }] };
+assert.equal(T.manage(row, 0, firstBuy, cfg, '2026-10-07', { context: ctx }).goalQty, 30);
+// 순위가 상위 20% 밖인 날은 추가 매수 보류, 돌아오면 재개
+assert.equal(T.manage({ ...row, p: 1050, rk: 30 }, 2, pos(3), cfg, '2026-10-08', { context: ctx }).buyQty, undefined);
+assert.match(T.manage({ ...row, p: 1050, rk: 30 }, 2, pos(3), cfg, '2026-10-08', { context: ctx }).reason, /추가 매수 보류/);
+assert.equal(T.manage({ ...row, p: 1050 }, 0, pos(3), cfg, '2026-10-09', { context: ctx }).buyQty, 16);
+// 분할을 마쳤는데 매도 등으로 비중이 크게 줄면 5거래일 뒤 부족분 재평가
+assert.match(T.manage({ ...row, p: 1100 }, 0, { ...pos(3), completedStages: [1, 2, 3] }, cfg, '2026-10-12', { context: ctx }).reason, /재평가/);
 const out = { ...row, rk: 50 }, trim = T.manage(out, 3, pos(90), cfg, '2026-10-08', { context: ctx });
 assert.equal(trim.sellQty, 45);
 assert.equal(T.manage(out, 3, { ...pos(60), events: [{ decision: trim.decision, side: 'sell', qty: 30 }] }, cfg, '2026-10-12', { context: ctx }).sellQty, 15);
