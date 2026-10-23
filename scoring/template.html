@@ -750,6 +750,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
         <label class="full">실제 계좌 예수금으로 맞추기(원)<input id="cfgCash" type="text" inputmode="numeric" placeholder="증권 앱의 예수금을 넣으면 차액을 '조정'으로 기록"></label>
         <label>목표 종목 수<input id="cfgSlots" type="number" inputmode="numeric" min="3" max="30"></label>
       </div>
+      <p class="note" id="slotHint"></p>
       <div class="scroll-x" style="margin-top:10px"><table class="mini-tbl" id="cashTbl"></table></div>
     </details>
       <details class="box" id="logBox" name="hold-tools"><summary>매매 기록 <span id="logCount"></span></summary><div class="list" id="logList" style="margin-top:8px"></div><div class="scroll-x log-desktop" style="margin-top:8px"><table class="mini-tbl" id="logTbl"></table></div></details>
@@ -1211,7 +1212,9 @@ const lightHtml = l => `<span class="light" role="img" aria-label="신호등 ${L
 const MK = { stop: '손절', sell: '매도', trim: '일부 매도', near: '손절 임박', add: '추가 매수', hold: '보유 유지', data: '시세 확인 대기', calendar: '거래일 확인 대기' };
 function renderHold() {
   document.getElementById('cfgSlots').value = CFG.slots; document.getElementById('cfgCash').placeholder = `지금 장부상 현금 ${won(CFG.cash)}원 · 실제 예수금을 넣으면 차액을 조정`;
-  const E = eff(), slot = E.capital / CFG.slots;
+  const E = eff(), slot = E.capital / CFG.slots, sug = TRADING.suggestSlots(E.capital);
+  document.getElementById('slotHint').innerHTML = `투자금 ${won(E.capital)}원${E.example ? '(예시 1억)' : ''} 기준 권장 <b>${sug}종목</b> · 한 종목 몫 약 ${won(E.capital / sug / 1e4)}만원, 첫 매수(1/3) 약 ${won(E.capital / sug / 3 / 1e4)}만원. 한 종목 몫을 500만원 이상으로 두되 검증한 7~10종목 안에서 고릅니다.`
+    + (sug !== CFG.slots ? ` <button type="button" class="btn sm" id="slotApply">권장 ${sug}종목 적용</button>` : ' (현재 설정과 같음)');
   const list = Object.entries(POS).map(([k, p]) => { const r = BY[k], x = evalRow(r, null); return { r, p, x, m: SCORE.manage(r, x.b, p, E, META.asOf) }; })
     .sort((a, b) => ({ red: 0, yellow: 1, green: 2 })[a.m.light] - ({ red: 0, yellow: 1, green: 2 })[b.m.light]);
   const val = stockValue(), cost = list.reduce((s2, o) => s2 + o.p.avg * o.p.qty, 0), total = CFG.cash + val;
@@ -1833,6 +1836,7 @@ document.getElementById('cashTbl').addEventListener('change', e => { const el = 
   if (el.dataset.f === 'date') x.date = el.value || x.date; else { const v = Math.round(+el.value.replace(/[^0-9-]/g, '')); if (v) x.amt = x.type === 'adj' ? v : Math.abs(v); }
   buildPos(); saveAll(); renderAll(); hsay('입출금 기록을 고쳤습니다.'); });
 document.getElementById('cfgSlots').onchange = e => { const v = Math.round(+e.target.value); if (v >= 3 && v <= 30) { CFG.slots = v; saveAll(); renderAll(); } };
+document.getElementById('slotHint').onclick = e => { if (e.target.id !== 'slotApply') return; CFG.slots = TRADING.suggestSlots(eff().capital); saveAll(); renderAll(); };
 const q = document.getElementById('q');
 document.getElementById('addBtn').onclick = () => { const c = findCode(q.value); if (c) { addCode(c); q.value = ''; } else say('종목을 찾지 못했습니다. 이름을 더 정확히 쓰거나 목록에서 골라 주세요.'); };
 q.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('addBtn').click(); });

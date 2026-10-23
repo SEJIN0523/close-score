@@ -70,6 +70,8 @@ const TRADING = (() => {
     return { age, stage: age == null ? null : 1 + (rise >= PYRAMID[0]) + (rise >= PYRAMID[1]), cancelled, lastInside40, trimKey, trimmed,
       entry, next: null };
   }
+  // 투자금별 권장 종목 수: 한 종목 몫을 약 500만원 이상으로, 검증 범위 7~10종목 안에서 (HANDOFF 21절)
+  const suggestSlots = capital => finite(capital) && capital > 0 ? Math.max(7, Math.min(10, Math.floor(capital / 5e6))) : 10;
   function targetValue(row, pos, cfg, policy = {}) {
     let value = cfg.capital / cfg.slots;
     // Experimental sizing is opt-in; production uses equal capital allocations.
@@ -148,6 +150,6 @@ const TRADING = (() => {
     if (items.some(p => p.side === 'sell')) notes.push('매도 예정 금액은 현금에 미리 더하지 않습니다. 체결 기록 후 매수 계획을 다시 확인하세요.');
     return { items, notes, cash: startingCash - (spendable - cash) };
   }
-  return { VERSION, band, peakSeries, calendar, configure, planId, validPlan, mergePlans, progress, completedStages, phase, targetValue, manage, orders };
+  return { VERSION, band, peakSeries, calendar, configure, planId, validPlan, mergePlans, progress, completedStages, phase, suggestSlots, targetValue, manage, orders };
 })();
 if (typeof module !== 'undefined') module.exports = TRADING;

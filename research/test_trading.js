@@ -66,4 +66,6 @@ assert.equal(T.orders(input({ executionDate: '2026-10-03' })).items.length, 0);
 assert.equal(T.orders(input({ rows: { [row.k]: { ...row, old: '2026-09-28' } } })).items.length, 0);
 assert.equal(T.manage(row, 0, pos(3), cfg, '2030-01-01', { context: ctx }).k, 'calendar');
 assert.equal(Object.keys(T.mergePlans({}, { bad: { ...plan, qty: -1 }, good: plan })).length, 1);
+// 투자금별 권장 종목 수 (7~10, 한 종목 몫 약 500만원 이상)
+assert.deepEqual([0, 2e7, 3.5e7, 4e7, 4.5e7, 5e7, 3e8, NaN].map(T.suggestSlots), [10, 7, 7, 8, 9, 10, 10, 10]);
 console.log('Trading: partial/extra fills, cumulative stages, holiday calendar, cancellations, trim residuals, cash, sizing, stale data and compatible plan restore passed.');
