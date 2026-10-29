@@ -79,6 +79,31 @@ function ttmEps(fd) {
 }
 const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d).reduce((s, x) => s + x.amt, 0);
 
+// 수급 추천(옵션): 시총 상위 200 우량주 중 최근 60거래일 기관 순매도(상장주식 대비)가 큰 순 10개. 재무·기업가치는 보지 않음.
+// 매도 = 수급 순위가 상위 50% 밖. 검증과 같은 정의 (HANDOFF 22절, C:\CLAUDE\kstock\jjm5.py S1). 자료: 네이버 증권 투자자별 매매동향
+const FLOW_N = 200, FLOW_PICK = 10;
+const flowUrl = (code, biz) => `https://m.stock.naver.com/api/stock/${code}/trend?pageSize=60&bizdate=${biz}`;
+const qty = s => +String(s ?? '').replace(/[,+]/g, '');
+async function flowRecs(rows, asOf) {
+  const uni = rows.filter(r => !r.old && r.p >= 1000 && r.tv >= 10 && r.mc >= 1000 && !r.jp).sort((a, b) => b.mc - a.mc).slice(0, FLOW_N);
+  const end = asOf.replace(/-/g, ''), biz = addDays(asOf, 1).replace(/-/g, '');
+  if (!uni.length || !Array.isArray(await get(flowUrl(uni[0].k, biz)))) throw new Error('네이버 수급 응답 없음');   // 막혔으면 200번 재시도하지 않고 바로 생략
+  const got = await pool(uni, async r => {
+    const j = await get(flowUrl(r.k, biz)); if (!Array.isArray(j)) return null;
+    const d = j.filter(x => x.bizdate <= end && Number.isFinite(qty(x.organPureBuyQuant)) && Number.isFinite(qty(x.foreignerPureBuyQuant)));
+    if (d.length < 55) return null;
+    const shares = r.mc * 1e8 / r.p, sum = key => d.reduce((s, x) => s + qty(x[key]), 0);
+    return { k: r.k, o: sum('organPureBuyQuant') / shares, f: sum('foreignerPureBuyQuant') / shares, last: d[0].bizdate };
+  });
+  const ok = got.filter(Boolean);
+  if (ok.length < FLOW_N / 2) { console.warn(`수급 자료 부족: ${ok.length}/${uni.length}종목 → 수급 추천 생략`); return null; }
+  ok.sort((a, b) => a.o - b.o);                                               // 기관 순매도가 큰 순
+  const lastD = ok.map(x => x.last).sort().pop();
+  return { date: `${lastD.slice(0, 4)}-${lastD.slice(4, 6)}-${lastD.slice(6)}`, n: ok.length, recs: ok.slice(0, FLOW_PICK).map(x => x.k),
+    rk: Object.fromEntries(ok.map((x, i) => [x.k, +(100 * (i + 1) / ok.length).toFixed(1)])),
+    o: Object.fromEntries(ok.map(x => [x.k, +x.o.toFixed(5)])), f: Object.fromEntries(ok.map(x => [x.k, +x.f.toFixed(5)])) };
+}
+
 (async () => {
   const t0 = Date.now(), refund = process.argv.includes('--fund');
   let kospi;
@@ -133,7 +158,7 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
     const el = base && tv >= 10 && mc >= 1000 && c.e > 0;
     const row = { k: c.code, n: c.name, s: c.sector, d: today.d, p: today.c, ch: today.c / b[n - 1].c - 1, hi, lo, e: Math.round(c.e * 100) / 100, b: Math.round(c.bps), dv: Math.round(dv * 100) / 100,
       tv: Math.round(tv * 10) / 10, mc: Math.round(mc), eg: c.eg == null ? null : Math.round(c.eg * 1000) / 1000, sh: c.sh == null ? null : Math.round(c.sh * 1000) / 1000, dg: Math.round(dg * 1000) / 1000,
-      mom: mom == null ? null : Math.round(mom * 1000) / 1000, lg: mc > 0 ? Math.round(Math.log(mc) * 1000) / 1000 : null, base, el };
+      mom: mom == null ? null : Math.round(mom * 1000) / 1000, lg: mc > 0 ? Math.round(Math.log(mc) * 1000) / 1000 : null, base, el, ...(jumps ? { jp: 1 } : {}) };
     if (off) return row;
     // One prior-close suffix series serves both views: max(prior peaks, selected close).
     row.peaks = TRADING.peakSeries(all.slice(0, -1));
@@ -184,13 +209,15 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
   const rows = live.map(c => { const r = buildRow(c, 0); newLast[c.tk] = r; return r; }).filter(Boolean);
   ctxs.filter(c => c.old).forEach(c => rows.push({ ...c.old, old: c.old.d }));
   const { B, TS, cut, cand, recs } = rank(rows);
+  let flow = null;
+  try { console.log('수급 받는 중'); flow = await flowRecs(rows, asOf); } catch (e) { console.warn('수급 추천 생략:', e.message); }
 
 
   // 6) 기록 (종가일 때만, 최근 90일): 추천 목록·순위·추천 종목 가격 (지난 추천 성과 계산용)
   if (!hist[pdate] && pdate) hist[pdate] = { recs: P1.recs, rk: prevSnap.rk, rp: Object.fromEntries(P1.recs.map(k => [k, prevSnap.p[k]])) };
   const prevDate = Object.keys(hist).filter(d => d < asOf).sort().pop() || null, prev = prevDate ? hist[prevDate] : null;
   if (final) {
-    hist[asOf] = { recs, rk: Object.fromEntries(rows.filter(r => r.rk != null).map(r => [r.k, r.rk])), rp: Object.fromEntries(recs.map(k => [k, rows.find(r => r.k === k).p])) };
+    hist[asOf] = { recs, rk: Object.fromEntries(rows.filter(r => r.rk != null).map(r => [r.k, r.rk])), rp: Object.fromEntries(recs.map(k => [k, rows.find(r => r.k === k).p])), ...(flow ? { frecs: flow.recs } : {}) };
     Object.keys(hist).sort().slice(0, -90).forEach(d => delete hist[d]);
   }
 
@@ -204,7 +231,7 @@ const ttmDiv = (divs, d) => divs.filter(x => x.d > addDays(d, -365) && x.d <= d)
   const tradingCalendar = { sessions: [...new Set([...forecast.sessions.filter(d => d < kb[0].d || d > asOf), ...kb.map(b => b.d)])].sort(), observedThrough: asOf, forecastThrough: forecast.through, source: forecast.source };
   const rankHistory = Object.fromEntries(Object.keys(hist).filter(d => d <= asOf).sort().map(d => [d, hist[d].rk]));
   const META = { asOf, final, tradingCalendar, rankHistory, kospi: last(kb).c, kchg: last(kb).c / kb[kb.length - 2].c - 1, prevDate, prevRecs: prev ? prev.recs : null, prevRk: prev ? prev.rk : {},
-    builtAt: new Date().toISOString(), recs, cut, tsort: TS, base: B.length, eligible: cand.length, total: rows.length, failed, reused, prevSnap, recPerf,
+    builtAt: new Date().toISOString(), recs, flow, prevFlowRecs: prev?.frecs || null, cut, tsort: TS, base: B.length, eligible: cand.length, total: rows.length, failed, reused, prevSnap, recPerf,
     fundOldest: (() => { const t = fs.readdirSync(path.join(DATA, 'fund')).map(f => fs.statSync(path.join(DATA, 'fund', f)).mtimeMs); return new Date(Math.min(...t) + 9 * 3600e3).toISOString().slice(0, 10); })() };
 
   const candidate = { META, ROWS: rows }, selected = selectMarketSnapshot(candidate, savedSnapshot, latestConfirmed);
