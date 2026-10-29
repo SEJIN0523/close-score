@@ -419,6 +419,15 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 .execution-filter { display: inline-flex; gap: 3px; padding: 3px; background: var(--surface-2); border-radius: 9px; flex: none; }
 .execution-filter button { border: 0; background: transparent; min-height: 34px; border-radius: 7px; padding: 4px 10px; font-size: 11px; color: var(--muted); }
 .execution-filter button[aria-pressed=true] { background: var(--surface); color: var(--brand-ink); font-weight: 700; box-shadow: var(--shadow); }
+.acct-tag { display: inline-block; font-size: 11px; font-weight: 700; line-height: 18px; padding: 0 7px; border-radius: 6px; margin-right: 6px; vertical-align: 1px; background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--line); }
+.acct-tag.b { background: #7c4ddb; color: #fff; border-color: #7c4ddb; }
+.flow-acct { border-left: 4px solid #7c4ddb !important; }
+.flow-acct .b-row { display: grid; grid-template-columns: minmax(0,1fr) auto auto; gap: 4px 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+.flow-acct .b-row small { color: var(--muted); font-size: 11px; }
+.flow-acct .b-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; margin: 8px 0; }
+.flow-acct .b-form input, .flow-acct .b-form select { width: 100%; min-height: 36px; box-sizing: border-box; }
+.flow-acct .b-form .full { grid-column: 1 / -1; }
+.flow-acct h4 { margin: 14px 0 4px; font-size: 13px; }
 .rec-mode { display: flex; margin: 0 0 10px; }
 .rec-mode button { flex: 1; font-size: 12px; }
 .todo-card { padding: 16px; }
@@ -701,8 +710,9 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
     <div class="sum" id="tsum"></div>
     </div>
     <div class="execution-toolbar"><span id="executionSummary" aria-live="polite"></span><div class="execution-filter" role="group" aria-label="오늘 계획 필터"><button type="button" data-task-filter="all" aria-pressed="true">전체</button><button type="button" data-task-filter="pending" aria-pressed="false">남은 계획</button></div></div>
-    <details class="card todo-card" id="todayCard" open><summary>오늘 할 일 <span id="todayCount"></span></summary><div id="todoA"></div></details>
-    <details class="card todo-card" id="tomorrowCard"><summary>다음 거래일 할 일 <span id="tomorrowCount"></span></summary><div id="todoB"></div></details>
+    <details class="card todo-card" id="todayCard" open><summary><span class="acct-tag">A 기본</span>오늘 할 일 <span id="todayCount"></span></summary><div id="todoA"></div></details>
+    <details class="card todo-card" id="tomorrowCard"><summary><span class="acct-tag">A 기본</span>다음 거래일 할 일 <span id="tomorrowCount"></span></summary><div id="todoB"></div></details>
+    <details class="card todo-card flow-acct" id="flowCard" open><summary><span class="acct-tag b">B 수급</span>수급 계좌 할 일 <span id="flowCount"></span></summary><div id="todoF"></div></details>
     <details class="task-guide"><summary>계획과 체결 기록 안내</summary><p class="note">할 일은 보유 종목(보유 탭의 매매 기록)과 현금을 반영해 계산합니다. 주문은 장 마감 동시호가(15:20~15:30)에 넣고, 체결되면 '체결 기록'을 눌러 실제 가격·수량을 남기세요. 손절은 장중이 아니라 종가로 판단합니다.</p></details>
   </section>
 
@@ -723,9 +733,10 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
     <div class="sum" id="hsum" hidden></div>
     <details class="account-overview" id="acctBox"><summary id="acctBrief"></summary><div id="acct"></div></details>
     </div>
+    <details class="card flow-acct" id="bBox"><summary><span class="acct-tag b">B 수급</span>수급 계좌 <span id="bBrief"></span></summary><div id="bBody"></div></details>
     <div class="hold-actions"><button class="btn" id="manualEntry" type="button">매매 기록</button><button class="btn" id="ocrOpen" type="button">이미지 등록</button><button class="btn" id="ledgerEntry" type="button">입출금</button></div>
     <div class="msg" id="hmsg" role="status" aria-live="polite"></div>
-    <div class="hold-list-head"><span>종목 <b id="holdCount"></b></span><span>수량 · 평가 수익률</span></div>
+    <div class="hold-list-head"><span><span class="acct-tag">A 기본</span>종목 <b id="holdCount"></b></span><span>수량 · 평가 수익률</span></div>
     <div class="hold-list" id="holdList"></div>
     <details class="box compact-panel" id="holdTools"><summary>계좌·매매 기록 관리</summary><div class="tool-body">
       <details class="box" id="tradeEntry" name="hold-tools"><summary id="recFormH">매매 기록하기</summary>
@@ -958,7 +969,7 @@ details.compact-panel > summary { padding: 12px 15px; min-height: 49px; font-siz
 
 <dialog id="resetDialog" aria-labelledby="resetTitle" aria-describedby="resetDescription">
   <div class="review-head"><h2 id="resetTitle">투자 기록 초기화</h2><button class="btn sm" id="resetCancel" type="button">취소</button></div>
-  <p class="desc" id="resetDescription" style="margin-top:14px">이 기기의 매매 기록, 입출금·배당 장부, 보유·자산 추적 기록을 삭제하고 목표 종목 수를 10개로 되돌립니다. 삭제한 기록은 백업 파일로 복원할 수 있습니다.</p>
+  <p class="desc" id="resetDescription" style="margin-top:14px">이 기기의 매매 기록, 입출금·배당 장부, B 수급 계좌 기록, 보유·자산 추적 기록을 삭제하고 목표 종목 수를 10개로 되돌립니다. 삭제한 기록은 백업 파일로 복원할 수 있습니다.</p>
   <p id="resetCounts"></p>
   <button class="btn" id="resetBackup" type="button" style="width:100%">먼저 백업 파일 받기</button>
   <label class="reset-check"><input type="checkbox" id="resetWatch">관심종목도 함께 삭제</label>
@@ -1102,32 +1113,127 @@ function keyword(r) {
   c.sort((a, b) => b[0] - a[0]);
   return c.length ? c[0][1] : (jo >= 1 ? `시총 ${jo.toFixed(1)}조` : `시총 ${won(r.mc)}억`);
 }
+// B 수급 계좌: A 기본 계좌와 저장 키·현금·보유가 완전히 따로. 매수 = 수급 추천을 한 종목 몫 한 번에, 매도 = 수급 순위 상위 50% 밖, 손절 없음 (HANDOFF 22·23절)
+const FLKEY = 'close-score-flow-log', FXKEY = 'close-score-flow-cash', FSLOTS = 10, FCN = { dep: '입금', wd: '출금', adj: '조정' }, FCS = { dep: 1, wd: -1, adj: 1 };
+let FLOG = store.get(FLKEY, []).filter(x => x && BY[x.code]), FLEDGER = store.get(FXKEY, []).filter(x => x && FCN[x.type]);
+const saveB = () => store.set(FLKEY, FLOG) && store.set(FXKEY, FLEDGER);
+function acctB() {
+  const pos = {}; let real = 0;
+  FLOG.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id).forEach(l => {
+    const p = pos[l.code] || (pos[l.code] = { qty: 0, avg: 0, firstD: l.date });
+    if (l.side === 'buy') { if (!p.qty) p.firstD = l.date; p.avg = (p.avg * p.qty + l.price * l.qty) / (p.qty + l.qty); p.qty += l.qty; }
+    else { const q = Math.min(p.qty, l.qty); real += (l.price - p.avg) * q; p.qty -= q; if (!p.qty) p.avg = 0; }
+  });
+  Object.keys(pos).forEach(k => { if (pos[k].qty <= 0) delete pos[k]; });
+  const cash = FLEDGER.reduce((s, x) => s + FCS[x.type] * x.amt, 0) + FLOG.reduce((s, l) => s + (l.side === 'buy' ? -1 : 1) * l.price * l.qty, 0);
+  const prin = FLEDGER.reduce((s, x) => s + (x.type === 'dep' ? x.amt : x.type === 'wd' ? -x.amt : 0), 0);
+  const val = Object.entries(pos).reduce((s, [k, p]) => s + p.qty * BY[k].p, 0), cost = Object.values(pos).reduce((s, p) => s + p.avg * p.qty, 0);
+  const example = !FLOG.length && !FLEDGER.length, total = cash + val;
+  return { pos, cash, prin, val, total, pnl: total - prin, real, unreal: val - cost, example, capital: example ? 5e7 : Math.max(0, total) };
+}
+// 검증 엔진(jjm.sim)과 같은 순서: 매도 신호 → 빈 자리 → 수급 상위부터 한 종목 몫(총자산÷10), 같은 종가에 판 대금도 사용, 몫의 절반도 못 사면 멈춤
+function planB() {
+  const F = META.flow, B = acctB(), exec = F ? tradingContext.calendar.next(F.date) : null;
+  if (!F) return { B, items: [], exec };
+  const items = [], slot = B.capital / FSLOTS;
+  for (const [k, p] of Object.entries(B.pos)) if (F.rk[k] > 50) items.push({ side: 'sell', k, qty: p.qty, why: `수급 상위 ${Math.round(F.rk[k])}% (50% 밖)` });
+  let budget = (B.example ? B.capital : B.cash) + items.reduce((s, x) => s + x.qty * BY[x.k].p, 0), free = FSLOTS - Object.keys(B.pos).length + items.length;
+  for (const k of F.recs) {
+    if (free <= 0) break;
+    if (B.pos[k] || !BY[k]) continue;
+    const amt = Math.min(slot, budget / 1.0015); if (amt < slot * 0.5) break;
+    const qty = Math.floor(amt / BY[k].p); if (qty < 1) continue;
+    items.push({ side: 'buy', k, qty, why: `수급 상위 ${F.rk[k]}% · 한 종목 몫 ${won(slot)}원` }); budget -= qty * BY[k].p * 1.0015; free--;
+  }
+  return { B, items, exec };
+}
+function renderTodoB() {
+  const box = document.getElementById('todoF'), { B, items, exec } = planB(), F = META.flow, opened = new Set([...box.querySelectorAll('details[open]')].map(d => d.dataset.bplan));
+  if (!F) { box.innerHTML = '<p class="empty">오늘은 수급 자료(네이버 증권)를 받지 못해 B 계좌 계획을 만들지 않았습니다.</p>'; document.getElementById('flowCount').textContent = '자료 없음'; return; }
+  const when = exec || '', done = it => FLOG.some(l => l.code === it.k && l.side === it.side && l.date === when);
+  const head = `<div class="todo-h"><b>${exec ? md(exec) + ' 종가에 할 일' : '다음 거래일 종가에 할 일'}</b><span class="badge final">확정</span></div>
+    <p class="todo-when">${md(F.date)} 수급 신호 · 15:20~15:30 장 마감 동시호가에 주문 · B 계좌 총자산 ${won(B.capital)}원${B.example ? '(예시 5천만, 보유 탭 B 계좌에 입금을 기록하세요)' : ''} · 손절 없음</p>`;
+  box.innerHTML = head + (items.map(it => {
+    const r = BY[it.k], id = `${it.side}|${it.k}`, ok = done(it);
+    return `<details class="todo-item" data-bplan="${id}"${opened.has(id) ? ' open' : ''}><summary><span class="what"><span class="acct-tag b">B ${it.side === 'buy' ? '매수' : '매도'}</span><b>${esc(r.n)}</b><small>${it.why} · 현재가 ${won(r.p)}원</small></span>
+      <span class="qty"><b>${it.qty.toLocaleString()}주</b><small>${ok ? '기록됨' : `약 ${won(it.qty * r.p / 1e4)}만원`}</small></span></summary>
+      <div class="b-form"><label>체결가<input inputmode="numeric" data-bf="price" value="${Math.round(r.p)}"></label><label>수량<input inputmode="numeric" data-bf="qty" value="${it.qty}"></label>
+      <label class="full">체결일<input type="date" data-bf="date" value="${when || kstToday()}"></label>
+      <button type="button" class="btn sm full" data-brec="${it.side}|${it.k}">B 계좌에 체결 기록</button></div></details>`;
+  }).join('') || '<p class="empty">B 계좌는 할 일이 없습니다. 보유 종목은 모두 수급 상위 50% 안입니다.</p>');
+  document.getElementById('flowCount').textContent = `${items.length}건${items.filter(done).length ? ` · 기록 ${items.filter(done).length}` : ''}`;
+}
+document.getElementById('todoF').addEventListener('click', e => {
+  const b = e.target.closest('[data-brec]'); if (!b) return;
+  const [side, code] = b.dataset.brec.split('|'), wrap = b.closest('.b-form'), v = f => wrap.querySelector(`[data-bf=${f}]`).value;
+  const price = +String(v('price')).replace(/[^\d.]/g, ''), qty = Math.floor(+String(v('qty')).replace(/[^\d]/g, '')), date = v('date');
+  if (!(price > 0 && qty > 0 && date)) return toast('체결가·수량·날짜를 확인하세요.');
+  FLOG.push({ id: Date.now() + Math.random(), code, side, date, price, qty });
+  if (!saveB()) { FLOG.pop(); return toast('저장하지 못했습니다. 브라우저 저장 설정을 확인하세요.'); }
+  renderAll(); toast('B 수급 계좌에 기록했습니다.');
+});
+function renderHoldB() {
+  const B = acctB(), F = META.flow, body = document.getElementById('bBody');
+  document.getElementById('bBrief').innerHTML = B.example ? '<small>입금 기록 전</small>' : `<b>${won(B.total)}원</b> <b class="${B.pnl >= 0 ? 'up' : 'down'}">${B.pnl >= 0 ? '+' : ''}${won(B.pnl)}원</b>`;
+  const rows = Object.entries(B.pos).map(([k, p]) => { const r = BY[k], g = r.p / p.avg - 1, rk = F ? F.rk[k] : null;
+    return `<div class="b-row"><span><b>${esc(r.n)}</b><br><small>${p.qty.toLocaleString()}주 · 평균 ${won(p.avg)}원 · ${rk == null ? '수급 순위 범위 밖(보유 유지)' : `수급 상위 ${Math.round(rk)}%${rk > 50 ? ' · 매도 신호' : ''}`}</small></span><span class="${g >= 0 ? 'up' : 'down'}">${pct(g)}</span><span>${won(p.qty * r.p)}원</span></div>`; }).join('');
+  const logs = FLOG.slice().sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id).map(l => `<tr><td>${md(l.date)}</td><td>${esc(BY[l.code].n)}</td><td>${l.side === 'buy' ? '매수' : '매도'}</td><td class="num">${won(l.price)}</td><td class="num">${l.qty.toLocaleString()}</td><td><button type="button" class="lnk" data-bdel="log|${l.id}">지우기</button></td></tr>`).join('');
+  const cash = FLEDGER.slice().sort((a, b) => a.date < b.date ? 1 : -1).map(x => `<tr><td>${md(x.date)}</td><td>${FCN[x.type]}</td><td class="num">${won(x.amt)}</td><td><button type="button" class="lnk" data-bdel="cash|${x.id}">지우기</button></td></tr>`).join('');
+  body.innerHTML = `<div class="acct"><div class="big"><span>B 총자산 (현금 + 주식)</span><b>${won(B.total)}원</b> <span class="${B.pnl >= 0 ? 'up' : 'down'}" style="display:inline;font-size:14px;font-weight:700">${B.pnl >= 0 ? '+' : ''}${won(B.pnl)}원 (${B.prin ? pct(B.pnl / B.prin) : '-'})</span></div>
+      <div><span>투자원금</span><b>${won(B.prin)}원</b></div><div><span>현금</span><b>${won(B.cash)}원</b></div><div><span>주식 평가</span><b>${won(B.val)}원</b></div><div><span>보유 · 한 종목 몫</span><b>${Object.keys(B.pos).length} / ${FSLOTS}</b> <span style="display:inline">${won(B.capital / FSLOTS / 1e4)}만</span></div></div>
+    <p class="note">A 기본 계좌와 따로 계산합니다. B 계좌로 쓰는 증권 계좌의 입금·매매만 여기에 기록하세요. 매수는 할 일 탭의 B 카드, 매도는 수급 순위가 상위 50% 밖일 때입니다.</p>
+    <h4>보유 종목</h4>${rows || '<p class="empty">B 계좌 보유 종목이 없습니다.</p>'}
+    <h4>입출금</h4><div class="b-form"><select data-bc="type"><option value="dep">입금</option><option value="wd">출금</option><option value="adj">조정(±)</option></select><input inputmode="numeric" data-bc="amt" placeholder="금액(원)"><input type="date" data-bc="date" value="${kstToday()}"><button type="button" class="btn sm" data-badd="cash">입출금 기록</button></div>
+    <h4>매매 직접 기록</h4><div class="b-form"><input class="full" list="stockList" data-bt="name" placeholder="종목명 또는 코드" autocomplete="off"><select data-bt="side"><option value="buy">매수</option><option value="sell">매도</option></select><input type="date" data-bt="date" value="${kstToday()}"><input inputmode="numeric" data-bt="price" placeholder="체결가"><input inputmode="numeric" data-bt="qty" placeholder="수량"><button type="button" class="btn sm full" data-badd="log">매매 기록</button></div>
+    <details><summary>B 매매 기록 ${FLOG.length}건 · 입출금 ${FLEDGER.length}건</summary><div class="scroll-x"><table class="mini-tbl"><thead><tr><th>날짜</th><th>종목</th><th>구분</th><th class="num">가격</th><th class="num">수량</th><th></th></tr></thead><tbody>${logs || '<tr><td colspan="6">기록이 없습니다.</td></tr>'}</tbody></table></div>
+    <div class="scroll-x"><table class="mini-tbl"><thead><tr><th>날짜</th><th>종류</th><th class="num">금액</th><th></th></tr></thead><tbody>${cash || '<tr><td colspan="4">기록이 없습니다.</td></tr>'}</tbody></table></div></details>`;
+}
+document.getElementById('bBody').addEventListener('click', e => {
+  const add = e.target.closest('[data-badd]'), del = e.target.closest('[data-bdel]'), body = document.getElementById('bBody'), q = s => body.querySelector(s).value;
+  const n = s => +String(s).replace(/[^\d.-]/g, '');
+  const keep = [FLOG.slice(), FLEDGER.slice()];
+  if (add && add.dataset.badd === 'cash') {
+    const type = q('[data-bc=type]'), amt = n(q('[data-bc=amt]')), date = q('[data-bc=date]');
+    if (!(amt && date) || (type !== 'adj' && amt < 0)) return toast('금액과 날짜를 확인하세요.');
+    FLEDGER.push({ id: Date.now() + Math.random(), date, type, amt });
+  } else if (add) {
+    const code = findCode(q('[data-bt=name]')), price = n(q('[data-bt=price]')), qty = Math.floor(n(q('[data-bt=qty]'))), date = q('[data-bt=date]');
+    if (!code) return toast('종목을 찾지 못했습니다. 목록에서 골라 주세요.');
+    if (!(price > 0 && qty > 0 && date)) return toast('체결가·수량·날짜를 확인하세요.');
+    FLOG.push({ id: Date.now() + Math.random(), code, side: q('[data-bt=side]'), date, price, qty });
+  } else if (del) {
+    const [kind, id] = del.dataset.bdel.split('|');
+    if (kind === 'log') FLOG = FLOG.filter(l => String(l.id) !== id); else FLEDGER = FLEDGER.filter(x => String(x.id) !== id);
+  } else return;
+  if (!saveB()) { [FLOG, FLEDGER] = keep; return toast('저장하지 못했습니다. 브라우저 저장 설정을 확인하세요.'); }
+  renderAll(); document.getElementById('bBox').open = true; toast('B 수급 계좌를 저장했습니다.');
+});
 let recMode = store.get('close-score-recmode', 'score') === 'flow' ? 'flow' : 'score';
 // 수급 추천: 우량주(시총 상위 200) 중 60거래일 기관 순매도가 큰 순 10개, 상위 50% 밖이면 매도, 손절 없음 (update.js flowRecs)
 function renderFlowRec() {
-  const F = META.flow, slot = eff().capital / CFG.slots, free = CFG.slots - Object.keys(POS).length;
-  document.getElementById('recCriteria').textContent = '시가총액 상위 200개 우량주(주가 1,000원·20일 거래대금 10억·시총 1,000억 이상) 중 최근 60거래일 기관 순매도(상장주식 수 대비)가 큰 순서로 10개를 고릅니다. 재무·기업가치는 보지 않습니다. 매수는 다음 거래일 종가에 한 종목 몫을 한 번에, 매도는 수급 순위가 상위 50% 밖으로 밀리면 다음 거래일 종가에 합니다. 손절은 없습니다. 2017~2026 상장폐지 포함 시험(시작 시점 5개)에서 연 +18.6~25.6%, 최대 낙폭 −33~−42%로 기본 점수와 비슷했고, 둘을 반반 나눠 운용하면 5번 모두 낙폭이 줄었습니다. 우량주 밖 종목에서는 통하지 않았고, 시험 기간을 보고 정한 규칙이라 실제 성과는 더 낮을 수 있습니다. 할 일 탭은 기본 점수 규칙으로 계산합니다. 투자 권유가 아닌 참고 자료입니다.';
+  const F = META.flow, B = acctB(), BP = B.pos, slot = B.capital / FSLOTS, free = FSLOTS - Object.keys(BP).length;
+  document.getElementById('recCriteria').textContent = '시가총액 상위 200개 우량주(주가 1,000원·20일 거래대금 10억·시총 1,000억 이상) 중 최근 60거래일 기관 순매도(상장주식 수 대비)가 큰 순서로 10개를 고릅니다. 재무·기업가치는 보지 않습니다. 매수는 다음 거래일 종가에 한 종목 몫을 한 번에, 매도는 수급 순위가 상위 50% 밖으로 밀리면 다음 거래일 종가에 합니다. 손절은 없습니다. 2017~2026 상장폐지 포함 시험(시작 시점 5개)에서 연 +18.6~25.6%, 최대 낙폭 −33~−42%로 기본 점수와 비슷했고, 둘을 반반 나눠 운용하면 5번 모두 낙폭이 줄었습니다. 우량주 밖 종목에서는 통하지 않았고, 시험 기간을 보고 정한 규칙이라 실제 성과는 더 낮을 수 있습니다. 보유·빈 자리는 B 수급 계좌 기준이며, 할 일 탭의 B 카드가 같은 규칙으로 주문 수량을 계산합니다. 투자 권유가 아닌 참고 자료입니다.';
   if (!F) {
     document.getElementById('sum').innerHTML = ''; document.getElementById('dropped').textContent = '';
     document.getElementById('recDesc').textContent = `${META.asOf} · 수급 자료 없음`;
     document.getElementById('recList').innerHTML = '<p class="note">오늘은 수급 자료(네이버 증권)를 받지 못했습니다. 기본 점수 추천을 참고하세요.</p>'; return;
   }
-  const recs = F.recs.filter(k => BY[k]).map(k => BY[k]), out = Object.keys(POS).filter(k => F.rk[k] > 50), prev = META.prevFlowRecs ? new Set(META.prevFlowRecs) : null;
-  document.getElementById('sum').innerHTML = [[recs.filter(r => !POS[r.k]).length, '새로 살 후보'], [out.length, '보유 중 매도 신호'], [Math.max(0, free) + '/' + CFG.slots, '빈 자리']]
+  const recs = F.recs.filter(k => BY[k]).map(k => BY[k]), out = Object.keys(BP).filter(k => F.rk[k] > 50), prev = META.prevFlowRecs ? new Set(META.prevFlowRecs) : null;
+  document.getElementById('sum').innerHTML = [[recs.filter(r => !BP[r.k]).length, '새로 살 후보'], [out.length, 'B 보유 매도 신호'], [Math.max(0, free) + '/' + FSLOTS, 'B 빈 자리']]
     .map(([n, t]) => `<span>${t}<b>${n}</b></span>`).join('');
   document.getElementById('recDesc').textContent = `${F.date} 수급 기준 · 우량주 ${F.n}개 중 기관 순매도 순 ${recs.length}종목`;
   document.getElementById('recList').innerHTML = recs.map((r, i) => {
     const rk = F.rk[r.k], o = F.o[r.k], f = F.f[r.k];
     return `<details class="recommendation-row" name="recommendations" data-code="${r.k}"><summary aria-label="${i + 1}위 ${r.n}, ${won(r.p)}원, 수급 상위 ${rk}%. 상세 보기">
-      <span class="rec-rank">${i + 1}</span><span class="rec-stock"><b title="${esc(r.n)}">${r.n}</b><span class="rec-signal"><span class="dot" style="background:${SIG.buy[1]}"></span>${POS[r.k] ? '보유 유지' : '수급 매수'}${prev && !prev.has(r.k) ? '<span class="rec-fresh">· 신규</span>' : ''}</span></span>
+      <span class="rec-rank">${i + 1}</span><span class="rec-stock"><b title="${esc(r.n)}">${r.n}</b><span class="rec-signal"><span class="dot" style="background:${SIG.buy[1]}"></span>${BP[r.k] ? 'B 보유 유지' : '수급 매수'}${prev && !prev.has(r.k) ? '<span class="rec-fresh">· 신규</span>' : ''}</span></span>
       <span class="rec-price"><b>${won(r.p)}원</b><small class="${r.ch >= 0 ? 'up' : 'down'}">${pct(r.ch, 2)}</small></span><span class="rec-score">${Math.round(100 - rk)}</span><span class="holding-chevron" aria-hidden="true"></span>
       </summary><div class="rec-info"><div class="rec-info-heading"><b>${r.n}</b>${starBtn(r)}</div>
       <div class="rec-info-meta"><button type="button" class="code" data-copy="${r.k}" aria-label="종목코드 ${r.k} 복사">${r.k} 복사</button><span>${r.s}</span><span class="kw">기관 60일 ${pct(o, 2)}</span></div>
       <div class="rec-info-meta"><span>수급 상위 ${rk}%</span><span>외인 60일 ${pct(f, 2)}</span><span>시총 ${won(r.mc)}억</span></div>
-      <div class="act">${POS[r.k] ? '이미 보유 중 · 수급 순위가 상위 50% 안이면 계속 보유' : `한 종목 몫 ${won(slot)}원${eff().example ? '(예시 1억)' : ''} → 다음 거래일 종가에 약 <b>${Math.floor(slot / r.p).toLocaleString()}주</b>${free <= 0 ? ' · 빈 자리 없음' : ''}`}<br><span class="cap">기관·외인 60일 = 순매수 주식 수 ÷ 상장주식 수 (−는 순매도)</span></div></div></details>`;
+      <div class="act">${BP[r.k] ? 'B 계좌에서 보유 중 · 수급 순위가 상위 50% 안이면 계속 보유' : `B 계좌 한 종목 몫 ${won(slot)}원${B.example ? '(예시 5천만)' : ''} → 다음 거래일 종가에 약 <b>${Math.floor(slot / r.p).toLocaleString()}주</b>${free <= 0 ? ' · 빈 자리 없음' : ''}`}<br><span class="cap">기관·외인 60일 = 순매수 주식 수 ÷ 상장주식 수 (−는 순매도)</span></div></div></details>`;
   }).join('') || '<p class="note">오늘은 수급 추천 종목이 없습니다.</p>';
   const gone = prev ? META.prevFlowRecs.filter(k => !F.recs.includes(k) && BY[k]) : [];
-  document.getElementById('dropped').textContent = [out.length ? `보유 종목 중 수급 매도 신호(상위 50% 밖): ${out.map(k => `${BY[k].n}(상위 ${Math.round(F.rk[k])}%)`).join(', ')}` : '',
+  document.getElementById('dropped').textContent = [out.length ? `B 보유 종목 중 수급 매도 신호(상위 50% 밖): ${out.map(k => `${BY[k].n}(상위 ${Math.round(F.rk[k])}%)`).join(', ')}` : '',
     gone.length ? `지난 수급 추천에서 빠진 종목: ${gone.map(k => `${BY[k].n}(상위 ${F.rk[k] != null ? Math.round(F.rk[k]) + '%' : '범위 밖'})`).join(', ')}` : ''].filter(Boolean).join(' · ');
 }
 document.querySelectorAll('[data-rec-mode]').forEach(button => { button.onclick = () => {
@@ -1258,7 +1364,7 @@ function renderHold() {
   const A = acctNums();
   document.getElementById('hsum').innerHTML = '';
   document.getElementById('holdCount').textContent = `${list.length}개`;
-  document.getElementById('acctBrief').innerHTML = `<span class="account-primary"><small>총자산</small><b>${won(A.total)}원</b></span><span class="account-secondary"><b class="${A.pnl >= 0 ? 'up' : 'down'}">손익 ${A.pnl >= 0 ? '+' : ''}${won(A.pnl)}원</b><small>현금 ${won(CFG.cash)}원</small></span><span class="holding-chevron" aria-hidden="true"></span>`;
+  document.getElementById('acctBrief').innerHTML = `<span class="account-primary"><small><span class="acct-tag">A 기본</span>총자산</small><b>${won(A.total)}원</b></span><span class="account-secondary"><b class="${A.pnl >= 0 ? 'up' : 'down'}">손익 ${A.pnl >= 0 ? '+' : ''}${won(A.pnl)}원</b><small>현금 ${won(CFG.cash)}원</small></span><span class="holding-chevron" aria-hidden="true"></span>`;
   document.getElementById('acct').innerHTML = `<div class="acct">
       <div class="big"><span>총자산 (현금 + 주식)</span><b>${won(A.total)}원</b> <span class="${A.pnl >= 0 ? 'up' : 'down'}" style="display:inline;font-size:14px;font-weight:700">${A.pnl >= 0 ? '+' : ''}${won(A.pnl)}원 (${A.prin ? pct(A.pnl / A.prin) : '-'})</span></div>
       <div><span>투자원금 (입금 − 출금)</span><b>${won(A.prin)}원</b></div>
@@ -1435,8 +1541,8 @@ function renderTodo() {
   const val = stockValue(), total = CFG.cash + val, list = Object.entries(POS).map(([k, p]) => SCORE.manage(BY[k], evalRow(BY[k], null).b, p, eff(), META.asOf));
   const red = list.filter(m => m.light === 'red').length, yel = list.filter(m => m.light === 'yellow').length;
   document.getElementById('tsum').innerHTML = [
-    [won(total) + '원', (() => { const A = acctNums(); return A.prin ? `총자산 · <span class="${A.pnl >= 0 ? 'up' : 'down'}">${pct(A.pnl / A.prin)}</span>` : '총자산'; })(), 'var(--c1)'], [won(CFG.cash) + '원', '현금', 'var(--c3)'],
-    [`${Object.keys(POS).length} / ${CFG.slots}`, '보유 종목', 'var(--c4)'], [`<span class="lt3"><i style="background:var(--lt-r)"></i>${red}<i style="background:var(--lt-y)"></i>${yel}<i style="background:var(--lt-g)"></i>${list.length - red - yel}</span>`, '보유 신호등', 'var(--neutral)'],
+    [won(total) + '원', (() => { const A = acctNums(); return A.prin ? `A 총자산 · <span class="${A.pnl >= 0 ? 'up' : 'down'}">${pct(A.pnl / A.prin)}</span>` : 'A 총자산'; })(), 'var(--c1)'], [won(CFG.cash) + '원', 'A 현금', 'var(--c3)'],
+    [`${Object.keys(POS).length} / ${CFG.slots}`, 'A 보유 종목', 'var(--c4)'], [`<span class="lt3"><i style="background:var(--lt-r)"></i>${red}<i style="background:var(--lt-y)"></i>${yel}<i style="background:var(--lt-g)"></i>${list.length - red - yel}</span>`, '보유 신호등', 'var(--neutral)'],
   ].map(([n, t, c2]) => `<div><b>${n}</b><span class="sig" style="font-weight:400"><span class="dot" style="background:${c2}"></span>${t}</span></div>`).join('');
 }
 
@@ -1575,7 +1681,7 @@ function renderHead() {
   document.getElementById('asof').innerHTML = `${md(META.asOf)} <span class="badge ${META.final ? 'final' : 'temp'}">${META.final ? '종가' : '장중'}</span>${META.refreshWarning ? ' <span class="badge temp">마지막 정상 시세</span>' : ''} 코스피 ${META.kospi.toLocaleString('ko-KR', { maximumFractionDigits: 0 })} <span class="${META.kchg >= 0 ? 'up' : 'down'}">${pct(META.kchg, 2)}</span>`;
   document.getElementById('foot').innerHTML = `시세: Yahoo Finance 일봉 (${META.asOf})${META.failed ? ` · 못 받은 ${META.failed}종목` : ''}. 재무: Yahoo Finance (가장 오래된 파일 ${META.fundOldest}). AI·공시 해석 없이 데이터만으로 계산합니다. 상승은 빨강, 하락은 파랑.<br>※ 투자 권유가 아닌 참고 자료입니다. 점수와 규칙은 과거 데이터로 만든 것이라 앞으로도 맞는다는 보장이 없습니다.`;
 }
-function renderAll() { buildPos(); renderTodo(); buildPos(); renderRec(); renderHold(); renderWatch(); renderStats(); globalThis.BLOSSOM_BUDDY?.update({ pnl: acctNums().pnl, records: LOG.length + LEDGER.length, pending: document.querySelectorAll('#todoA .ti[data-actionable=true]').length }); }
+function renderAll() { buildPos(); renderTodo(); buildPos(); renderRec(); renderHold(); renderTodoB(); renderHoldB(); renderWatch(); renderStats(); globalThis.BLOSSOM_BUDDY?.update({ pnl: acctNums().pnl, records: LOG.length + LEDGER.length, pending: document.querySelectorAll('#todoA .ti[data-actionable=true]').length }); }
 
 let taskFilter = 'all';
 function applyTaskFilter() {
@@ -1879,7 +1985,7 @@ document.getElementById('addBtn').onclick = () => { const c = findCode(q.value);
 q.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('addBtn').click(); });
 document.getElementById('stockList').innerHTML = ROWS.map(r => `<option value="${r.n} ${r.k}"></option>`).join('');
 document.getElementById('expBtn').onclick = () => {
-  const blob = new Blob([JSON.stringify({ app: 'close-score', saved: META.asOf, watch, log: LOG, cash: LEDGER, cfg: CFG, track: TRACK, equity: EQ }, null, 1)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ app: 'close-score', saved: META.asOf, watch, log: LOG, cash: LEDGER, cfg: CFG, track: TRACK, equity: EQ, flowLog: FLOG, flowCash: FLEDGER }, null, 1)], { type: 'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `종가스코어링_백업_${META.asOf}.json`; a.click(); URL.revokeObjectURL(a.href);
   say('백업 파일을 내려받았습니다.');
 };
@@ -1891,7 +1997,9 @@ document.getElementById('impFile').onchange = async e => {
     let added = 0; list.forEach(w => { if (!inWatch(w.code)) { watch.push({ code: w.code, added: w.added || META.asOf }); added++; } });
     let addedLog = 0; if (Array.isArray(j.log)) j.log.filter(l => l && BY[l.code] && !LOG.some(x2 => x2.id === l.id)).forEach(l => { LOG.push(l); addedLog++; });
     if (Array.isArray(j.cash)) j.cash.filter(x => x && CNAME[x.type] && !LEDGER.some(y => y.id === x.id)).forEach(x => LEDGER.push(x)); if (j.cfg) CFG = { ...CFG, slots: j.cfg.slots || CFG.slots, planBook: TRADING.mergePlans(CFG.planBook, j.cfg.planBook) }; buildPos(); if (j.track) TRACK = { ...j.track, ...TRACK }; if (j.equity) EQ = { ...j.equity, ...EQ };
-    saveAll(); renderAll(); say(`관심종목 ${added}개, 매매 기록 ${addedLog}건을 불러왔습니다.`);
+    let addedB = 0; if (Array.isArray(j.flowLog)) j.flowLog.filter(l => l && BY[l.code] && !FLOG.some(x2 => x2.id === l.id)).forEach(l => { FLOG.push(l); addedB++; });
+    if (Array.isArray(j.flowCash)) j.flowCash.filter(x => x && FCN[x.type] && !FLEDGER.some(y => y.id === x.id)).forEach(x => FLEDGER.push(x)); saveB();
+    saveAll(); renderAll(); say(`관심종목 ${added}개, 매매 기록 ${addedLog}건, B 수급 계좌 매매 ${addedB}건을 불러왔습니다.`);
   } catch (er) { say('파일을 읽지 못했습니다. 백업으로 만든 파일인지 확인하세요.'); }
   e.target.value = '';
 };
@@ -1899,7 +2007,7 @@ document.getElementById('impFile').onchange = async e => {
 // 초기화는 이 앱의 투자 기록 키만 지운다. 취소·백업·확인 입력에는 쓰기를 하지 않는다.
 const resetDlg = document.getElementById('resetDialog');
 document.getElementById('resetOpen').onclick = () => {
-  document.getElementById('resetCounts').textContent = `매매 기록 ${LOG.length}건 · 입출금/배당 ${LEDGER.length}건 · 관심종목 ${watch.length}개`;
+  document.getElementById('resetCounts').textContent = `매매 기록 ${LOG.length}건 · 입출금/배당 ${LEDGER.length}건 · B 수급 계좌 ${FLOG.length + FLEDGER.length}건 · 관심종목 ${watch.length}개`;
   document.getElementById('resetWatch').checked = false;
   document.getElementById('resetPhrase').value = '';
   document.getElementById('resetCommit').disabled = true;
@@ -1912,7 +2020,7 @@ document.getElementById('resetPhrase').oninput = e => { document.getElementById(
 document.getElementById('resetCommit').onclick = () => {
   if (document.getElementById('resetPhrase').value.trim() !== '초기화') return;
   const clearWatch = document.getElementById('resetWatch').checked;
-  const next = { [LKEY]: [], [XKEY]: [], [CKEY]: { cash: 0, slots: 10 }, [TKEY]: {}, [EKEY]: {} };
+  const next = { [LKEY]: [], [XKEY]: [], [CKEY]: { cash: 0, slots: 10 }, [TKEY]: {}, [EKEY]: {}, [FLKEY]: [], [FXKEY]: [] };
   if (clearWatch) next[WKEY] = [];
   let previous;
   try {
@@ -1923,7 +2031,7 @@ document.getElementById('resetCommit').onclick = () => {
     document.getElementById('resetMsg').textContent = '초기화하지 못했습니다. 브라우저의 저장 설정을 확인하고 다시 시도하세요.';
     return;
   }
-  LOG = []; LEDGER = []; CFG = { cash: 0, slots: 10 }; TRACK = {}; EQ = {}; planSaveError = false;
+  LOG = []; LEDGER = []; CFG = { cash: 0, slots: 10 }; TRACK = {}; EQ = {}; FLOG = []; FLEDGER = []; planSaveError = false;
   if (clearWatch) watch = [];
   cancelOcr();
   ['fName', 'fPrice', 'fQty', 'cAmt', 'cMemo', 'cfgCash'].forEach(id => { document.getElementById(id).value = ''; });
